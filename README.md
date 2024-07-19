@@ -13,9 +13,9 @@ Ce n'est pas juste un projet stylé parce que le Rust c'est hype, qu'il y a un m
 ## Pourquoi
 Les exercices de code sont au coeur de l'apprentissage d'un language de programmation, cependant avoir des exercices avec des petits programmes ou fonctions à implémenter ne garantit pas que l'expérience de pratique sera efficiente. Selon la pratique délibérée, l'apprentissage profond passe par une boucle de feedback la plus courte possible, or l'expérience actuelle est loin d'être fluide et efficace.
 
-Prenons l'exemple d'un exercice un *petit programme en C qui demande le prénom et l'âge* et affiche une phrase incluant ces 2 valeurs. L'exo fourni dans un PDF, inclut une consigne, un bout de code de départ et un exemple d'exécution, ainsi qu'un code de solution sur la page suivante.  
+Prenons l'exemple d'un exercice un *petit programme en C qui demande le prénom, nom et l'âge* et affiche une phrase incluant ces 2 valeurs. L'exo fourni dans un PDF, inclut une consigne, un bout de code de départ et un exemple d'exécution, ainsi qu'un code de solution sur la page suivante.  
 Pour résoudre l'exercice, une fois la consigne lue, nous allons ouvrir un IDE, créer un fichier `main.c` manuellement, copier-coller le code de départ, lire le code existant et compléter les parties à développer.  
-Une fois terminé, passons à la compilation en ouvrant un terminal dans l'IDE en tapant `gcc main main.c & main`, euh zut c'était `gcc -o main main.c && ./main`, on rentre prénom et age, puis comparons l'output manuellement pour voir si c'est bien le résultat attendu, réouvrons la consigne et non il manque l'affichage de l'âge! Revenons au code, on ajoute l'âge et on relance le build et l'exécution, on rentre prénom et âge à nouveau. Est-ce que l'output est bon cette fois ? Vérifions maintenant notre code avec la solution. Okay, on aurait pu utiliser `printf` au lieu de 2 fois `puts()` pour afficher le nom complet. Passons à l'exo suivant, cherchons sa consigne, la voilà, on recommence le cycle,...
+Une fois terminé, passons à la compilation en ouvrant un terminal dans l'IDE en tapant `gcc main main.c & main`, euh zut c'était `gcc -o main main.c && ./main`, on rentre prénom, nom et age, puis comparons l'output manuellement pour voir si c'est bien le résultat attendu, réouvrons la consigne et non il manque l'affichage de l'âge! Revenons au code, on ajoute l'âge et on relance le build et l'exécution, on rentre prénom, nom et âge à nouveau. Est-ce que l'output est bon cette fois ? Vérifions maintenant notre code avec la solution. Okay, on aurait pu utiliser `printf` au lieu de 2 fois `puts()` pour afficher le nom complet. Passons à l'exo suivant, cherchons sa consigne, la voilà, on recommence le cycle,...
 
 Tous ces petites étapes supplémentaires autour de la rédaction du code semblent insignifiantes à première vue mais leur cumul résulte en une friction générale importante. En plus, il n'y aura que peu d'exécutions manuels c'est-à-dire très peu d'occasions de connaître la progression et d'ajuster son code au fur et à mesure, en plus d'une petite charge mentale pour compiler et lancer à la main.
 
@@ -58,6 +58,8 @@ Comparer l'output console d'un exo soit avec un bout de texte définie, ou si la
 Pareil mais avec la possibilité d'injecter une string d'un coup ou par morceau (avec des délais d'attente) pour simuler des entrées utilisateurs.
 - **External command output**  
 Parfois l'output utile à comparer n'est pas celui du programme mais celui d'une commande externe. Par ex. si un programme doit créer 3 fichiers .txt, le critère de vérification pourrait être que l'output de `cat *.txt` soit le même qu'après avoir lancé le programme solution dans un autre dossier.
+- **Assertions primitives sur le code**  
+Pour vérifier que l'étudiant a ou n'a pas utilisé certaines fonctions ou mot-clés, il serait possible d'écrire une expression du type `not contains for` pour interdire le fait d'utiliser le mot clé `for` dans un exercice de récursivité qui pourrait aussi se résoudre avec un boucle. Si on veut entrainer la manipulation de string en C++ et s'assurer que la méthode `replace` soit utilisé au lieu d'un algorithme fait main, en précisant en plus un message d'erreur spécifique, cela donnerait `contains .replace "Vous devez utiliser la méthode replace !"`.
 - **Test runner**  
 Supporter les tests runner existants, ici le plus utilisé pour le C++: GoogleTest, en lançant ces tests runner en arrière plan, en générant un export des résultats et de les afficher dans PLX
 
@@ -80,6 +82,7 @@ Dans l'ordre de priorité. Le support du Java étant la dernière priorité et s
 1. Implémenter un mode watch solide pour lancer build+run automatiquement
 1. Support des tests sur l'output simple
 1. Support de GoogleTest
+1. Support des assertions primitives sur le code
 1. Support du C
 1. Support du Java
 
@@ -92,6 +95,38 @@ Il reste tout autant de considérations techniques: comment compiler facilement 
 
 **Equipe**  
 Je souhaiterai travailler avec une équipe de 5 personnes motivées par cette vision de cette expérience PLX, si possible avec des bases de Rust ou l'envie d'apprendre/d'expérimenter cet été. Le but est aussi de faire des review de codes pour chaque PR et d'avoir des suite de tests, pour simplifier la maintenance à long terme et faciliter le développement bouillonnant sur 3 semaines.
+
+## Usage
+**En tant qu'étudiant**  
+PLX se lance dans le terminal, sans option pour ouvrir la TUI:
+```sh
+plx
+```
+
+Pour accéder à l'aide, incluant notamment la liste des raccourcis, il est possible d'utiliser l'option `-h` ou `--help`
+```sh
+plx -h
+```
+
+Pour afficher les informations de versions, notamment sur les versions minimales des dépendances installées séparement (comme xmake), il est possible d'utiliser l'option `-v` ou `--version`.
+```sh
+plx -v
+```
+
+Pour voir toute la hiéarchie des exos et leur états (pas commencé, commencé ou terminé), cette commande n'ouvre pas la TUI.
+```sh
+plx tree
+```
+
+**En tant qu'enseignant**  
+Afin de faciliter la vérification régulière que tous les exos sont complets au fur et à mesure des vérifications, une commande de check serait disponible
+```sh
+plx check
+```
+Cette vérification incluerait:
+1. Qu'il y ait au moins un test qui ne passe pas dans l'exo de départ
+1. Que chaque exo ait une solution associée
+1. Que chaque solution compile et passe bien tous ses tests
 
 ## Usage à la HEIG-VD
 En considérant le nombre important de cours qui propose déjà actuellement des exercices en C++ (PRG1, ASD, PCO), C (PRG2, SYE), Java (POO, DAI, POA), l'impact de cet outil et cette nouvelle expérience pourrait être assez large si les enseignants sont motivés à l'adopter.  
