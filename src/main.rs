@@ -1,3 +1,4 @@
 fn main() {
-    println!("Hello, world!");
+    println!("PLX - Practice programming exos in a delightful Learning eXperience");
+    println!("In development...");
 }
