@@ -4,8 +4,9 @@ description = "Practice programming exos in a delightful Learning eXperience"
 homepage = "https://github.com/samuelroland/plx"
 repository = "https://github.com/samuelroland/plx"
 license-file = "LICENSE"
-readme = "README.short.md"
+readme = false
 version = "0.1.0"
 edition = "2021"
+exclude = ["*.md"]
 
 [dependencies]
