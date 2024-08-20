@@ -38,10 +38,11 @@ impl Chapitre {
 }
 fn main() -> Result<()> {
     let mut chapitres = vec![
-        Chapitre::new("Chapitre 1".to_string()),
-        Chapitre::new("Chapitre 2".to_string()),
-        Chapitre::new("Chapitre 3".to_string()),
+        Chapitre::new("✅Chapitre 1".to_string()),
+        Chapitre::new("\u{2728}Chapitre 2".to_string()),
+        Chapitre::new("\u{231b}Chapitre 3".to_string()),
     ];
+
     let mut exercices = Vec::new();
 
     for (index, _) in chapitres.iter_mut().enumerate() {
