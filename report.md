@@ -6,6 +6,12 @@
 1. Install the Rust toolchain via `rustup` on [rustup.rs](https://rustup.rs/)
 1. Install xmake on [xmake.io](https://xmake.io/#/guide/installation)
 1. Clone the repository `git clone git@github.com:plx-pdg/plx.git`
+1. We need to define how exos files are edited, for this we choose the standard `$EDITOR` environment variable
+  1. You can choose any command line editor like `nano, vim, nvim` or others, but GUI IDE also works `code, codium, idea`, as a replacement of `<ide>` below.
+  1. On Mac and Linux you should change your shell configuration (`~/.bashrc` for ex.) with a line like `export EDITOR=<ide>`
+  1. On Windows `setx /m EDITOR <ide>` (check it worked you can run `echo %EDITOR%` in a new terminal)
+  1. In case it doesn't work, make sure to reload your shell
+  1. When you enter an exo your $EDITOR will automatically open the correct file
 
 ### Build
 ```sh 
