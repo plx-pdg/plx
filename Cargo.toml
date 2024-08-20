@@ -10,3 +10,4 @@ edition = "2021"
 exclude = ["*.md"]
 
 [dependencies]
+ratatui = "0.28.0"
