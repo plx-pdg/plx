@@ -1,0 +1,49 @@
+name: Release On Tag
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release-on-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get the current version
+        id: get_version
+        run: |
+          VERSION=$(cat Cargo.toml | grep version | grep -o -P "\d+\.\d+\.\d+")
+
+      - name: Get Changelog line
+        run: |
+          CHANGELOG_HEADER=$(cat CHANGELOG.md | grep "\[${{env.VERSION}}\]" | sed s/#//g | sed -E "s/\(.*\)//g" | sed "s/\ \[//g" | sed "s/\]//g" | sed "s/\ /-/g" | sed "s/\.//g")
+
+      - name: Debug Info
+        run: |
+          echo "Version: ${{ env.VERSION }}"
+          echo "Changelog Header: ${{ env.CHANGELOG_HEADER }}"
+
+      
+      - name: Check If Changelog Header is valid
+        if: ${{ env.CHANGELOG_HEADER == '' }}
+        run: exit 1
+
+      - name: Create GitHub Release
+        if: ${{ env.CHANGELOG_HEADER != '' }}
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.VERSION }}
+          release_name: v${{ env.VERSION }}
+          draft: false
+          body: See changelog for this version [here](CHANGELOG.md#v${{env.VERSION}})
+          prerelease: false 
