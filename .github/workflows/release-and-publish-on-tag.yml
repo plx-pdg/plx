@@ -36,7 +36,7 @@ jobs:
         run: |
           git tag ${{env.VERSION}}
           git push origin ${{env.VERSION}}
-          echo "tag_created='true'" >> $GITHUB_OUTPUT
+          echo "tag_created=true" >> $GITHUB_OUTPUT
 
   release:
     needs: tag
