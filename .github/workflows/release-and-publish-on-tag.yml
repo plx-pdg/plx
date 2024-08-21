@@ -1,15 +1,44 @@
-name: Release and Publish on Tag
+name: Tag, Release and Publish 
 
 on:
   push:
-    tags:
-      - "v*"
+    branches: ["main"]
 
 permissions:
   contents: write
 
 jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get latest tag
+        id: get_latest_tag
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0)
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+      - name: Get the current version
+        id: get_version
+        run: |
+          VERSION=v$(cat Cargo.toml | grep version | grep -o -P "\d+\.\d+\.\d+")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Create tag
+        if: ${{env.VERSION != env.LATEST_TAG}}
+        id: create_tag
+        run: |
+          git tag ${{env.VERSION}}
+          git push origin ${{env.VERSION}}
+          echo "tag_created='true'" >> $GITHUB_OUTPUT
+
   release:
+    needs: tag
+    if: needs.tag.outputs.tag_created == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
@@ -52,6 +81,9 @@ jobs:
           prerelease: false 
 
   publish:
+    needs: tag
+    if: needs.tag.outputs.tag_created == 'true'
+
     # Based on: https://users.rust-lang.org/t/does-anyone-use-github-actions-to-run-cargo-publish/92374/5
     name: Publish to crates.io
 
