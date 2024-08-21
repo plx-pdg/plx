@@ -33,6 +33,6 @@ jobs:
         if: ${{env.VERSION != env.LATEST_TAG}}
         id: tag
         run: |
-          git tag ${{VERSION}}
-          git push origin ${{VERSION}}
+          git tag ${{env.VERSION}}
+          git push origin ${{env.VERSION}}
 
