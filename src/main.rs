@@ -15,10 +15,9 @@
 
 #![allow(clippy::enum_glob_use, clippy::wildcard_imports)]
 
-use core::{Core, Key};
+use core::{Core, Key, UIState};
 use std::{
     error::Error,
-    fmt::write,
     io::{self, stdout},
 };
 
@@ -38,6 +37,9 @@ use ratatui::{
     widgets::*,
 };
 
+const BACKGROUND_COLOR: Color = tailwind::BLACK;
+const SELECTED_BLOCK_HEADER_COLOR: Color = tailwind::BLUE.c500;
+const UNSELECTED_BLOCK_HEADER_COLOR: Color = tailwind::BLACK;
 const TODO_HEADER_BG: Color = tailwind::BLUE.c950;
 const NORMAL_ROW_COLOR: Color = tailwind::SLATE.c950;
 const ALT_ROW_COLOR: Color = tailwind::SLATE.c900;
@@ -148,36 +150,90 @@ impl Ui {
 
 impl Widget for &mut Ui {
     fn render(self, area: Rect, buf: &mut Buffer) {
+        let bg_block = Block::new().borders(Borders::NONE).bg(BACKGROUND_COLOR);
+        bg_block.render(area, buf);
+
+        match self.core.get_state() {
+            UIState::Starting => {
+                self.render_home_page(area, buf);
+            }
+            UIState::SelectingSubject(_) | UIState::SelectingExercise(_, _) => {
+                let vertical = Layout::vertical([
+                    Constraint::Length(2),
+                    Constraint::Min(0),
+                    Constraint::Length(2),
+                ]);
+                let [header_area, rest_area, footer_area] = vertical.areas(area);
+
+                let horizontal =
+                    Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)]);
+
+                let [left_item_area, right_item_area] = horizontal.areas(rest_area);
+                render_title(header_area, buf);
+                self.render_subjects(left_item_area, buf);
+                self.render_exercises(right_item_area, buf);
+                // self.render_info(lower_item_list_area, buf);
+                render_footer(footer_area, buf);
+            }
+            UIState::Quit => return,
+        }
         // Create a space for header, todo list and the footer.
-        let vertical = Layout::vertical([
-            Constraint::Length(2),
-            Constraint::Min(0),
-            Constraint::Length(2),
-        ]);
-        let [header_area, rest_area, footer_area] = vertical.areas(area);
 
         // Create two chunks with equal vertical screen space. One for the list and the other for
         // the info block.
-        let horizontal =
-            Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)]);
-
-        let [left_item_area, right_item_area] = horizontal.areas(rest_area);
-
-        render_title(header_area, buf);
-        self.render_subjects(left_item_area, buf);
-        self.render_exercises(right_item_area, buf);
-        // self.render_info(lower_item_list_area, buf);
-        render_footer(footer_area, buf);
     }
 }
 
 impl Ui {
+    fn render_home_page(&self, area: Rect, buf: &mut Buffer) {
+        let vertical = Layout::vertical([
+            Constraint::Percentage(80),
+            Constraint::Min(1),
+            Constraint::Min(1),
+            Constraint::Min(1),
+        ]);
+
+        let [title_area, resume_command_area, list_command_area, help_command_area] =
+            vertical.areas(area);
+
+        Paragraph::new("PLX")
+            .bold()
+            .centered()
+            .blue()
+            .on_black()
+            .render(title_area, buf);
+
+        Paragraph::new("Press R to Resume where you left off")
+            .bold()
+            .centered()
+            .white()
+            .on_black()
+            .render(resume_command_area, buf);
+
+        Paragraph::new("Press L to List the available exercises")
+            .bold()
+            .centered()
+            .white()
+            .on_black()
+            .render(list_command_area, buf);
+
+        Paragraph::new("Press ? to show help")
+            .bold()
+            .centered()
+            .white()
+            .on_black()
+            .render(help_command_area, buf);
+    }
     fn render_exercises(&mut self, area: Rect, buf: &mut Buffer) {
         // We create two blocks, one is for the header (outer) and the other is for list (inner).
-        let outer_block = Block::new()
-            .borders(Borders::NONE)
-            .fg(TEXT_COLOR)
-            .bg(TODO_HEADER_BG);
+        let outer_block =
+            Block::new()
+                .borders(Borders::NONE)
+                .fg(TEXT_COLOR)
+                .bg(match self.core.get_state() {
+                    UIState::SelectingExercise(_, _) => SELECTED_BLOCK_HEADER_COLOR,
+                    _ => UNSELECTED_BLOCK_HEADER_COLOR,
+                });
 
         // We get the inner area from outer_block. We'll use this area later to render the table.
         let outer_area = area;
@@ -201,7 +257,10 @@ impl Ui {
                 .title_alignment(Alignment::Center)
                 .title(format!("{}", items.len()))
                 .fg(TEXT_COLOR)
-                .bg(NORMAL_ROW_COLOR);
+                .bg(match self.core.get_state() {
+                    UIState::SelectingExercise(_, _) => SELECTED_BLOCK_HEADER_COLOR,
+                    _ => UNSELECTED_BLOCK_HEADER_COLOR,
+                });
 
             // Create a List from all list items and highlight the currently selected one
             let items = List::new(items)
@@ -218,16 +277,20 @@ impl Ui {
             // We can now render the item list
             // (look careful we are using StatefulWidget's render.)
             // ratatui::widgets::StatefulWidget::render as stateful_render
-            Widget::render(items, inner_area, buf);
+            let mut state = ListState::default().with_selected(Some(current_index));
+            StatefulWidget::render(items, inner_area, buf, &mut state);
         }
     }
     fn render_subjects(&mut self, area: Rect, buf: &mut Buffer) {
         // We create two blocks, one is for the header (outer) and the other is for list (inner).
-        let outer_block = Block::new()
-            .borders(Borders::NONE)
-            .fg(TEXT_COLOR)
-            .bg(TODO_HEADER_BG);
-
+        let outer_block =
+            Block::new()
+                .borders(Borders::NONE)
+                .fg(TEXT_COLOR)
+                .bg(match self.core.get_state() {
+                    UIState::SelectingSubject(_) => SELECTED_BLOCK_HEADER_COLOR,
+                    _ => UNSELECTED_BLOCK_HEADER_COLOR,
+                });
         // We get the inner area from outer_block. We'll use this area later to render the table.
         let outer_area = area;
         let inner_area = outer_block.inner(outer_area);
@@ -249,7 +312,10 @@ impl Ui {
             .title_alignment(Alignment::Center)
             .title(format!("{} / {}", current_index, items.len()))
             .fg(TEXT_COLOR)
-            .bg(NORMAL_ROW_COLOR);
+            .bg(match self.core.get_state() {
+                UIState::SelectingSubject(_) => SELECTED_BLOCK_HEADER_COLOR,
+                _ => UNSELECTED_BLOCK_HEADER_COLOR,
+            });
 
         // Create a List from all list items and highlight the currently selected one
         let items = List::new(items)
@@ -266,12 +332,12 @@ impl Ui {
         // We can now render the item list
         // (look careful we are using StatefulWidget's render.)
         // ratatui::widgets::StatefulWidget::render as stateful_render
-        Widget::render(items, inner_area, buf);
+        let mut state = ListState::default().with_selected(Some(current_index));
+        StatefulWidget::render(items, inner_area, buf, &mut state);
     }
 
     fn render_info(&self, area: Rect, buf: &mut Buffer) {
         // We get the info depending on the item's state.
-
         let info = if let Some(current_exercise) = self.core.get_current_exercise() {
             current_exercise.prompt.clone()
         } else {
@@ -313,8 +379,10 @@ fn render_title(area: Rect, buf: &mut Buffer) {
         .bold()
         .left_aligned()
         .render(area, buf);
-
-    Paragraph::new("5").bold().left_aligned().render(area, buf);
+    Paragraph::new("50%")
+        .bold()
+        .right_aligned()
+        .render(area, buf)
 }
 
 fn render_footer(area: Rect, buf: &mut Buffer) {

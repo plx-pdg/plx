@@ -1,14 +1,7 @@
-use crate::core::{Core, Key};
+use crate::core::{Core, Key, UIState};
 
-#[derive(PartialEq, Eq)]
-enum PlxStateType {
-    Starting,
-    SelectingSubject(usize),
-    SelectingExercise(usize, usize),
-    Quit,
-}
 struct PlxState {
-    state_type: PlxStateType,
+    ui_state: UIState,
 }
 
 #[derive(Clone)]
@@ -47,12 +40,12 @@ impl PlxExercise {
 impl PlxState {
     fn new() -> Self {
         Self {
-            state_type: PlxStateType::Starting,
+            ui_state: UIState::Starting,
         }
     }
-    fn new_type(&self, new_type: PlxStateType) -> Self {
+    fn new_type(&self, new_type: UIState) -> Self {
         Self {
-            state_type: new_type,
+            ui_state: new_type,
             ..*self
         }
     }
@@ -72,51 +65,55 @@ impl PlxCore {
             Key::L => self.on_l(),
             Key::Q => self.on_q(),
             Key::H => self.on_h(),
-            Key::Enter => todo!(),
+            Key::Enter => self.on_enter(),
+        }
+    }
+    fn on_enter(&mut self) {
+        match self.state.ui_state {
+            UIState::Starting => self.state = self.state.new_type(UIState::SelectingSubject(0)),
+            UIState::Quit => (),
+            UIState::SelectingSubject(index) => {
+                self.state = self.state.new_type(UIState::SelectingExercise(index, 0))
+            }
+            UIState::SelectingExercise(_subject_index, _exercice_index) => (),
         }
     }
     fn on_h(&mut self) {
-        match self.state.state_type {
-            PlxStateType::Starting => (),
-            PlxStateType::Quit => (),
-            PlxStateType::SelectingSubject(_index) => {
-                self.state = self.state.new_type(PlxStateType::Starting)
+        match self.state.ui_state {
+            UIState::Starting => (),
+            UIState::Quit => (),
+            UIState::SelectingSubject(_index) => {
+                self.state = self.state.new_type(UIState::Starting)
             }
-            PlxStateType::SelectingExercise(subject_index, _exercice_index) => {
+            UIState::SelectingExercise(subject_index, _exercice_index) => {
                 self.state = self
                     .state
-                    .new_type(PlxStateType::SelectingSubject(subject_index))
+                    .new_type(UIState::SelectingSubject(subject_index))
             }
         }
     }
     fn on_l(&mut self) {
-        match self.state.state_type {
-            PlxStateType::Starting => {
-                self.state = self.state.new_type(PlxStateType::SelectingSubject(0))
+        match self.state.ui_state {
+            UIState::Starting => self.state = self.state.new_type(UIState::SelectingSubject(0)),
+            UIState::Quit => (),
+            UIState::SelectingSubject(index) => {
+                self.state = self.state.new_type(UIState::SelectingExercise(index, 0))
             }
-            PlxStateType::Quit => (),
-            PlxStateType::SelectingSubject(index) => {
-                self.state = self
-                    .state
-                    .new_type(PlxStateType::SelectingExercise(index, 0))
-            }
-            PlxStateType::SelectingExercise(_subject_index, _exercice_index) => (),
+            UIState::SelectingExercise(_subject_index, _exercice_index) => (),
         }
     }
     fn on_k(&mut self) {
-        match self.state.state_type {
-            PlxStateType::Starting => (),
-            PlxStateType::Quit => (),
-            PlxStateType::SelectingSubject(index) => {
+        match self.state.ui_state {
+            UIState::Starting => (),
+            UIState::Quit => (),
+            UIState::SelectingSubject(index) => {
                 if index > 0 {
-                    self.state = self
-                        .state
-                        .new_type(PlxStateType::SelectingSubject(index - 1))
+                    self.state = self.state.new_type(UIState::SelectingSubject(index - 1))
                 }
             }
-            PlxStateType::SelectingExercise(subject_index, exercice_index) => {
+            UIState::SelectingExercise(subject_index, exercice_index) => {
                 if exercice_index > 0 {
-                    self.state = self.state.new_type(PlxStateType::SelectingExercise(
+                    self.state = self.state.new_type(UIState::SelectingExercise(
                         subject_index,
                         exercice_index - 1,
                     ))
@@ -125,23 +122,21 @@ impl PlxCore {
         }
     }
     fn on_q(&mut self) {
-        self.state = self.state.new_type(PlxStateType::Quit)
+        self.state = self.state.new_type(UIState::Quit)
     }
 
     fn on_j(&mut self) {
-        match self.state.state_type {
-            PlxStateType::Starting => (),
-            PlxStateType::Quit => (),
-            PlxStateType::SelectingSubject(index) => {
+        match self.state.ui_state {
+            UIState::Starting => (),
+            UIState::Quit => (),
+            UIState::SelectingSubject(index) => {
                 if index + 1 < self.subjects.len() {
-                    self.state = self
-                        .state
-                        .new_type(PlxStateType::SelectingSubject(index + 1))
+                    self.state = self.state.new_type(UIState::SelectingSubject(index + 1))
                 }
             }
-            PlxStateType::SelectingExercise(subject_index, exercice_index) => {
+            UIState::SelectingExercise(subject_index, exercice_index) => {
                 if exercice_index + 1 < self.subjects[subject_index].exercises.len() {
-                    self.state = self.state.new_type(PlxStateType::SelectingExercise(
+                    self.state = self.state.new_type(UIState::SelectingExercise(
                         subject_index,
                         exercice_index + 1,
                     ))
@@ -156,35 +151,39 @@ impl Core for PlxCore {
         self.update_state(key);
     }
     fn get_subjects(&self) -> (Vec<PlxSubject>, usize) {
-        match self.state.state_type {
-            PlxStateType::Starting => (vec![], 0),
-            PlxStateType::SelectingSubject(index) => (self.subjects.clone(), index),
-            PlxStateType::SelectingExercise(index, _) => (self.subjects.clone(), index),
-            PlxStateType::Quit => (vec![], 0),
+        match self.state.ui_state {
+            UIState::Starting => (vec![], 0),
+            UIState::SelectingSubject(index) => (self.subjects.clone(), index),
+            UIState::SelectingExercise(index, _) => (self.subjects.clone(), index),
+            UIState::Quit => (vec![], 0),
         }
     }
     fn get_exercises(&self) -> (Option<&Vec<PlxExercise>>, usize) {
-        match self.state.state_type {
-            PlxStateType::Starting => (None, 0),
-            PlxStateType::SelectingSubject(index) => (Some(&self.subjects[index].exercises), 0),
-            PlxStateType::SelectingExercise(index, ex_index) => {
+        match self.state.ui_state {
+            UIState::Starting => (None, 0),
+            UIState::SelectingSubject(index) => (Some(&self.subjects[index].exercises), 0),
+            UIState::SelectingExercise(index, ex_index) => {
                 (Some(&self.subjects[index].exercises), ex_index)
             }
-            PlxStateType::Quit => (None, 0),
+            UIState::Quit => (None, 0),
         }
     }
 
     fn get_current_exercise(&self) -> Option<&PlxExercise> {
-        match self.state.state_type {
-            PlxStateType::Starting => None,
-            PlxStateType::SelectingSubject(index) => self.subjects[index].exercises.first(),
-            PlxStateType::SelectingExercise(index, ex_index) => {
+        match self.state.ui_state {
+            UIState::Starting => None,
+            UIState::SelectingSubject(index) => self.subjects[index].exercises.first(),
+            UIState::SelectingExercise(index, ex_index) => {
                 Some(&self.subjects[index].exercises[ex_index])
             }
-            PlxStateType::Quit => None,
+            UIState::Quit => None,
         }
     }
     fn quit(&self) -> bool {
-        self.state.state_type == PlxStateType::Quit
+        self.state.ui_state == UIState::Quit
+    }
+
+    fn get_state(&self) -> &UIState {
+        &self.state.ui_state
     }
 }
