@@ -11,3 +11,4 @@ exclude = ["*.md"]
 
 [dependencies]
 ratatui = "0.28.0"
+color-eyre = "0.6"
