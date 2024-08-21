@@ -72,3 +72,15 @@ todo: exos structure and files
 ## Project management
 todo
 
+1. We protect the main branch on the main repository to avoid pushing commits directly without any review. The 2 others repository (website + organisation profile) are not protected for ease of change.
+1. For each feature or change:
+  1. we create a new issue and assign it to the correct person
+  1. create a new branch,
+  1. try to follow the conventionnal commits standard for writing commit messages,
+  1. when done we send a PR.
+  1. The PR is automatically merged only after one review, and trivial changes that do not review can be merged by the PR creator.
+  1. Github is configured to block merging if CI jobs are failing.
+  1. We try to delete the branch when PR is merged.
+1. We do 2 small coordination meetings starting between 9:30 and 10:00, and another one around 15:00.
+
+
