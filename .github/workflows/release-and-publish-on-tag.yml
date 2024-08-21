@@ -96,7 +96,6 @@ jobs:
       - name: cargo publish
       # https://doc.rust-lang.org/cargo/reference/config.html?highlight=CARGO_REGISTRY_TOKEN#credentials
         run: |
-          cargo publish
+          cargo login ${{ secrets.CARGO_REGISTRY_TOKEN }} &&  cargo publish
           --verbose
           --locked
-          --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
