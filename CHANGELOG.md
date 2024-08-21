@@ -17,18 +17,18 @@ Take this line and fix version with current ($CV)
 -->
 
 
-## [Unreleased](https://github.com/plx-pdg/plx/compare/v0.1.0...HEAD)
+## [Unreleased](https://github.com/plx-pdg/plx/compare/v0.1.1...HEAD)
 
 ### Added
 ### Changed
 
-## [0.1.1](https://github.com/plx-pdg/plx/compare/v0.1.1..HEAD) - 2024-08-21
+## [0.1.1](https://github.com/plx-pdg/plx/compare/v0.1.0..v0.1.1) - 2024-08-21
 
 ### Added
 - Add CI/CD jobs for build+test+formatting+tag+release (this release is used to test everything is working).
 - Do a small change in `main.rs` output to see changes
 
-## [0.1.0](https://github.com/plx-pdg/plx/compare/v0.1.0..HEAD) - 2024-08-19
+## [0.1.0](https://github.com/plx-pdg/plx/compare/ceae2aa..v0.1.0) - 2024-08-19
 
 ### Added
 - Create an empty Rust crate to reserve the name on [`crates.io`](https://crates.io/crates/plx) with Markdown excluded (it will be reincluded later) when the main README will be rewritten in English and be shorter...
