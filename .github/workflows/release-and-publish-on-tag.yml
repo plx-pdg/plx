@@ -10,6 +10,8 @@ permissions:
 jobs:
   tag:
     runs-on: ubuntu-latest
+    outputs:
+      tag_created: ${{ steps.create_tag.outputs.tag_created }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
