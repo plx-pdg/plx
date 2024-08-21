@@ -20,7 +20,7 @@ jobs:
       - name: Get the current version
         id: get_version
         run: |
-          VERSION=$(cat Cargo.toml | grep version | grep -o -P "\d+\.\d+\.\d+")
+          VERSION=v$(cat Cargo.toml | grep version | grep -o -P "\d+\.\d+\.\d+")
 
       - name: Get Changelog line
         run: |
@@ -42,8 +42,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ env.VERSION }}
-          release_name: v${{ env.VERSION }}
+          tag_name: ${{ env.VERSION }}
+          release_name: ${{ env.VERSION }}
           draft: false
           body: See changelog for this version [here](CHANGELOG.md#${{env.CHANGELOG_HEADER}})
           prerelease: false 
