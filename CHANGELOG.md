@@ -22,6 +22,12 @@ Take this line and fix version with current ($CV)
 ### Added
 ### Changed
 
+## [0.1.1](https://github.com/plx-pdg/plx/compare/v0.1.1..HEAD) - 2024-08-21
+
+### Added
+- Add CI/CD jobs for build+test+formatting+tag+release (this release is used to test everything is working).
+- Do a small change in `main.rs` output to see changes
+
 ## [0.1.0](https://github.com/plx-pdg/plx/compare/v0.1.0..HEAD) - 2024-08-19
 
 ### Added
