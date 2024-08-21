@@ -81,13 +81,11 @@ jobs:
           prerelease: false 
 
   publish:
-    needs: tag
+    needs: [tag,release]
     if: needs.tag.outputs.tag_created == 'true'
 
     # Based on: https://users.rust-lang.org/t/does-anyone-use-github-actions-to-run-cargo-publish/92374/5
     name: Publish to crates.io
-
-    needs: release
     runs-on: ubuntu-latest
     environment: crates.io
     steps:
