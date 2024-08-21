@@ -12,7 +12,8 @@ env:
 jobs:
   check_format:
     runs-on: ubuntu-latest
-    steps: 
+    steps:
+    - uses: actions/checkout@v4
     - name: Check formatting
       run: cargo fmt --all -- --check
 
