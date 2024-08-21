@@ -45,7 +45,7 @@ jobs:
           tag_name: v${{ env.VERSION }}
           release_name: v${{ env.VERSION }}
           draft: false
-          body: See changelog for this version [here](CHANGELOG.md#v${{env.VERSION}})
+          body: See changelog for this version [here](CHANGELOG.md#${{env.CHANGELOG_HEADER}})
           prerelease: false 
 
   publish:
