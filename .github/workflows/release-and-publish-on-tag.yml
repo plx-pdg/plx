@@ -21,10 +21,13 @@ jobs:
         id: get_version
         run: |
           VERSION=$(cat Cargo.toml | grep version | grep -o -P "\d+\.\d+\.\d+")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Get Changelog line
         run: |
           CHANGELOG_HEADER=$(cat CHANGELOG.md | grep "\[${{env.VERSION}}\]" | sed s/#//g | sed -E "s/\(.*\)//g" | sed "s/\ \[//g" | sed "s/\]//g" | sed "s/\ /-/g" | sed "s/\.//g")
+          echo "CHANGELOG_HEADER=$CHANGELOG_HEADER" >> $GITHUB_ENV
+
 
       - name: Debug Info
         run: |
