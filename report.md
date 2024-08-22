@@ -57,7 +57,17 @@ todo: document release process
 todo: document other OS
 
 ## Mockups
-todo: to import
+For running PLX, the user need to choose the folder that contains the exercices if there is not ".plxproject" file in the given top-level folder the app provides a warning messages. The app will ask you again a folder.
+[home-small.opti.svg](imgs/home-small.opti.svg)
+[home.opti.svg](imgs/home.opti.svg)
+This is the home layout of the app PLX. There are three options, first, press R to access the last exercise working on that still needs to be finished. Secondly, press L to access the listing of exercises and lastly press? This is for help in seeing the command of the app. When PLX running an exercices
+[list-1.opti.svg](imgs/list-1.opti.svg)
+On the list view, there are two columns the left one for the subject that is fixed and on right side for the exercises that change instead of the choosing subject.
+[list-2.opti.svg](imgs/list-2.opti.svg)
+[preview-exo.opti.svg](imgs/preview-exo.opti.svg)
+[error.opti.svg](imgs/error.opti.svg)
+[exo-1.opti.svg](imgs/exo-1.opti.svg)
+[exo-2.opti.svg](imgs/exo-2.opti.svg)
 
 ## Landing page
 todo
