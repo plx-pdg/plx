@@ -1,5 +1,3 @@
-# Report
-
 ## Installation for development
 ### Environment
 
@@ -57,11 +55,11 @@ todo: document release process
 todo: document other OS
 
 ## Mockups
-For running PLX, the user need to choose the folder that contains the exercices if there is not ".plxproject" file in the given top-level folder the app provides a warning messages. The app will ask you again a folder.
-[home-small.opti.svg](imgs/home-small.opti.svg)
-[home.opti.svg](imgs/home.opti.svg)
-This is the home layout of the app PLX. There are three options, first, press R to access the last exercise working on that still needs to be finished. Secondly, press L to access the listing of exercises and lastly press? This is for help in seeing the command of the app. When PLX running an exercices
-[list-1.opti.svg](imgs/list-1.opti.svg)
+For running PLX, the user need to choose the folder that contains the exercises if there is not ".plxproject" file in the given top-level folder the app provides a warning messages. The app will ask again for a folder.
+![[home.opti.svg]]
+Arrows on the picture are to illustrate event. This is the home layout of the app PLX. There are three options on this page. First, press "r" to access the last exercise working on that still needs to be finished. When PLX start an exercise, it will run automatically the IDE with the correct file. Secondly, press "l" to access the listing of exercises and lastly press "?" for showing the command of the app.
+
+![[list-1.opti.svg]]
 On the list view, there are two columns the left one for the subject that is fixed and on right side for the exercises that change instead of the choosing subject.
 [list-2.opti.svg](imgs/list-2.opti.svg)
 [preview-exo.opti.svg](imgs/preview-exo.opti.svg)
