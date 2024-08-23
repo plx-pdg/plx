@@ -5,3 +5,4 @@ pub mod plx_exo_state;
 pub mod plx_project;
 pub mod plx_solution;
 pub mod plx_subject;
+pub mod ui_state;
