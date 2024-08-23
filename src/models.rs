@@ -1,4 +1,5 @@
 pub mod plx_check;
+pub mod plx_check_state;
 pub mod plx_exo;
 pub mod plx_exo_state;
 pub mod plx_project;
