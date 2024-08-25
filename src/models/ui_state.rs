@@ -1,4 +1,6 @@
-pub enum UiState {
+use super::{plx_check_state::PlxCheckState, plx_exo::PlxExo};
+
+pub enum UiState<'a> {
     StartMenu,
     Quit,
     ChoosingSubject {
@@ -11,29 +13,29 @@ pub enum UiState {
     ExoPromp {
         subject_index: usize,
         exo_index: usize,
-        exo: &PlxExo,
+        exo: &'a PlxExo,
     },
     LoadingExo {
-        exo: &PlxExo,
+        exo: &'a PlxExo,
     },
     ExoLoaded {
-        exo: &PlxExo,
+        exo: &'a PlxExo,
     },
     Compiling {
-        exo: &PlxExo,
+        exo: &'a PlxExo,
     },
     CompileError {
-        exo: &PlxExo,
+        exo: &'a PlxExo,
         error: String,
     },
     DoingExo {
-        exo: &PlxExo,
-        checks: Vec<PlxCheckState>,
+        exo: &'a PlxExo,
+        checks: Vec<PlxCheckState<'a>>,
     },
     ExoComplete {
-        exo: &PlxExo,
+        exo: &'a PlxExo,
     },
     ShowSolution {
-        exo: &PlxExo,
+        exo: &'a PlxExo,
     },
 }
