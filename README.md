@@ -1,4 +1,8 @@
-# PLX
+<center>
+
+![logo of PLX](imgs/logo.svg)
+</center>
+
 ### **P**ractice programming exos in a delightful **L**earning e**X**perience
 
 **STATUT: conception pour le projet PDG en HES d'été**
