@@ -10,3 +10,4 @@ edition = "2021"
 exclude = ["*.md"]
 
 [dependencies]
+rand = "0.8.5"
