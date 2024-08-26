@@ -37,7 +37,7 @@ mod tests {
         let (tx, rx) = mpsc::channel();
         let should_stop = Arc::new(AtomicBool::new(false));
         run(
-            tx.clone(),
+            tx,
             "echo".to_string(),
             path::PathBuf::from_str("./opener.rs").unwrap(),
             should_stop.clone(),
@@ -50,7 +50,7 @@ mod tests {
         let (tx, rx) = mpsc::channel();
         let should_stop = Arc::new(AtomicBool::new(false));
         run(
-            tx.clone(),
+            tx,
             "_".to_string(),
             path::PathBuf::from_str("./opener.rs").unwrap(),
             should_stop.clone(),
