@@ -27,34 +27,13 @@ impl Ui<'_> {
                         }
                     }
                 }
-
                 None => break,
             }
         }
         self.teardown();
     }
     fn render(&mut self, state: &UiState) -> bool {
-        match state {
-            UiState::StartMenu => println!("Starting..."),
-            UiState::Quit => return false,
-            UiState::ChoosingSubject { subject_index } => todo!(),
-            UiState::ChoosingExo {
-                subject_index,
-                exo_index,
-            } => todo!(),
-            UiState::ExoPromp {
-                subject_index,
-                exo_index,
-                exo,
-            } => todo!(),
-            UiState::LoadingExo { exo } => todo!(),
-            UiState::ExoLoaded { exo } => todo!(),
-            UiState::Compiling { exo } => todo!(),
-            UiState::CompileError { exo, error } => todo!(),
-            UiState::DoingExo { exo, checks } => todo!(),
-            UiState::ExoComplete { exo } => todo!(),
-            UiState::ShowSolution { exo } => todo!(),
-        }
+        todo!();
         return true;
     }
 }
