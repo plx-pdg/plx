@@ -1,41 +1,39 @@
-use super::{plx_check_state::PlxCheckState, plx_exo::PlxExo};
+use super::{check_state::CheckState, exo::Exo};
 
+// The list of states and associated values for the UI to represent
 pub enum UiState<'a> {
-    StartMenu,
-    Quit,
-    ChoosingSubject {
-        subject_index: usize,
+    Home, // Home page with ASCII art
+    Quit, // Exit in progress
+    Help, // Help page with shortcuts documentation
+    // List page
+    SkillSelection {
+        skill_index: usize,
     },
-    ChoosingExo {
-        subject_index: usize,
+    ExoSelection {
+        skill_index: usize,
         exo_index: usize,
     },
-    ExoPromp {
-        subject_index: usize,
+    ExoPreview {
+        skill_index: usize,
         exo_index: usize,
-        exo: &'a PlxExo,
+        exo: &'a Exo,
     },
-    LoadingExo {
-        exo: &'a PlxExo,
-    },
-    ExoLoaded {
-        exo: &'a PlxExo,
-    },
+    // Train page in various steps
     Compiling {
-        exo: &'a PlxExo,
+        exo: &'a Exo,
     },
     CompileError {
-        exo: &'a PlxExo,
+        exo: &'a Exo,
         error: String,
     },
-    DoingExo {
-        exo: &'a PlxExo,
-        checks: Vec<PlxCheckState<'a>>,
+    CheckResults {
+        exo: &'a Exo,
+        checks: Vec<CheckState<'a>>,
     },
-    ExoComplete {
-        exo: &'a PlxExo,
+    ExoDone {
+        exo: &'a Exo,
     },
     ShowSolution {
-        exo: &'a PlxExo,
+        exo: &'a Exo,
     },
 }

@@ -16,11 +16,15 @@ Take this line and fix version with current ($CV)
 ## [$CV without v!](https://github.com/plx-pdg/plx/compare/$CV...HEAD) - $DATE
 -->
 
-
-## [Unreleased](https://github.com/plx-pdg/plx/compare/v0.1.1...HEAD)
+## [Unreleased](https://github.com/plx-pdg/plx/compare/v0.1.2...HEAD)
 
 ### Added
 ### Changed
+
+## [0.1.2](https://github.com/plx-pdg/plx/compare/v0.1.2...HEAD) - 2024-08-26
+
+### Added
+- Trivial change to show CI release
 
 ## [0.1.1](https://github.com/plx-pdg/plx/compare/v0.1.0..v0.1.1) - 2024-08-21
 

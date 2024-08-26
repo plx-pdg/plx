@@ -5,7 +5,7 @@ homepage = "https://github.com/plx-pdg/plx"
 repository = "https://github.com/plx-pdg/plx"
 license-file = "LICENSE"
 readme = false
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 exclude = ["*.md"]
 

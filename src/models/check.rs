@@ -1,3 +1,3 @@
-pub enum PlxCheck {
+pub enum Check {
     Output { expected: String },
 }
