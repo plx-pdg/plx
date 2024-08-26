@@ -1,6 +1,6 @@
-use super::plx_check::PlxCheck;
+use super::check::Check;
 
-pub struct PlxCheckState<'a> {
-    check: &'a PlxCheck,
+pub struct CheckState<'a> {
+    check: &'a Check,
     passed: bool,
 }

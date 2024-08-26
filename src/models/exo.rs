@@ -1,11 +1,11 @@
-use super::{plx_check::PlxCheck, plx_exo_state::PlxExoState, plx_solution::PlxSolution};
+use super::{check::Check, exo_state::ExoState, solution::Solution};
 
-pub struct PlxExo {
+pub struct Exo {
     title: String,
     prompt: String,
-    state: PlxExoState,
+    state: ExoState,
     files: Vec<std::path::PathBuf>,
-    solution: Option<PlxSolution>,
-    checks: Vec<PlxCheck>,
+    solution: Option<Solution>,
+    checks: Vec<Check>,
     favorite: bool,
 }

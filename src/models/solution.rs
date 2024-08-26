@@ -1,3 +1,3 @@
-pub struct PlxSolution {
+pub struct Solution {
     path: std::path::PathBuf,
 }

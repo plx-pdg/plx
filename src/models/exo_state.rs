@@ -1,4 +1,4 @@
-pub enum PlxExoState {
+pub enum ExoState {
     Todo,
     InProgress,
     Done,

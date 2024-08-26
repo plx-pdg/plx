@@ -1,6 +1,6 @@
-use super::plx_subject::PlxSubject;
+use super::subject::Subject;
 
-pub struct PlxProject {
+pub struct Project {
     name: String,
-    subjects: Vec<PlxSubject>,
+    subjects: Vec<Subject>,
 }

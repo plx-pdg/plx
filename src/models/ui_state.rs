@@ -1,4 +1,4 @@
-use super::{plx_check_state::PlxCheckState, plx_exo::PlxExo};
+use super::{check_state::CheckState, exo::Exo};
 
 pub enum UiState<'a> {
     StartMenu,
@@ -13,29 +13,29 @@ pub enum UiState<'a> {
     ExoPromp {
         subject_index: usize,
         exo_index: usize,
-        exo: &'a PlxExo,
+        exo: &'a Exo,
     },
     LoadingExo {
-        exo: &'a PlxExo,
+        exo: &'a Exo,
     },
     ExoLoaded {
-        exo: &'a PlxExo,
+        exo: &'a Exo,
     },
     Compiling {
-        exo: &'a PlxExo,
+        exo: &'a Exo,
     },
     CompileError {
-        exo: &'a PlxExo,
+        exo: &'a Exo,
         error: String,
     },
     DoingExo {
-        exo: &'a PlxExo,
-        checks: Vec<PlxCheckState<'a>>,
+        exo: &'a Exo,
+        checks: Vec<CheckState<'a>>,
     },
     ExoComplete {
-        exo: &'a PlxExo,
+        exo: &'a Exo,
     },
     ShowSolution {
-        exo: &'a PlxExo,
+        exo: &'a Exo,
     },
 }

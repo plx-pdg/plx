@@ -1,7 +1,7 @@
-use super::plx_exo::PlxExo;
+use super::exo::Exo;
 
-pub struct PlxSubject {
+pub struct Subject {
     name: String,
     path: std::path::PathBuf,
-    exos: Vec<PlxExo>,
+    exos: Vec<Exo>,
 }
