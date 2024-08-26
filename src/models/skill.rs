@@ -1,6 +1,6 @@
 use super::exo::Exo;
 
-pub struct Subject {
+pub struct Skill {
     name: String,
     path: std::path::PathBuf,
     exos: Vec<Exo>,

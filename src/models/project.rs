@@ -1,6 +1,6 @@
-use super::subject::Subject;
+use super::skill::Skill;
 
 pub struct Project {
     name: String,
-    subjects: Vec<Subject>,
+    skills: Vec<Skill>,
 }
