@@ -1,9 +1,9 @@
-use crate::models::{plx_project::PlxProject, ui_state::UiState};
+use crate::models::{project::Project, ui_state::UiState};
 
 use super::file_utils::file_handler;
 pub struct PlxCore<'a> {
     ui_state: UiState<'a>,
-    project: PlxProject,
+    project: Project,
 }
 
 impl PlxCore<'_> {
@@ -12,10 +12,10 @@ impl PlxCore<'_> {
             return None;
         }
         let project_file = file_handler::project_file();
-        let project = PlxProject::try_from(project_file);
+        let project = Project::try_from(project_file);
         if let Ok(project) = project {
             Some(PlxCore {
-                ui_state: UiState::StartMenu,
+                ui_state: UiState::Home,
                 project,
             })
         } else {
