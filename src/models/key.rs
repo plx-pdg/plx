@@ -1,5 +1,5 @@
 #[derive(Debug, PartialEq, Eq)]
-pub enum UiKey {
+pub enum Key {
     Q,
     R,
 }

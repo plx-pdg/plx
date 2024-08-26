@@ -1,8 +1,8 @@
-use super::ui_key::UiKey;
+use super::key::Key;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Event {
-    KeyPressed(UiKey),
+    KeyPressed(Key),
     EditorOpened,
     CouldNotOpenEditor,
 }
