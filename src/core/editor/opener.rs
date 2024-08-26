@@ -9,10 +9,6 @@ use crate::{
     models::event::Event,
 };
 
-pub enum WorkerEvent {
-    StopWork,
-}
-
 pub fn run(
     tx: Sender<Event>,
     editor: String,
