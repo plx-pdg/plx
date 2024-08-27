@@ -1,5 +1,5 @@
 use super::{check::Check, exo_state::ExoState, solution::Solution};
-
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Exo {
     title: String,
     instruction: Option<String>,
