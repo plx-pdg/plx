@@ -9,3 +9,16 @@ pub struct Exo {
     checks: Vec<Check>,
     favorite: bool,
 }
+impl Exo {
+    pub fn get_main_file(&self) -> Option<&std::path::PathBuf> {
+        match self.files.iter().find(|file| {
+            if let Some(file_name) = file.file_stem() {
+                return file_name == "main";
+            }
+            return false;
+        }) {
+            Some(file) => Some(file),
+            None => self.files.first(),
+        }
+    }
+}
