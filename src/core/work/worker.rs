@@ -37,6 +37,12 @@ impl Worker {
                     self.work_tx.send(WorkEvent::Done(self.id));
                 });
             }
+            Work::FileWatcher(watcher) =>{
+                return thread::spawn(move || {
+                    watcher.run(self.tx);
+                    self.work_tx.send(WorkEvent::Done(self.id));
+                });
+            }
         }
     }
 }
