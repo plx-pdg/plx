@@ -27,6 +27,7 @@ impl Difference {
         }
         result
     }
+    //TODO add timeout param here for very large files
     pub fn calculate_difference(
         old: &str,
         new: &str,
