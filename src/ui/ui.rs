@@ -57,7 +57,7 @@ impl Ui<'_> {
     }
 
     pub fn run(
-        &mut self,
+        &self,
         terminal: &mut Terminal<CrosstermBackend<Stdout>>,
         state: &UiState,
     ) -> Result<bool, io::Error> {
@@ -98,7 +98,7 @@ impl Ui<'_> {
         return true;
     }
 
-    fn handle_events(&mut self) -> io::Result<()> {
+    fn handle_events(&self) -> io::Result<()> {
         todo!()
     }
 
