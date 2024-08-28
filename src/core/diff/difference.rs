@@ -103,8 +103,8 @@ mod tests {
         assert_eq!(expected, diff);
     }
     #[test]
-    #[ignore = "this test is setup dependent"]
     fn test_ansi_colors() {
+        console::set_colors_enabled(true);
         let old = "Hello\nWorld\n";
         let new = "Hello\nWorld Test\n";
         let diff = Difference::calculate_difference(old, new, None);
