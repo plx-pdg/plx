@@ -5,4 +5,6 @@ pub enum Event {
     KeyPressed(Key),
     EditorOpened,
     CouldNotOpenEditor,
+    OutputCheckPassed,
+    OutputCheckFailed,
 }
