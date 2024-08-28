@@ -1,4 +1,4 @@
-pub mod core;
+pub mod app;
 pub mod editor;
 pub mod file_utils;
 pub mod process;

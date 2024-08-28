@@ -10,14 +10,14 @@ use super::{
     file_utils::file_handler,
     work::{work::Work, work_handler::WorkHandler},
 };
-pub struct PlxCore<'a> {
+pub struct App<'a> {
     ui_state: UiState<'a>,
     project: Project,
     work_handler: Arc<Mutex<WorkHandler>>,
     event_queue: (Sender<Event>, Receiver<Event>),
 }
 
-impl PlxCore<'_> {
+impl App<'_> {
     pub fn new() -> Option<Self> {
         if !file_handler::is_plx_folder() {
             return None;
@@ -26,7 +26,7 @@ impl PlxCore<'_> {
         let project = Project::try_from(project_file);
         if let Ok(project) = project {
             let channel = mpsc::channel();
-            Some(PlxCore {
+            Some(App {
                 ui_state: UiState::Home,
                 project,
                 work_handler: (WorkHandler::new(channel.0.clone())),
