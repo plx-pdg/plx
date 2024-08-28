@@ -2,6 +2,7 @@ use std::sync::{atomic::AtomicBool, mpsc::Sender, Arc};
 
 use crate::models::{check::Check, event::Event};
 
+#[derive(Debug)]
 pub enum OutputCheckerCreationError {
     InvalidCheck,
 }
