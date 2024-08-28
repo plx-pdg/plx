@@ -7,6 +7,14 @@ pub struct Project {
     skills: Vec<Skill>,
 }
 
+impl Project {
+    pub fn new() -> Self {
+        Project {
+            name: String::from("Project"),
+            skills: vec![],
+        }
+    }
+}
 impl TryFrom<std::path::PathBuf> for Project {
     type Error = file_parser::ParseError;
 
