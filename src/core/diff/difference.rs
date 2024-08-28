@@ -14,6 +14,9 @@ impl Difference {
     fn new(differences: Vec<SingleDifference>) -> Self {
         Self { differences }
     }
+    pub fn contains_differences(&self) -> bool {
+        !self.differences.is_empty()
+    }
     pub fn to_ansi_colors(&self) -> String {
         let mut result = String::new();
         for (idx, diff) in self.differences.iter().enumerate() {
