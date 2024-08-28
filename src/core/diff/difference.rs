@@ -107,6 +107,7 @@ mod tests {
         assert_eq!(expected, diff);
     }
     #[test]
+    #[ignore = "this test is setup dependent"]
     fn test_ansi_colors() {
         let old = "Hello\nWorld\n";
         let new = "Hello\nWorld Test\n";
