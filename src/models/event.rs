@@ -6,5 +6,5 @@ pub enum Event {
     EditorOpened,
     CouldNotOpenEditor,
     FileSaved,
-    FileNotSaved
+    NoFileSaved
 }
