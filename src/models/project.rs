@@ -7,6 +7,7 @@ pub struct Project {
     skills: Vec<Skill>,
 }
 
+//Template code for testing ui. Should not be merged into main !!!!
 impl Project {
     pub fn new() -> Self {
         Project {

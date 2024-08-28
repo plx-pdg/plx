@@ -19,6 +19,7 @@ pub struct PlxCore<'a> {
 
 impl PlxCore<'_> {
     pub fn new() -> Option<Self> {
+        //Template code for testing ui. Should not be merged into main !!!!
         // if !file_handler::is_plx_folder() {
         //     return None;
         // }
