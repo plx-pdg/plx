@@ -21,6 +21,7 @@ impl Diff {
         }
         result
     }
+    // Based on similar sample https://github.com/mitsuhiko/similar/blob/844769ae19f7451c5a5be3505d8865100dd300a0/examples/terminal-inline.rs
     pub fn calculate_difference(
         old: &str,
         new: &str,
