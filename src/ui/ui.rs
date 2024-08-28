@@ -1,6 +1,6 @@
 use std::{
     io::Stdout,
-    sync::{Mutex, Weak},
+    sync::{Arc, Mutex},
 };
 
 use crate::{core::core::PlxCore, models::ui_state::UiState};
@@ -19,10 +19,10 @@ use ratatui::{
 use std::io::{self, stdout};
 
 pub struct Ui<'a> {
-    core: Weak<Mutex<PlxCore<'a>>>,
+    core: Arc<Mutex<PlxCore<'a>>>,
 }
 impl Ui<'_> {
-    pub fn new(core: Weak<Mutex<PlxCore>>) -> Ui<'_> {
+    pub fn new(core: Arc<Mutex<PlxCore>>) -> Ui<'_> {
         Ui { core }
     }
     fn setup(&mut self)  -> io::Result<()> {
@@ -42,16 +42,14 @@ impl Ui<'_> {
         let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
 
         loop {
-            match self.core.upgrade() {
-                Some(core) => {
-                    if let Ok(core) = core.lock() {
-                        self.run(&mut terminal, core.get_state());
-                        // if !self.run(&mut terminal, core.get_state()) {
-                        //     break;
-                        // }
-                    }
+            match self.core.lock() {
+                Ok(core) => {
+                    self.run(&mut terminal, core.get_state());
+                    // if !self.run(&mut terminal, core.get_state()) {
+                    //     break;
+                    // }
                 }
-                None => break,
+                Err(_) => break,
             }
         }
         self.teardown()?;
