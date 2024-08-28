@@ -1,18 +1,18 @@
-use super::difference_operation::DifferenceOperation;
+use super::line_difference::LineDifference;
 
 #[derive(Debug, PartialEq)]
 pub(super) struct SingleDifference {
-    operations: Vec<DifferenceOperation>,
+    lines: Vec<LineDifference>,
 }
 
 impl SingleDifference {
-    pub(super) fn new(operations: Vec<DifferenceOperation>) -> Self {
-        Self { operations }
+    pub(super) fn new(lines: Vec<LineDifference>) -> Self {
+        Self { lines }
     }
     pub(super) fn to_ansi_colors(&self) -> String {
-        self.operations
+        self.lines
             .iter()
-            .map(|op| op.to_ansi_colors())
+            .map(|line| line.to_ansi_colors())
             .collect::<Vec<String>>()
             .join("")
     }

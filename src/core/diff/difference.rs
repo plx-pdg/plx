@@ -1,8 +1,8 @@
 use similar::{ChangeTag, TextDiff};
 
 use super::{
-    difference_operation::DifferenceOperation, difference_type::DifferenceType,
-    line_chunk::LineChunk, line_difference::LineDifference, single_difference::SingleDifference,
+    difference_type::DifferenceType, line_chunk::LineChunk, line_difference::LineDifference,
+    single_difference::SingleDifference,
 };
 
 #[derive(Debug, PartialEq)]
@@ -33,9 +33,8 @@ impl Difference {
 
         let mut differences = Vec::new();
         for group in &diff.grouped_ops(lines_between_changes.unwrap_or(3)) {
-            let mut operations = Vec::new();
+            let mut lines = Vec::new();
             for op in group {
-                let mut lines = Vec::new();
                 for change in diff.iter_inline_changes(op) {
                     let diff_type = match change.tag() {
                         ChangeTag::Delete => DifferenceType::Removed,
@@ -55,9 +54,8 @@ impl Difference {
                         diff_type,
                     ))
                 }
-                operations.push(DifferenceOperation::new(lines));
             }
-            differences.push(SingleDifference::new(operations));
+            differences.push(SingleDifference::new(lines));
         }
 
         Self::new(differences)
@@ -82,26 +80,24 @@ mod tests {
         let diff = Difference::calculate_difference(old, new, None);
         let expected = Difference {
             differences: vec![SingleDifference::new(vec![
-                DifferenceOperation::new(vec![LineDifference::new(
-                    vec![LineChunk::new("Hello\n".into(), false)],
+                LineDifference::new(
+                    vec![LineChunk::new(String::from("Hello\n"), false)],
                     false,
                     DifferenceType::NoDiff,
-                )]),
-                DifferenceOperation::new(vec![
-                    LineDifference::new(
-                        vec![LineChunk::new("World".into(), false)],
-                        true,
-                        DifferenceType::Removed,
-                    ),
-                    LineDifference::new(
-                        vec![
-                            LineChunk::new("World".into(), false),
-                            LineChunk::new("\n".into(), false),
-                        ],
-                        false,
-                        DifferenceType::Added,
-                    ),
-                ]),
+                ),
+                LineDifference::new(
+                    vec![LineChunk::new(String::from("World"), false)],
+                    true,
+                    DifferenceType::Removed,
+                ),
+                LineDifference::new(
+                    vec![
+                        LineChunk::new(String::from("World"), false),
+                        LineChunk::new(String::from("\n"), false),
+                    ],
+                    false,
+                    DifferenceType::Added,
+                ),
             ])],
         };
         assert_eq!(expected, diff);
