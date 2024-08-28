@@ -108,7 +108,7 @@ mod test {
     }
 
     #[test]
-    fn test_tab_at_the_end_is_equal() {
+    fn test_tab_at_the_end_is_different() {
         let check = Check::Output {
             expected: String::from("hello"),
         };
@@ -117,10 +117,10 @@ mod test {
 
         let checker = OutputChecker::new(0, &check, output).unwrap();
         checker.run(tx, Arc::new(AtomicBool::new(false)));
-        assert_eq!(rx.recv().unwrap(), Event::OutputCheckPassed(0));
+        matches!(rx.recv().unwrap(), Event::OutputCheckFailed(0, _));
     }
     #[test]
-    fn test_new_line_at_the_end_is_equal() {
+    fn test_new_line_at_the_end_is_different() {
         let check = Check::Output {
             expected: String::from("hello"),
         };
@@ -129,6 +129,6 @@ mod test {
 
         let checker = OutputChecker::new(0, &check, output).unwrap();
         checker.run(tx, Arc::new(AtomicBool::new(false)));
-        assert_eq!(rx.recv().unwrap(), Event::OutputCheckPassed(0));
+        matches!(rx.recv().unwrap(), Event::OutputCheckFailed(0, _));
     }
 }
