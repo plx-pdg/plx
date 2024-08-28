@@ -27,7 +27,7 @@ jobs:
       - name: Get the current version
         id: get_version
         run: |
-          VERSION=v$(cat Cargo.toml | grep version | grep -o -P "\d+\.\d+\.\d+")
+          VERSION=v$(cat Cargo.toml | grep -m 1 version | grep -o -P "\d+\.\d+\.\d+")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Create tag
