@@ -69,6 +69,7 @@ mod tests {
         let old = "Hello\nWorld";
         let new = "Hello\nWorld";
         let diff = Diff::calculate_difference(old, new, None);
+        println!("{}", diff.to_ansi_colors());
         assert!(diff.differences.is_empty());
     }
     #[test]
@@ -98,6 +99,7 @@ mod tests {
                 ),
             ])],
         };
+        println!("{}", diff.to_ansi_colors());
         assert_eq!(expected, diff);
     }
     #[test]
@@ -122,7 +124,7 @@ mod tests {
                 ),
             ])],
         };
-        println!("{:#?}", diff);
+        println!("{}", diff.to_ansi_colors());
         assert_eq!(expected, diff);
     }
     #[test]
@@ -136,6 +138,7 @@ mod tests {
 [0m[31m[1m-[0m[31m[1m[2mWorld[0m[31m[1m[2m
 [0m[32m[1m+[0m[32m[1m[2mWorld[0m[32m[1m Test[0m[32m[1m[2m
 [0m";
+        println!("{}", diff.to_ansi_colors());
         assert_eq!(expected_ansi, ansi);
     }
 }
