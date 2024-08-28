@@ -11,3 +11,4 @@ exclude = ["*.md"]
 
 [dependencies]
 rand = "0.8.5"
+ratatui = "0.28.1"
