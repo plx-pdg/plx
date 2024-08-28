@@ -1,5 +1,5 @@
-pub mod difference;
-mod difference_type;
+pub mod diff;
+mod diff_type;
+mod hunk;
+mod line;
 mod line_chunk;
-mod line_difference;
-mod single_difference;

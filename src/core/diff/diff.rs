@@ -1,17 +1,14 @@
 use similar::{ChangeTag, TextDiff};
 
-use super::{
-    difference_type::DifferenceType, line_chunk::LineChunk, line_difference::LineDifference,
-    single_difference::SingleDifference,
-};
+use super::{diff_type::DiffType, hunk::Hunk, line::Line, line_chunk::LineChunk};
 
 #[derive(Debug, PartialEq)]
-pub struct Difference {
-    differences: Vec<SingleDifference>,
+pub struct Diff {
+    differences: Vec<Hunk>,
 }
 
-impl Difference {
-    fn new(differences: Vec<SingleDifference>) -> Self {
+impl Diff {
+    fn new(differences: Vec<Hunk>) -> Self {
         Self { differences }
     }
     pub fn to_ansi_colors(&self) -> String {
@@ -37,16 +34,16 @@ impl Difference {
             for op in group {
                 for change in diff.iter_inline_changes(op) {
                     let diff_type = match change.tag() {
-                        ChangeTag::Delete => DifferenceType::Removed,
-                        ChangeTag::Insert => DifferenceType::Added,
-                        ChangeTag::Equal => DifferenceType::NoDiff,
+                        ChangeTag::Delete => DiffType::Removed,
+                        ChangeTag::Insert => DiffType::Added,
+                        ChangeTag::Equal => DiffType::NoDiff,
                     };
 
                     let mut line_chunks = Vec::new();
                     for (emphasized, value) in change.iter_strings_lossy() {
                         line_chunks.push(LineChunk::new(value.to_string(), emphasized));
                     }
-                    lines.push(LineDifference::new(
+                    lines.push(Line::new(
                         // change.old_index(),
                         // change.new_index(),
                         line_chunks,
@@ -55,7 +52,7 @@ impl Difference {
                     ))
                 }
             }
-            differences.push(SingleDifference::new(lines));
+            differences.push(Hunk::new(lines));
         }
 
         Self::new(differences)
@@ -70,33 +67,33 @@ mod tests {
     fn test_no_diff() {
         let old = "Hello\nWorld";
         let new = "Hello\nWorld";
-        let diff = Difference::calculate_difference(old, new, None);
+        let diff = Diff::calculate_difference(old, new, None);
         assert!(diff.differences.is_empty());
     }
     #[test]
     fn test_diff() {
         let old = "Hello\nWorld";
         let new = "Hello\nWorld\n";
-        let diff = Difference::calculate_difference(old, new, None);
-        let expected = Difference {
-            differences: vec![SingleDifference::new(vec![
-                LineDifference::new(
+        let diff = Diff::calculate_difference(old, new, None);
+        let expected = Diff {
+            differences: vec![Hunk::new(vec![
+                Line::new(
                     vec![LineChunk::new(String::from("Hello\n"), false)],
                     false,
-                    DifferenceType::NoDiff,
+                    DiffType::NoDiff,
                 ),
-                LineDifference::new(
+                Line::new(
                     vec![LineChunk::new(String::from("World"), false)],
                     true,
-                    DifferenceType::Removed,
+                    DiffType::Removed,
                 ),
-                LineDifference::new(
+                Line::new(
                     vec![
                         LineChunk::new(String::from("World"), false),
                         LineChunk::new(String::from("\n"), false),
                     ],
                     false,
-                    DifferenceType::Added,
+                    DiffType::Added,
                 ),
             ])],
         };
@@ -107,7 +104,7 @@ mod tests {
         console::set_colors_enabled(true);
         let old = "Hello\nWorld\n";
         let new = "Hello\nWorld Test\n";
-        let diff = Difference::calculate_difference(old, new, None);
+        let diff = Diff::calculate_difference(old, new, None);
         let ansi = diff.to_ansi_colors();
         let expected_ansi = r"[2m [0m[2mHello
 [0m[31m[1m-[0m[31m[1m[2mWorld[0m[31m[1m[2m
