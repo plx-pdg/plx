@@ -3,32 +3,20 @@ use std::{
     sync::{Mutex, Weak},
 };
 
-use crate::{
-    core::core::PlxCore,
-    models::{event, ui_state::UiState},
-};
-use rand::Error;
+use crate::{core::core::PlxCore, models::ui_state::UiState};
 use ratatui::{
     backend::CrosstermBackend,
     crossterm::{
-        event::{self, Event, KeyCode},
-        terminal::{
-            self, disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen,
-        },
+        terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
         ExecutableCommand,
     },
     layout::{Constraint, Direction, Layout},
     style::{Modifier, Style},
-    symbols::{block, line::BOTTOM_LEFT},
     text::{Span, Text},
     widgets::{Block, Borders, Paragraph},
-    DefaultTerminal, Frame, Terminal,
+    Frame, Terminal,
 };
-use std::{
-    io::{self, stdout},
-    ops::RangeBounds,
-    slice::Chunks,
-};
+use std::io::{self, stdout};
 
 pub struct Ui<'a> {
     core: Weak<Mutex<PlxCore<'a>>>,
