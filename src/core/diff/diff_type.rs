@@ -1,5 +1,5 @@
 #[derive(Debug, PartialEq, Eq)]
-pub(super) enum DifferenceType {
+pub(super) enum DiffType {
     NoDiff,
     Removed,
     Added,

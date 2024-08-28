@@ -1,11 +1,13 @@
-use super::line_difference::LineDifference;
+use super::line::Line;
 
+///Represents a local group of differences
 #[derive(Debug, PartialEq, Eq)]
-pub(super) struct DifferenceOperation {
-    lines: Vec<LineDifference>,
+pub(super) struct Hunk {
+    lines: Vec<Line>,
 }
-impl DifferenceOperation {
-    pub(super) fn new(lines: Vec<LineDifference>) -> Self {
+
+impl Hunk {
+    pub(super) fn new(lines: Vec<Line>) -> Self {
         Self { lines }
     }
     pub(super) fn to_ansi_colors(&self) -> String {

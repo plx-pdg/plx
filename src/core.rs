@@ -1,5 +1,4 @@
-pub mod check;
-pub mod core;
+pub mod app;
 pub mod diff;
 pub mod editor;
 pub mod file_utils;

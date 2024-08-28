@@ -1,4 +1,4 @@
-use crate::core::diff::difference::Difference;
+use crate::core::diff::diff::Diff;
 
 use super::key::Key;
 
@@ -8,5 +8,5 @@ pub enum Event {
     EditorOpened,
     CouldNotOpenEditor,
     OutputCheckPassed(usize),
-    OutputCheckFailed(usize, Difference),
+    OutputCheckFailed(usize, Diff),
 }
