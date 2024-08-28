@@ -25,13 +25,13 @@ impl Ui<'_> {
     pub fn new(core: Arc<Mutex<PlxCore>>) -> Ui<'_> {
         Ui { core }
     }
-    fn setup(&mut self)  -> io::Result<()> {
+    fn setup(&mut self) -> io::Result<()> {
         println!("Ui Setup...");
         enable_raw_mode()?;
         stdout().execute(EnterAlternateScreen)?;
         Ok(())
     }
-    fn teardown(&mut self)  -> io::Result<()> {
+    fn teardown(&mut self) -> io::Result<()> {
         println!("Ui Teardown...");
         disable_raw_mode()?;
         stdout().execute(LeaveAlternateScreen)?;
