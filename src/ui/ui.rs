@@ -1,12 +1,12 @@
 use std::sync::{Mutex, Weak};
 
-use crate::{core::core::PlxCore, models::ui_state::UiState};
+use crate::{core::app::App, models::ui_state::UiState};
 
 pub struct Ui<'a> {
-    core: Weak<Mutex<PlxCore<'a>>>,
+    core: Weak<Mutex<App<'a>>>,
 }
 impl Ui<'_> {
-    pub fn new(core: Weak<Mutex<PlxCore>>) -> Ui<'_> {
+    pub fn new(core: Weak<Mutex<App>>) -> Ui<'_> {
         Ui { core }
     }
     fn setup(&mut self) {
