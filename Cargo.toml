@@ -11,3 +11,5 @@ exclude = ["*.md"]
 
 [dependencies]
 rand = "0.8.5"
+console = "0.15.8"
+similar = { version = "2.6.0", features = ["inline"] }
