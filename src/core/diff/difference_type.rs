@@ -1,5 +1,6 @@
-pub enum DifferenceType {
+#[derive(Debug, PartialEq, Eq)]
+pub(super) enum DifferenceType {
     NoDiff,
-    OnOutput,
-    OnExpected,
+    Removed,
+    Added,
 }
