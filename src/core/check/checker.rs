@@ -10,17 +10,20 @@ pub enum OutputCheckerCreationError {
     InvalidCheck,
 }
 pub struct OutputChecker<'a> {
+    id: usize,
     check: &'a Check,
     program_output: &'a str,
 }
 
 impl<'a> OutputChecker<'a> {
     pub fn new(
+        id: usize,
         check: &'a Check,
         program_output: &'a str,
     ) -> Result<Self, OutputCheckerCreationError> {
         match check {
             Check::Output { .. } => Ok(Self {
+                id,
                 check,
                 program_output,
             }),
@@ -36,9 +39,9 @@ impl<'a> OutputChecker<'a> {
         let diff = Difference::calculate_difference(self.program_output, &expected, None);
 
         let event = if diff.contains_differences() {
-            Event::OutputCheckFailed(diff)
+            Event::OutputCheckFailed(self.id, diff)
         } else {
-            Event::OutputCheckPassed
+            Event::OutputCheckPassed(self.id)
         };
 
         let _ = tx.send(event);
@@ -59,10 +62,10 @@ mod test {
         let output = "hello";
         let (tx, rx) = channel();
 
-        let checker = OutputChecker::new(&check, output).unwrap();
+        let checker = OutputChecker::new(0, &check, output).unwrap();
         checker.run(tx, Arc::new(AtomicBool::new(false)));
 
-        assert_eq!(rx.recv().unwrap(), Event::OutputCheckPassed);
+        assert_eq!(rx.recv().unwrap(), Event::OutputCheckPassed(0));
     }
 
     #[test]
@@ -73,9 +76,9 @@ mod test {
         let output = "hello world";
         let (tx, rx) = channel();
 
-        let checker = OutputChecker::new(&check, output).unwrap();
+        let checker = OutputChecker::new(0, &check, output).unwrap();
         checker.run(tx, Arc::new(AtomicBool::new(false)));
-        matches!(rx.recv().unwrap(), Event::OutputCheckFailed(_));
+        matches!(rx.recv().unwrap(), Event::OutputCheckFailed(0, _));
     }
 
     #[test]
@@ -86,9 +89,9 @@ mod test {
         let output = "hello ";
         let (tx, rx) = channel();
 
-        let checker = OutputChecker::new(&check, output).unwrap();
+        let checker = OutputChecker::new(0, &check, output).unwrap();
         checker.run(tx, Arc::new(AtomicBool::new(false)));
-        matches!(rx.recv().unwrap(), Event::OutputCheckPassed);
+        matches!(rx.recv().unwrap(), Event::OutputCheckPassed(0));
     }
 
     #[test]
@@ -99,9 +102,9 @@ mod test {
         let output = " hello";
         let (tx, rx) = channel();
 
-        let checker = OutputChecker::new(&check, output).unwrap();
+        let checker = OutputChecker::new(0, &check, output).unwrap();
         checker.run(tx, Arc::new(AtomicBool::new(false)));
-        matches!(rx.recv().unwrap(), Event::OutputCheckFailed(_));
+        matches!(rx.recv().unwrap(), Event::OutputCheckFailed(0, _));
     }
 
     #[test]
@@ -112,9 +115,9 @@ mod test {
         let output = "hello\t";
         let (tx, rx) = channel();
 
-        let checker = OutputChecker::new(&check, output).unwrap();
+        let checker = OutputChecker::new(0, &check, output).unwrap();
         checker.run(tx, Arc::new(AtomicBool::new(false)));
-        matches!(rx.recv().unwrap(), Event::OutputCheckPassed);
+        assert_eq!(rx.recv().unwrap(), Event::OutputCheckPassed(0));
     }
     #[test]
     fn test_new_line_at_the_end_is_equal() {
@@ -124,8 +127,8 @@ mod test {
         let output = "hello\n";
         let (tx, rx) = channel();
 
-        let checker = OutputChecker::new(&check, output).unwrap();
+        let checker = OutputChecker::new(0, &check, output).unwrap();
         checker.run(tx, Arc::new(AtomicBool::new(false)));
-        matches!(rx.recv().unwrap(), Event::OutputCheckPassed);
+        assert_eq!(rx.recv().unwrap(), Event::OutputCheckPassed(0));
     }
 }

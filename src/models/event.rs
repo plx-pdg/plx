@@ -7,6 +7,6 @@ pub enum Event {
     KeyPressed(Key),
     EditorOpened,
     CouldNotOpenEditor,
-    OutputCheckPassed,
-    OutputCheckFailed(Difference),
+    OutputCheckPassed(usize),
+    OutputCheckFailed(usize, Difference),
 }
