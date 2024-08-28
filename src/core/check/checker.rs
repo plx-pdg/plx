@@ -1,6 +1,9 @@
 use std::sync::{atomic::AtomicBool, mpsc::Sender, Arc};
 
-use crate::models::{check::Check, event::Event};
+use crate::{
+    core::diff::difference::Difference,
+    models::{check::Check, event::Event},
+};
 
 #[derive(Debug)]
 pub enum OutputCheckerCreationError {
@@ -24,6 +27,20 @@ impl<'a> OutputChecker<'a> {
             // _ => Err(OutputCheckerCreationError::InvalidCheck),
         }
     }
+    pub fn run(&self, tx: Sender<Event>, _should_stop: Arc<AtomicBool>) {
+        let expected = match self.check {
+            Check::Output { expected } => expected,
+            //_ => return, // Will never get here
+        };
 
-    pub fn run(tx: Sender<Event>, should_stop: Arc<AtomicBool>) {}
+        let diff = Difference::calculate_difference(self.program_output, &expected, None);
+
+        let event = if diff.contains_differences() {
+            Event::OutputCheckFailed(diff)
+        } else {
+            Event::OutputCheckPassed
+        };
+
+        let _ = tx.send(event);
+    }
 }
