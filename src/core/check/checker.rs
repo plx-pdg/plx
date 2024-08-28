@@ -44,3 +44,88 @@ impl<'a> OutputChecker<'a> {
         let _ = tx.send(event);
     }
 }
+
+#[cfg(test)]
+mod test {
+
+    use std::sync::mpsc::channel;
+
+    use super::*;
+    #[test]
+    fn test_same_output() {
+        let check = Check::Output {
+            expected: String::from("hello"),
+        };
+        let output = "hello";
+        let (tx, rx) = channel();
+
+        let checker = OutputChecker::new(&check, output).unwrap();
+        checker.run(tx, Arc::new(AtomicBool::new(false)));
+
+        assert_eq!(rx.recv().unwrap(), Event::OutputCheckPassed);
+    }
+
+    #[test]
+    fn test_diff_output() {
+        let check = Check::Output {
+            expected: String::from("hello"),
+        };
+        let output = "hello world";
+        let (tx, rx) = channel();
+
+        let checker = OutputChecker::new(&check, output).unwrap();
+        checker.run(tx, Arc::new(AtomicBool::new(false)));
+        matches!(rx.recv().unwrap(), Event::OutputCheckFailed(_));
+    }
+
+    #[test]
+    fn test_extra_whitespace_at_the_end_is_equal() {
+        let check = Check::Output {
+            expected: String::from("hello"),
+        };
+        let output = "hello ";
+        let (tx, rx) = channel();
+
+        let checker = OutputChecker::new(&check, output).unwrap();
+        checker.run(tx, Arc::new(AtomicBool::new(false)));
+        matches!(rx.recv().unwrap(), Event::OutputCheckPassed);
+    }
+
+    #[test]
+    fn test_extra_whitespace_beggining_is_different() {
+        let check = Check::Output {
+            expected: String::from("hello"),
+        };
+        let output = " hello";
+        let (tx, rx) = channel();
+
+        let checker = OutputChecker::new(&check, output).unwrap();
+        checker.run(tx, Arc::new(AtomicBool::new(false)));
+        matches!(rx.recv().unwrap(), Event::OutputCheckFailed(_));
+    }
+
+    #[test]
+    fn test_tab_at_the_end_is_equal() {
+        let check = Check::Output {
+            expected: String::from("hello"),
+        };
+        let output = "hello\t";
+        let (tx, rx) = channel();
+
+        let checker = OutputChecker::new(&check, output).unwrap();
+        checker.run(tx, Arc::new(AtomicBool::new(false)));
+        matches!(rx.recv().unwrap(), Event::OutputCheckPassed);
+    }
+    #[test]
+    fn test_new_line_at_the_end_is_equal() {
+        let check = Check::Output {
+            expected: String::from("hello"),
+        };
+        let output = "hello\n";
+        let (tx, rx) = channel();
+
+        let checker = OutputChecker::new(&check, output).unwrap();
+        checker.run(tx, Arc::new(AtomicBool::new(false)));
+        matches!(rx.recv().unwrap(), Event::OutputCheckPassed);
+    }
+}
