@@ -103,6 +103,21 @@ mod tests {
         assert_eq!(expected, diff);
     }
     #[test]
+    fn test_diff_new_line() {
+        let old = "";
+        let new = "\n";
+        let diff = Diff::calculate_difference(old, new, None);
+        let expected = Diff {
+            differences: vec![Hunk::new(vec![Line::new(
+                vec![LineChunk::new(String::from("\n"), false)],
+                false,
+                DiffType::Added,
+            )])],
+        };
+        println!("{}", diff.to_ansi_colors());
+        assert_eq!(expected, diff);
+    }
+    #[test]
     fn test_diff_new_word() {
         let old = "Hello World";
         let new = "Hello World there";
