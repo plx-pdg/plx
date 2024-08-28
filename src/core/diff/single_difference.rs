@@ -1,6 +1,6 @@
 use super::difference_operation::DifferenceOperation;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(super) struct SingleDifference {
     operations: Vec<DifferenceOperation>,
 }

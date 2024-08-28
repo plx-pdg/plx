@@ -5,7 +5,7 @@ use super::{
     line_chunk::LineChunk, line_difference::LineDifference, single_difference::SingleDifference,
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Difference {
     differences: Vec<SingleDifference>,
 }

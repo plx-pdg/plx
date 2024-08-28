@@ -1,6 +1,6 @@
 use super::line_difference::LineDifference;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(super) struct DifferenceOperation {
     lines: Vec<LineDifference>,
 }
