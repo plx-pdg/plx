@@ -10,6 +10,7 @@ use std::{
     time::Duration,
 };
 
+#[derive(Debug)]
 pub enum ProcessError {
     WaitChildFail,
     SpawnProcessFail(io::Error),
