@@ -52,10 +52,13 @@ impl Ui<'_> {
         loop {
             match self.core.lock() {
                 Ok(core) => {
-                    self.run(&mut terminal, core.get_state());
-                    // if !self.run(&mut terminal, core.get_state()) {
-                    //     break;
-                    // }
+                    // self.run(&mut terminal, core.get_state());
+                    // // if !self.run(&mut terminal, core.get_state()) {
+                    // //     break;
+                    // // }
+                    if !self.run(&mut terminal, core.get_state())? {
+                        break;
+                    }
                 }
                 Err(_) => break,
             }
@@ -72,9 +75,12 @@ impl Ui<'_> {
         terminal.draw(|frame| {
             if !self.render_frame(frame, state) {
                 // return Ok(false);
+                self.render_frame(frame, state);
             }
         })?;
-        self.handle_events()?;
+        if !self.handle_events()? {
+            return Ok(false);
+        };
         Ok(true)
     }
 
