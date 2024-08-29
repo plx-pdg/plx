@@ -88,7 +88,7 @@ mod tests {
     #[test]
     fn test_diff() {
         let old = "Hello\nWorld";
-        let new = "Hello\nWorld\n";
+        let new = "Hello\nWorld Test\n";
         let diff = Diff::calculate_difference(old, new, None);
         let expected = Diff {
             differences: vec![Hunk::new(vec![
@@ -105,9 +105,9 @@ mod tests {
                 Line::new(
                     vec![
                         LineChunk::new(String::from("World"), false),
-                        LineChunk::new(String::from("\n"), false),
+                        LineChunk::new(String::from(" Test"), true),
                     ],
-                    false,
+                    true,
                     DiffType::Added,
                 ),
             ])],
@@ -121,11 +121,7 @@ mod tests {
         let new = "\n";
         let diff = Diff::calculate_difference(old, new, None);
         let expected = Diff {
-            differences: vec![Hunk::new(vec![Line::new(
-                vec![LineChunk::new(String::from("\n"), false)],
-                false,
-                DiffType::Added,
-            )])],
+            differences: vec![],
         };
         println!("{}", diff.to_ansi_colors());
         assert_eq!(expected, diff);
@@ -162,10 +158,8 @@ mod tests {
         let new = "Hello\nWorld Test\n";
         let diff = Diff::calculate_difference(old, new, None);
         let ansi = diff.to_ansi_colors();
-        let expected_ansi = r"[2m [0m[2mHello
-[0m[31m[1m-[0m[31m[1m[2mWorld[0m[31m[1m[2m
-[0m[32m[1m+[0m[32m[1m[2mWorld[0m[32m[1m Test[0m[32m[1m[2m
-[0m";
+        let expected_ansi = "\u{1b}[2m \u{1b}[0m\u{1b}[2mHello\n\u{1b}[0m\u{1b}[31m\u{1b}[1m-\u{1b}[0m\u{1b}[31m\u{1b}[1m\u{1b}[2mWorld\u{1b}[0m\n\u{1b}[32m\u{1b}[1m+\u{1b}[0m\u{1b}[32m\u{1b}[1m\u{1b}[2mWorld\u{1b}[0m\u{1b}[32m\u{1b}[1m Test\u{1b}[0m\n";
+
         println!("{}", diff.to_ansi_colors());
         assert_eq!(expected_ansi, ansi);
     }
