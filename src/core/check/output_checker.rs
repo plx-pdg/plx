@@ -1,7 +1,7 @@
 use std::sync::{atomic::AtomicBool, mpsc::Sender, Arc};
 
 use crate::{
-    core::diff::difference::Difference,
+    core::diff::diff::Diff,
     models::{check::Check, event::Event},
 };
 
@@ -36,7 +36,7 @@ impl<'a> OutputChecker<'a> {
             //_ => return, // Will never get here
         };
 
-        let diff = Difference::calculate_difference(self.program_output, &expected, None);
+        let diff = Diff::calculate_difference(self.program_output, &expected, None);
 
         let event = if diff.contains_differences() {
             Event::OutputCheckFailed(self.id, diff)
