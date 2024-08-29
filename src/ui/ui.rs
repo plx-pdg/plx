@@ -79,16 +79,20 @@ impl Ui<'_> {
 
         match state {
             UiState::Home => {
-                let title = Paragraph::new(Text::from(Span::styled(
-                    "PLX",
-                    Style::default()
-                        .add_modifier(Modifier::BOLD)
-                        .add_modifier(Modifier::UNDERLINED),
-                )))
-                .block(Block::default().borders(Borders::ALL))
-                .alignment(ratatui::layout::Alignment::Center);
+                let title_text = r#"
+████████  ██       ██     ██ 
+██     ██ ██        ██   ██  
+██     ██ ██         ██ ██   
+████████  ██          ███    
+██        ██         ██ ██   
+██        ██        ██   ██  
+██        ████████ ██     ██
+                    "#;
 
-                let content = Paragraph::new("Press 'r' to resume progress\nPress 'l' to list all Exercices\nPress '?' to display help\n").centered().block(Block::default().borders(Borders::ALL));
+                let title = Paragraph::new(Text::from(title_text))
+                .block(Block::default().borders(Borders::ALL).padding(Padding::new(0, 0, 10, 10)))
+                .alignment(ratatui::layout::Alignment::Center);
+                let content = Paragraph::new("Press 'r' to resume progress\nPress 'l' to list all Exercices\nPress '?' to display help\n").centered().block(Block::default().borders(Borders::ALL).padding(Padding::new(0, 0, 10, 10)));
 
                 frame.render_widget(title, display[0]);
                 frame.render_widget(content, display[1]);
