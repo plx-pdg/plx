@@ -3,17 +3,25 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::{core::core::PlxCore, models::ui_state::UiState};
+use crate::{
+    core::core::PlxCore,
+    models::{
+        event,
+        key::{self, Key},
+        ui_state::UiState,
+    },
+};
 use ratatui::{
     backend::CrosstermBackend,
     crossterm::{
+        event::{Event, KeyCode},
         terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
         ExecutableCommand,
     },
     layout::{Constraint, Direction, Layout},
     style::{Modifier, Style},
     text::{Span, Text},
-    widgets::{Block, Borders, Paragraph},
+    widgets::{block::title, Block, Borders, Padding, Paragraph},
     Frame, Terminal,
 };
 use std::io::{self, stdout};
