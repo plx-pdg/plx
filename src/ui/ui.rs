@@ -5,16 +5,12 @@ use std::{
 
 use crate::{
     core::core::PlxCore,
-    models::{
-        event,
-        key::{self, Key},
-        ui_state::UiState,
-    },
+    models::ui_state::UiState,
 };
 use ratatui::{
     backend::CrosstermBackend,
     crossterm::{
-        event::{Event, KeyCode},
+        event::{self, Event, KeyCode},
         terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
         ExecutableCommand,
     },
