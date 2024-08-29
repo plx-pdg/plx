@@ -24,6 +24,12 @@ impl Diff {
         }
         result
     }
+    fn trim_lines(text: &str) -> String {
+        text.lines()
+            .map(|line| line.trim_end())
+            .collect::<Vec<&str>>()
+            .join("\n")
+    }
     // Based on similar sample https://github.com/mitsuhiko/similar/blob/844769ae19f7451c5a5be3505d8865100dd300a0/examples/terminal-inline.rs
     //TODO add timeout param here for very large files
     pub fn calculate_difference(
@@ -31,7 +37,10 @@ impl Diff {
         new: &str,
         lines_between_changes: Option<usize>,
     ) -> Self {
-        let diff = TextDiff::from_lines(old, new);
+        let old = Diff::trim_lines(old);
+        let new = Diff::trim_lines(new);
+
+        let diff = TextDiff::from_lines(&old, &new);
 
         let mut differences = Vec::new();
         for group in &diff.grouped_ops(lines_between_changes.unwrap_or(3)) {
