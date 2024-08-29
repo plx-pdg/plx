@@ -144,7 +144,7 @@ mod test {
     fn test_infinite_loop() {
         // This code does while(1)
         let c_file = "./examples/basics/c/infinite_loop.c";
-        let file_name = "./infinit_loop";
+        let file_name = "./infinite_loop";
         compile_and_run_blocking_program(c_file, file_name);
     }
 
