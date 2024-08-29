@@ -42,12 +42,16 @@ pub fn get_process_status(child: &mut Child) -> Result<ProcessStatus, ProcessErr
         Err(_) => return Err(ProcessError::WaitChildFail),
     }
 }
+pub fn stop_child(child: &mut Child) -> Result<(), io::Error> {
+    child.kill()
+}
 pub fn wait_child(
     child: &mut Child,
     should_stop: Arc<AtomicBool>,
 ) -> Result<ExitStatus, ProcessError> {
     loop {
         if should_stop.load(Ordering::Relaxed) {
+            let _ = stop_child(child);
             return Err(ProcessError::Quit);
         }
         match get_process_status(child) {
