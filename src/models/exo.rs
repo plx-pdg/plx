@@ -1,15 +1,29 @@
+use std::path::PathBuf;
 use super::{check::Check, exo_state::ExoState, solution::Solution};
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Exo {
     title: String,
     instruction: Option<String>,
     state: ExoState,
-    files: Vec<std::path::PathBuf>,
+    pub(crate) dir_path: PathBuf,
+    files: Vec<PathBuf>,
     solution: Option<Solution>,
-    checks: Vec<Check>,
+    pub(crate) allowed_extensions: Vec<String>,
+    checks: Option<Vec<Check>>,
     favorite: bool,
 }
 impl Exo {
+    pub fn new(title: String,
+               instruction: Option<String>,
+               state: ExoState,
+               dir_path: PathBuf,
+               files: Vec<PathBuf>,
+               solution: Option<Solution>,
+               allowed_extensions: Vec<String>,
+               checks: Option<Vec<Check>>,
+               favorite: bool) -> Self {
+        Exo{title, instruction, state, dir_path, files, solution, allowed_extensions, checks, favorite}
+    }
     pub fn get_main_file(&self) -> Option<&std::path::PathBuf> {
         match self.files.iter().find(|file| {
             if let Some(file_name) = file.file_stem() {
