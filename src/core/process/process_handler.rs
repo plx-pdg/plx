@@ -45,6 +45,9 @@ pub fn get_process_status(child: &mut Child) -> Result<ProcessStatus, ProcessErr
 pub fn stop_child(child: &mut Child) -> Result<(), io::Error> {
     child.kill()
 }
+pub fn capture_exit_status(child: &mut Child) -> Result<ExitStatus, io::Error> {
+    child.wait()
+}
 pub fn wait_child(
     child: &mut Child,
     should_stop: Arc<AtomicBool>,
