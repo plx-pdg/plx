@@ -1,7 +1,7 @@
 use std::{
     ffi::OsStr,
     io,
-    process::{Child, Command, ExitStatus},
+    process::{Child, Command, ExitStatus, Output, Stdio},
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc,
@@ -22,6 +22,8 @@ pub enum ProcessStatus {
 pub fn spawn_process(cmd: &str, args: Vec<String>) -> Result<Child, ProcessError> {
     let child = Command::new(OsStr::new(&cmd))
         .args(args)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
         .spawn()
         .map_err(|err| ProcessError::SpawnProcessFail(err))?;
 
