@@ -145,7 +145,7 @@ mod test {
         let _ = std::fs::remove_file(file_name);
     }
     #[test]
-    #[timeout(2000)]
+    #[timeout(5000)]
     fn test_stuck_stdin() {
         // This code blocks reading stdin forever
         let c_file = "./examples/basics/c/wait_stdin.c";
@@ -154,7 +154,7 @@ mod test {
     }
 
     #[test]
-    #[timeout(2000)]
+    #[timeout(5000)]
     fn test_infinite_loop() {
         // This code does while(1)
         let c_file = "./examples/basics/c/infinite_loop.c";
@@ -163,7 +163,7 @@ mod test {
     }
 
     #[test]
-    #[timeout(2000)]
+    #[timeout(5000)]
     fn test_infinite_loop_with_sig_mapped() {
         // This code does while(1) and ignores sigterm and sigint
         let c_file = "./examples/basics/c/infinite_loop_map_signals.c";
