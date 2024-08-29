@@ -75,7 +75,7 @@ impl Ui<'_> {
             .direction(Direction::Vertical)
             .margin(1)
             .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-            .split(frame.size());
+            .split(frame.area());
 
         match state {
             UiState::Home => {
