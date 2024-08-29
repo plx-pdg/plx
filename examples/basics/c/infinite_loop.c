@@ -12,6 +12,7 @@ int main(void)
 	while (1) {
 		++i;
 		printf("Hello %d\n", i);
+		fflush(stdout);
 		//Make sure we sleep so we don't spam too much
 		Sleep(1000);
 	}
