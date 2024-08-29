@@ -195,5 +195,6 @@ mod test {
             .join()
             .expect("Couldn't join thread")
             .expect("Couldn't get child exit status");
+        let _ = std::fs::remove_file(file_name);
     }
 }
