@@ -110,8 +110,17 @@ impl Ui<'_> {
         return true;
     }
 
-    fn handle_events(&self) -> io::Result<()> {
-        todo!()
+    fn handle_events(&self /*, ui_state aussi pour render les pages*/) -> io::Result<bool> {
+        if event::poll(std::time::Duration::from_millis(50))? {
+            if let Event::Key(key) = event::read()? {
+                match key.code {
+                    KeyCode::Char('q') => return Ok(false),
+
+                    _ => {}
+                }
+            }
+        }
+        Ok(true)
     }
 
     // fn handle_events(app_state: &mut AppState) -> io::Result<bool> {
