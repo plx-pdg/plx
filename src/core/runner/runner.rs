@@ -25,8 +25,8 @@ impl Runner {
         Self { command, args }
     }
 
-    fn read_stream<T: Read>(tx: Sender<Event>, stdout: T) {
-        let reader = BufReader::new(stdout);
+    fn read_stream<T: Read>(tx: Sender<Event>, stream: T) {
+        let reader = BufReader::new(stream);
         reader.lines().for_each(|line| match line {
             Ok(line) => {
                 let _ = tx.send(Event::ProcessOutputLine(line));
@@ -93,7 +93,10 @@ impl Runner {
 
 #[cfg(test)]
 mod test {
-    use std::{process::Command, sync::mpsc::channel};
+    use std::{
+        process::Command,
+        sync::mpsc::{channel, Receiver},
+    };
 
     use ntest::timeout;
 
@@ -107,19 +110,30 @@ mod test {
             .output()
             .expect("Couldn't compile program");
     }
-    fn run_blocking_program(file_name: &str) {
+    fn launch_program(
+        file_name: &str,
+        stop: Arc<AtomicBool>,
+    ) -> (JoinHandle<Result<ExitStatus, ()>>, Receiver<Event>) {
         let runner = Runner::new(file_name.to_string(), vec![]);
 
-        let (tx, _) = channel();
-        let stop = Arc::new(AtomicBool::new(false));
+        let (tx, rx) = channel();
         let thread_stop = stop.clone();
 
-        let handler = thread::spawn(move || runner.run(tx, thread_stop));
+        (
+            thread::spawn(move || {
+                let exit = runner.run(tx, thread_stop);
+                assert!(exit.is_ok());
+                exit
+            }),
+            rx,
+        )
+    }
+    fn run_blocking_program(file_name: &str) {
         sleep(Duration::from_secs(1));
-
+        let stop = Arc::new(AtomicBool::new(false));
+        let (handler, _) = launch_program(file_name, stop.clone());
         // Stop should kill the process no matter the condition it is in
         stop.store(true, Ordering::Relaxed);
-
         handler
             .join()
             .expect("Couldn't join thread")
@@ -151,9 +165,35 @@ mod test {
     #[test]
     #[timeout(2000)]
     fn test_infinite_loop_with_sig_mapped() {
-        // This code does while(1)
+        // This code does while(1) and ignores sigterm and sigint
         let c_file = "./examples/basics/c/infinite_loop_map_signals.c";
         let file_name = "./infinit_loop_map_signals";
         compile_and_run_blocking_program(c_file, file_name);
+    }
+
+    #[test]
+    #[timeout(10000)]
+    fn test_stdout_during_run() {
+        //This code loops forever and prints Hello <i> every second
+        let c_file = "./examples/basics/c/infinite_loop.c";
+        let file_name = "./infinite_loop_stdout";
+        compile_program(c_file, file_name);
+
+        let stop = Arc::new(AtomicBool::new(false));
+        let (handler, rx) = launch_program(file_name, stop.clone());
+
+        //give the program some time to start
+        sleep(Duration::from_millis(1000));
+        for i in 1..=4 {
+            assert_eq!(
+                rx.recv().expect("Didn't receive data from process"),
+                Event::ProcessOutputLine(String::from(format!("Hello {}", i)))
+            );
+        }
+        stop.store(true, Ordering::Relaxed);
+        handler
+            .join()
+            .expect("Couldn't join thread")
+            .expect("Couldn't get child exit status");
     }
 }
