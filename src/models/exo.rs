@@ -187,7 +187,7 @@ impl Exo {
 mod test {
     use std::str::FromStr;
 
-    use crate::models::check::CheckType;
+    use crate::models::check::CheckTest;
 
     use super::*;
 
@@ -207,13 +207,10 @@ mod test {
                 .unwrap()
                 .join("main.c")],
 
-        solution: Some(
-            Solution::new(
+        solutions: vec![
             std::path::PathBuf::from_str(file_path)
                 .unwrap()
-                .join("main.sol.c")
-            ),
-        ),
+                .join("main.sol.c")],
         checks: vec![
             Check {
                 name: String::from("Joe + 5 legs"),
@@ -221,19 +218,19 @@ mod test {
                     String::from("Joe"),
                     String::from("5"),
                 ],
-                check_type: CheckType::Output,
+                test: CheckTest::Output {expected : String::from("The dog is Joe and has 5 legs")},
             },
             Check {
                 name: String::from("No arg -> error"),
                 args: vec![],
-                check_type: CheckType::Output,
+                test: CheckTest::Output {expected: String::from("Error: missing argument firstname and legs number")},
             },
             Check {
                 name: String::from("One arg -> error"),
                 args: vec![
                     String::from("Joe"),
                 ],
-                check_type: CheckType::Output,
+                test: CheckTest::Output {expected: String::from("Error: missing argument firstname and legs number")},
             },
         ],
         favorite: false,
@@ -258,7 +255,7 @@ mod test {
                 .join("main.c")],
             favorite: false,
             state: ExoState::Done,
-            solution: None,
+            solutions: vec![],
         };
         assert_eq!(expected, exo);
         println!("{:#?}", exo);
@@ -276,7 +273,7 @@ mod test {
                 .join("main.c")],
             favorite: true,
             state: ExoState::Todo,
-            solution: None,
+            solutions: vec![],
         };
         assert_eq!(expected, exo);
         println!("{:#?}", exo);
@@ -295,7 +292,7 @@ mod test {
                 .join("main.c")],
             favorite: false,
             state: ExoState::InProgress,
-            solution: None,
+            solutions: vec![],
         };
         assert_eq!(expected, exo);
         println!("{:#?}", exo);
@@ -304,9 +301,14 @@ mod test {
     #[test]
     fn test_exo_multiple_sols() {
         let file_path = "examples/mock-plx-project/mock-skill/multiple-sols";
-        let sol_file = std::path::PathBuf::from_str(file_path)
-            .unwrap()
-            .join("solution1.sol.c");
+        let sol_files = vec![
+            std::path::PathBuf::from_str(file_path)
+                .unwrap()
+                .join("main.sol.c"),
+            std::path::PathBuf::from_str(file_path)
+                .unwrap()
+                .join("whyisthishere.sol.c"),
+        ];
         let (exo, warnings) = Exo::from_dir(&(file_path.into())).unwrap();
         let expected = Exo {
             name: String::from("Multiple Sols"),
@@ -317,16 +319,12 @@ mod test {
                 .join("main.c")],
             favorite: false,
             state: ExoState::Todo,
-            solution: Some(Solution {
-                path: sol_file.clone(),
-            }),
+            solutions: sol_files.clone(),
         };
+        println!("{:#?}", warnings);
         assert_eq!(expected, exo);
         assert_eq!(warnings.len(), 1);
-        assert!(matches!(
-            warnings[0],
-            ParseWarning::MultipleSolutionsFound(_)
-        ));
+        assert!(matches!(warnings[0], ParseWarning::ExoFileNotFound(_)));
     }
     #[test]
     fn test_no_exo_info() {
@@ -365,10 +363,10 @@ mod test {
                 .join("main.c")],
             favorite: false,
             state: ExoState::Todo,
-            solution: None,
+            solutions: vec![],
         };
         assert_eq!(expected, exo);
         assert_eq!(warnings.len(), 1);
-        assert!(matches!(warnings[0], ParseWarning::ExoSolutionNotFound(_)));
+        assert!(matches!(warnings[0], ParseWarning::NoSolutionFile(_)));
     }
 }
