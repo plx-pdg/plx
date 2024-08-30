@@ -1,8 +1,11 @@
 use serde::{Deserialize, Serialize};
 
 use crate::core::{
-    file_utils::{file_parser::ParseError, file_utils::list_dir_files},
-    parser::{self},
+    file_utils::{
+        file_parser::{ParseError, ParseWarning},
+        file_utils::list_dir_files,
+    },
+    parser::{self, from_dir::FromDir},
 };
 
 use super::{check::Check, exo_state::ExoState, solution::Solution};
@@ -44,53 +47,68 @@ impl Exo {
         }
     }
 }
-impl Exo {
-    pub fn from_dir(directory: std::path::PathBuf) -> Result<Self, ParseError>
-    where
-        Self: serde::de::DeserializeOwned,
-    {
-        let exo_info_file = directory.join("exo.toml");
-        let exo_state_file = directory.join(".exo.state");
-        if !exo_info_file.exists() {
-            return Err(ParseError::FileNotFound(
-                exo_info_file.display().to_string(),
-            ));
-        }
-        let exo_info = parser::object_creator::create_from_file::<ExoInfo>(&exo_info_file)?;
+impl FromDir for Exo {
+    ///
+    /// Tries to build an exo from dir
+    /// Returns Ok if we were able to get the exo info and at least 1 exo file
+    /// else Error
+    ///
+    fn from_dir(
+        dir: &std::path::PathBuf,
+    ) -> Result<(Self, Vec<ParseWarning>), (ParseError, Vec<ParseWarning>)> {
+        // Get the exo info and the state if it exists.
+        let mut warnings = Vec::new();
+        let exo_info_file = dir.join("exo.toml");
+        let exo_state_file = dir.join(".exo-state.toml");
+        let exo_info = parser::object_creator::create_from_file::<ExoInfo>(&exo_info_file)
+            .map_err(|err| (err, vec![]))?;
+
+        // If the exo hasn't been started, the state file won't exist
         let exo_state = parser::object_creator::create_from_file::<ExoStateInfo>(&exo_state_file)
             .or::<ExoStateInfo>(Ok(ExoStateInfo {
                 favorite: false,
                 state: ExoState::Todo,
             }))
-            .unwrap();
-        let files = list_dir_files(&directory)
-            .map_err(|err| ParseError::FileDiscoveryFailed(err.to_string()))?;
-        let (exo_files, solution_file) = Exo::find_exo_files(files);
+            .unwrap(); // this is safe with or fn
+
+        // Get all the dir files and find the exo and solution files
+        let files = list_dir_files(&dir)
+            .map_err(|err| (ParseError::FileDiscoveryFailed(err.to_string()), vec![]))?;
+        let (exo_files, solution_file) = Exo::find_exo_files(files, &mut warnings);
+
         if exo_files.is_empty() {
-            return Err(ParseError::NoExoFilesFound(directory));
+            return Err((ParseError::NoExoFilesFound(dir.to_path_buf()), vec![]));
         }
-        let state = exo_state.state;
-        let favorite = exo_state.favorite;
 
         let solution = if let Some(solution_file) = solution_file {
             Some(Solution::new(solution_file))
         } else {
+            warnings.push(ParseWarning::ExoSolutionNotFound(format!(
+                "No solution found in {:?}",
+                dir
+            )));
             None
         };
 
-        Ok(Self {
-            name: exo_info.name,
-            instruction: exo_info.instruction,
-            checks: exo_info.checks,
-            state,
-            files: exo_files,
-            favorite,
-            solution,
-        })
+        Ok((
+            Self {
+                name: exo_info.name,
+                instruction: exo_info.instruction,
+                checks: exo_info.checks,
+                state: exo_state.state,
+                files: exo_files,
+                favorite: exo_state.favorite,
+                solution,
+            },
+            warnings,
+        ))
     }
-
+}
+impl Exo {
+    /// Finds exo and solution from a bunch of folder files
     fn find_exo_files(
         dir_entries: Vec<std::path::PathBuf>,
+        warnings: &mut Vec<ParseWarning>,
     ) -> (Vec<std::path::PathBuf>, Option<std::path::PathBuf>) {
         let mut exo_files = Vec::new();
         let mut solution_file = None;
@@ -103,10 +121,17 @@ impl Exo {
                 .unwrap();
 
             if file_path_str.contains(".sol.") {
-                // TODO handle the case where we have multiple solutions ?
+                if solution_file.is_some() {
+                    warnings.push(ParseWarning::MultipleSolutionsFound(format!(
+                        "Keeping {:?}",
+                        solution_file
+                    )));
+                    continue;
+                }
                 solution_file = Some(file_path);
                 continue;
             }
+            // Ignore our files
             if file_extension == "toml" {
                 continue;
             }
