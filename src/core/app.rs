@@ -8,6 +8,7 @@ use crate::models::{event::Event, exo::Exo, project::Project, ui_state::UiState}
 use super::{
     editor::opener::EditorOpener,
     file_utils::file_handler,
+    parser,
     work::{work::Work, work_handler::WorkHandler},
 };
 pub struct App<'a> {
@@ -23,7 +24,8 @@ impl App<'_> {
             return None;
         }
         let project_file = file_handler::project_file();
-        let project = Project::try_from(project_file);
+
+        let project = parser::object_creator::create_from_file(&project_file);
         if let Ok(project) = project {
             let channel = mpsc::channel();
             Some(App {
