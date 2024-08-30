@@ -16,7 +16,7 @@ struct ExoStateInfo {
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct Exo {
-    title: String,
+    name: String,
     instruction: Option<String>,
     state: ExoState,
     files: Vec<std::path::PathBuf>,
