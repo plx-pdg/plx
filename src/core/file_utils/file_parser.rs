@@ -12,6 +12,8 @@ pub enum ParseError {
 pub enum ParseWarning {
     ParseSkillFail(String),
     ParseExoFail(String),
-    ExoSolutionNotFound(String),
+    NoSolutionFile(String),
+    ExoFileNotFound(String),
     MultipleSolutionsFound(String),
+    InvalidFileName(String),
 }
