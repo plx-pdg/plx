@@ -11,6 +11,7 @@ use super::{check::Check, exo_state::ExoState, solution::Solution};
 struct ExoInfo {
     name: String,
     instruction: Option<String>,
+    #[serde(default)]
     checks: Vec<Check>,
 }
 
