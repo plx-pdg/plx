@@ -20,7 +20,7 @@ struct ExoStateInfo {
     favorite: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Exo {
     name: String,
     instruction: Option<String>,
