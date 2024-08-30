@@ -13,3 +13,4 @@ exclude = ["*.md"]
 console = "0.15.8"
 rand = "0.8.5"
 similar = { version = "2.6.0", features = ["inline"] }
+toml = "0.8.19"
