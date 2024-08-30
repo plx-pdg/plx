@@ -74,21 +74,19 @@ impl FromDir for Exo {
         // Get all the dir files and find the exo and solution files
         let files = list_dir_files(&dir)
             .map_err(|err| (ParseError::FileDiscoveryFailed(err.to_string()), vec![]))?;
-        let (exo_files, solution_file) = Exo::find_exo_files(files, &mut warnings);
+        let (exo_files, solution_files) = Exo::find_exo_files(files);
 
         if exo_files.is_empty() {
             return Err((ParseError::NoExoFilesFound(dir.to_path_buf()), vec![]));
         }
-
-        let solution = if let Some(solution_file) = solution_file {
-            Some(Solution::new(solution_file))
-        } else {
-            warnings.push(ParseWarning::ExoSolutionNotFound(format!(
+        if solution_files.is_empty() {
+            warnings.push(ParseWarning::NoSolutionFile(format!(
                 "No solution found in {:?}",
                 dir
             )));
-            None
-        };
+        }
+
+        Exo::check_exo_solutions(&exo_files, &solution_files, &mut warnings);
 
         Ok((
             Self {
@@ -98,7 +96,7 @@ impl FromDir for Exo {
                 state: exo_state.state,
                 files: exo_files,
                 favorite: exo_state.favorite,
-                solution,
+                solutions: solution_files,
             },
             warnings,
         ))
@@ -108,10 +106,9 @@ impl Exo {
     /// Finds exo and solution from a bunch of folder files
     fn find_exo_files(
         dir_entries: Vec<std::path::PathBuf>,
-        warnings: &mut Vec<ParseWarning>,
-    ) -> (Vec<std::path::PathBuf>, Option<std::path::PathBuf>) {
+    ) -> (Vec<std::path::PathBuf>, Vec<std::path::PathBuf>) {
         let mut exo_files = Vec::new();
-        let mut solution_file = None;
+        let mut solution_files = Vec::new();
         for file_path in dir_entries {
             let file_path_str = file_path.display().to_string();
             let file_extension = file_path
@@ -120,19 +117,12 @@ impl Exo {
                 .or(Some(""))
                 .unwrap();
 
-            if file_path_str.contains(".sol.") {
-                if solution_file.is_some() {
-                    warnings.push(ParseWarning::MultipleSolutionsFound(format!(
-                        "Keeping {:?}",
-                        solution_file
-                    )));
-                    continue;
-                }
-                solution_file = Some(file_path);
-                continue;
-            }
             // Ignore our files
             if file_extension == "toml" {
+                continue;
+            }
+            if file_path_str.contains(".sol.") {
+                solution_files.push(file_path);
                 continue;
             }
             // TODO maybe make sure we don't mix .c with .java files here ?
@@ -140,7 +130,56 @@ impl Exo {
             // .hpp etc...
             exo_files.push(file_path);
         }
-        (exo_files, solution_file)
+        (exo_files, solution_files)
+    }
+    fn check_exo_solutions(
+        exo_files: &Vec<std::path::PathBuf>,
+        solution_files: &Vec<std::path::PathBuf>,
+        warnings: &mut Vec<ParseWarning>,
+    ) {
+        if solution_files.is_empty() {
+            return;
+        }
+        for solution_file in solution_files {
+            //try to get solution file name and solution last extension
+            match (solution_file.file_stem(), solution_file.extension()) {
+                (Some(file_name), Some(extension)) => {
+                    //try to parse file name to string
+                    match (file_name.to_str(), extension.to_str()) {
+                        (Some(file_name), Some(extension)) => {
+                            // associated exo file should be of foramt <file_name>.<extension>
+                            // This essentially removes the .sol part
+                            let exo_target_name = format!("{}.{}", file_name.replace(".sol", ""), extension);
+                            let exo_exists = exo_files
+                                .iter()
+                                .find(|exo_file| {
+                                    if let Some(exo_file_name) = exo_file.file_name() {
+                                        *exo_file_name == *exo_target_name
+                                    } else {
+                                        warnings.push(ParseWarning::InvalidFileName(format!(
+                                            "{:?}",
+                                            solution_file
+                                        )));
+                                        false
+                                    }
+                                })
+                                .is_some();
+
+                            if !exo_exists {
+                                warnings.push(ParseWarning::ExoFileNotFound(format!(
+                                    "Solution file {:?} doesn't have an exo associated with it (expected exo file {:?})",
+                                    solution_file, exo_target_name 
+                                )))
+                            }
+                        }
+                        (_, _) => {
+                            warnings.push(ParseWarning::InvalidFileName(format!("{:?}", solution_file)))
+                        }
+                    }
+                }
+                (_, _) => warnings.push(ParseWarning::InvalidFileName(format!("{:?}", solution_file))),
+            }
+        }
     }
 }
 
