@@ -124,11 +124,12 @@ impl Ui<'_> {
 
                 // Create gradient style on title_text
                 // split le text en ligne pour pouvoir "repartir" la couleur
-                let lines_from_text: Vec<&str> = title_text.lines().collect();
                 // vecteur de rendu pour recup les lines modifiee du style voulu (gradient)
+                // calcul factor pour mixed color pour connaitre la pos de la ligne actuel dans le gradient final
+                let lines_from_text: Vec<&str> = title_text.lines().collect();
                 let mut spans = Vec::new();
                 for (i, line) in lines_from_text.iter().enumerate() {
-                    let factor = i as f32 / (lines_from_text.len() - 1) as f32; // calcul factor pour mixed color pour connaitre la pos de la ligne actuel dans le gradient final
+                    let factor = i as f32 / (lines_from_text.len() - 1) as f32; 
                     let color = mixed_color(first_color, second_color, factor);
                     let span = Span::styled(
                         *line,
@@ -164,7 +165,6 @@ impl Ui<'_> {
             if let Event::Key(key) = event::read()? {
                 match key.code {
                     KeyCode::Char('q') => return Ok(false),
-
 
                     _ => {}
                 }
