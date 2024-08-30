@@ -122,3 +122,56 @@ impl Exo {
         (exo_files, solution_file)
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::models::check::CheckType;
+
+    use super::*;
+
+    #[test]
+    fn test_parse_full_intro_basic_args() {
+        let file_path = "examples/full/intro/basic-args";
+
+        let expected = Exo {
+        name: String::from("Basic arguments usage"),
+        instruction: Some(
+                String::from(
+                    "The 2 first program arguments are the firstname and number of legs of a dog. Print a full sentence about the dog. Make sure there is at least 2 arguments, print an error if not.")
+            ),
+        state: ExoState::Todo,
+        files: vec!["examples/full/intro/basic-args/basic-args.c".into()],
+        solution: Some(
+            Solution::new(
+            "examples/full/intro/basic-args/basic-args.sol.c".into()),
+        ),
+        checks: vec![
+            Check {
+                name: String::from("Joe + 5 legs"),
+                args: vec![
+                    String::from("Joe"),
+                    String::from("5"),
+                ],
+                check_type: CheckType::Output,
+            },
+            Check {
+                name: String::from("No arg -> error"),
+                args: vec![],
+                check_type: CheckType::Output,
+            },
+            Check {
+                name: String::from("One arg -> error"),
+                args: vec![
+                    String::from("Joe"),
+                ],
+                check_type: CheckType::Output,
+            },
+        ],
+        favorite: false,
+    };
+        assert_eq!(
+            expected,
+            Exo::from_dir(file_path.into()).expect("Couldn't parse file")
+        );
+    }
+}
