@@ -7,4 +7,3 @@ pub trait FromDir {
     where
         Self: Sized;
 }
-
