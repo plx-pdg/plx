@@ -7,6 +7,8 @@ pub struct Project {
     skills: Vec<Skill>,
 }
 
+//TODO: remove tmp code here
+
 //Template code for testing ui. Should not be merged into main !!!!
 impl Project {
     pub fn new() -> Self {
