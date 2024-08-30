@@ -8,11 +8,12 @@ pub struct Check {
     pub args: Vec<String>,
 
     #[serde(alias = "type")]
-    pub check_type: CheckType,
+    pub test: CheckTest,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub enum CheckType {
+#[serde(tag = "type")]
+pub enum CheckTest {
     #[serde(alias = "output")]
-    Output,
+    Output { expected: String },
 }
