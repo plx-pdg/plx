@@ -46,6 +46,7 @@ impl FileWatcher {
                         if FileWatcher::is_allowed_file_type(&allowed_extensions, &event.path) {
                             if let DebouncedEventKind::Any = event.kind {
                                 tx.send(Event::FileSaved).unwrap();
+                                break;
                             }
                         }
                     }
@@ -87,7 +88,6 @@ mod tests {
     use std::thread;
     use std::fs::{File, remove_file};
     use std::time::Duration;
-    use tempfile::tempdir;
     use crate::models::exo_state::ExoState;
 
     /// Tests the creation of a new `FileWatcher` instance.
@@ -125,47 +125,43 @@ mod tests {
         assert!(!FileWatcher::is_allowed_file_type(&allowed_extensions, &path_other));
     }
 
-    // Tests the `run` method to ensure it sends the correct events for allowed file types.
-    // #[test]
-    // fn test_run() {
-    //     let exo = Exo::new(
-    //         "test".to_string(),
-    //         None,
-    //         ExoState::Todo,
-    //         PathBuf::from("src/core/watcher/test/"),
-    //         vec![PathBuf::from("src/core/watcher/test/file.md"),
-    //              PathBuf::from("src/core/watcher/test/file.rs"), PathBuf::from("src/core/watcher/test/file.txt")],
-    //         None,
-    //         vec!["txt".to_string(), "rs".to_string()],
-    //         None,
-    //         false
-    //     );
-    //
-    //      let watcher = FileWatcher::new(exo);
-    //
-    //      let (tx, rx) = channel();
-    //
-    //      // Run the watcher in a separate thread to avoid blocking the test
-    //      thread::spawn(move || {
-    //          watcher.run(tx);
-    //      });
-    //
-    //      // Create a temporary file with an allowed extension
-    //      let file_path = temp_path.join("test.txt");
-    //      File::create(&file_path).unwrap();
-    //
-    //     // Wait for a short duration to allow the watcher to detect changes
-    //      thread::sleep(Duration::from_secs(3));
-    //
-    //      // Check if the event was received
-    //      match rx.try_recv() {
-    //          Ok(Event::FileSaved) => println!("FileSaved event detected"),
-    //          Ok(_) => panic!("Unexpected event detected"),
-    //          Err(TryRecvError::Empty) => panic!("No event detected"),
-    //          Err(TryRecvError::Disconnected) => panic!("Channel disconnected"),
-    //      }
-    //
-    //      // Cleanup the temporary file
-    //      remove_file(file_path).unwrap();
-    //  }
+    /// Tests the `run` method to ensure it sends the correct events for allowed file types.
+    #[test]
+    fn test_run() {
+        let exo = Exo::new(
+            "test".to_string(),
+            None,
+            ExoState::Todo,
+            PathBuf::from("examples"),
+            vec![PathBuf::from("examples/basics/cpp/basic-args.cpp"),
+                 PathBuf::from("examples/basics/cpp/basic-args.cpp"), PathBuf::from("examples/README.md")],
+            None,
+            vec!["c".to_string(), "cpp".to_string(), "java".to_string()],
+            None,
+            false
+        );
+
+        let watcher = FileWatcher::new(exo.clone());
+
+        let (tx, rx) = channel();
+
+        thread::spawn(move || {
+            watcher.run(tx);
+        });
+
+        let file_path = exo.dir_path.join("test.c");
+        File::create(&file_path).unwrap();
+        let mut file_saved_event_received = false;
+
+        while let Ok(event) = rx.recv_timeout(Duration::from_secs(10)) {
+            match event {
+                Event::FileSaved => { file_saved_event_received = true;
+                break;},
+                Event::NoFileSaved => {panic!("A file change was detected, but it wasn't a save event.");},
+                _ => {}
+            }
+        }
+        assert!(file_saved_event_received, "Expected FileSaved event was not received within the timeout." );
+        remove_file(file_path).unwrap();
+    }
 }
