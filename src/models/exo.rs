@@ -1,12 +1,7 @@
-use std::fs::ReadDir;
-
 use serde::{Deserialize, Serialize};
 
 use crate::core::{
-    file_utils::{
-        file_parser::ParseError,
-        file_utils::{list_dir, list_dir_files},
-    },
+    file_utils::{file_parser::ParseError, file_utils::list_dir_files},
     parser::{self},
 };
 
