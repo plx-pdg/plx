@@ -1,10 +1,12 @@
 use std::{
     io::Stdout,
-    str::FromStr,
     sync::{Arc, Mutex},
 };
 
-use crate::{core::core::PlxCore, models::ui_state::UiState};
+use crate::{
+    core::core::PlxCore,
+    models::ui_state::{self, UiState},
+};
 use ratatui::{
     backend::CrosstermBackend,
     crossterm::{
@@ -13,9 +15,9 @@ use ratatui::{
         ExecutableCommand,
     },
     layout::{Constraint, Direction, Layout},
-    style::{Color, Style, Stylize},
+    style::{Color, Style},
     text::{Line, Span, Text},
-    widgets::{block::title, Block, Borders, Padding, Paragraph},
+    widgets::{Block, Borders, Paragraph},
     Frame, Terminal,
 };
 use std::io::{self, stdout};
