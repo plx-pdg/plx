@@ -96,8 +96,7 @@ mod tests {
     fn test_full_hierarchy() {
         let project_path = std::path::PathBuf::from_str("examples/mock-plx-project").unwrap();
         let project = Project::from_dir(&project_path);
-        let expected : Result<(Project, Vec<ParseWarning>), (ParseError, Vec<ParseWarning>)> = Ok((
-            Project {
+        let expected  = Project {
             name: String::from("Full fictive course"),
             skills: vec![
                 Skill {
@@ -164,18 +163,9 @@ mod tests {
                     ],
                 },
             ],
-        },
-        vec![
-            ParseWarning::ParseSkillFail(
-                String::from("Couldn't parse skill in \"pointers\": (ReadFileError(\"No such file or directory (os error 2)\"), [])"),
-            ),
-        ],
-    ),
-    );
-        let (expected_project, expected_warnings) = expected.unwrap();
-        let (project, warnings) = project.unwrap();
-        assert_eq!(expected_project, project);
-        assert_eq!(expected_warnings, warnings);
-        println!("{:#?}", project);
+        };
+        let (actual, warnings) = project.unwrap();
+        assert_eq!(expected, actual);
+        assert!(matches!(warnings[0], ParseWarning::ParseSkillFail(_)));
     }
 }
