@@ -4,3 +4,8 @@ use serde::{Deserialize, Serialize};
 pub struct Solution {
     path: std::path::PathBuf,
 }
+impl Solution {
+    pub fn new(path: std::path::PathBuf) -> Self {
+        Solution { path }
+    }
+}
