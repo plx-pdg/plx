@@ -1,5 +1,20 @@
+use serde::{Deserialize, Serialize};
 use super::{check::Check, exo_state::ExoState, solution::Solution};
 
+#[derive(Serialize, Deserialize, Debug)]
+struct ExoInfo {
+    name: String,
+    instruction: Option<String>,
+    checks: Vec<Check>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct ExoStateInfo {
+    state: ExoState,
+    favorite: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct Exo {
     title: String,
     instruction: Option<String>,

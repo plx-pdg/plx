@@ -1,7 +1,8 @@
-use crate::core::file_utils::file_parser;
+use serde::Deserialize;
 
 use super::skill::Skill;
 
+#[derive(Deserialize)]
 pub struct Project {
     name: String,
     skills: Vec<Skill>,

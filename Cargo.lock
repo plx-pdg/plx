@@ -90,6 +90,7 @@ version = "0.1.2"
 dependencies = [
  "console",
  "rand",
+ "serde",
  "similar",
  "toml",
 ]
