@@ -8,7 +8,7 @@ use crate::core::{
     parser::{self, from_dir::FromDir},
 };
 
-use super::{check::Check, exo_state::ExoState, solution::Solution};
+use super::{check::Check, exo_state::ExoState};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct ExoInfo {
@@ -30,7 +30,7 @@ pub struct Exo {
     pub instruction: Option<String>,
     pub state: ExoState,
     pub files: Vec<std::path::PathBuf>,
-    pub solution: Option<Solution>,
+    pub solutions: Vec<std::path::PathBuf>,
     pub checks: Vec<Check>,
     pub favorite: bool,
 }
