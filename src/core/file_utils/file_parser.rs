@@ -1,5 +1,8 @@
 #[derive(Debug)]
 pub enum ParseError {
-    FileNotFound,
-    ParseError,
+    ReadFileError(String),
+    ParseError(String),
+    FileNotFound(String),
+    FileDiscoveryFailed(String),
+    NoExoFilesFound(std::path::PathBuf),
 }
