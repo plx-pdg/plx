@@ -1,5 +1,7 @@
 use serde::Deserialize;
 
+use crate::core::file_utils::file_parser::ParseError;
+
 use super::skill::Skill;
 
 #[derive(Deserialize)]
@@ -8,12 +10,10 @@ pub struct Project {
     skills: Vec<Skill>,
 }
 
-impl TryFrom<std::path::PathBuf> for Project {
-    type Error = file_parser::ParseError;
-
-    fn try_from(_path: std::path::PathBuf) -> Result<Self, Self::Error> {
-        // let content = read_file(path)?;
-        // parse_yaml(content)?;
-        Err(file_parser::ParseError::ParseError)
+impl Project {
+    pub fn from_dir(directory: std::path::PathBuf) -> Result<Self, ParseError> {
+        let course_info_file = directory.push("course.toml");
+        let skills_info_file = directory.push("skills.toml");
+        let skills_folders = 
     }
 }

@@ -3,7 +3,10 @@ use std::fs::ReadDir;
 use serde::{Deserialize, Serialize};
 
 use crate::core::{
-    file_utils::{file_parser::ParseError, file_utils::list_dir},
+    file_utils::{
+        file_parser::ParseError,
+        file_utils::{list_dir, list_dir_files},
+    },
     parser::{self},
 };
 
@@ -64,8 +67,8 @@ impl Exo {
                 state: ExoState::Todo,
             }))
             .unwrap();
-        let files =
-            list_dir(&directory).map_err(|err| ParseError::FileDiscoveryFailed(err.to_string()))?;
+        let files = list_dir_files(&directory)
+            .map_err(|err| ParseError::FileDiscoveryFailed(err.to_string()))?;
         let (exo_files, solution_file) = Exo::find_exo_files(files);
         if exo_files.is_empty() {
             return Err(ParseError::NoExoFilesFound(directory));
@@ -91,33 +94,30 @@ impl Exo {
     }
 
     fn find_exo_files(
-        dir_entries: ReadDir,
+        dir_entries: Vec<std::path::PathBuf>,
     ) -> (Vec<std::path::PathBuf>, Option<std::path::PathBuf>) {
         let mut exo_files = Vec::new();
         let mut solution_file = None;
-        for entry in dir_entries {
-            if let Ok(entry) = entry {
-                let file_path = entry.path();
-                let file_path_str = file_path.display().to_string();
-                let file_extension = file_path
-                    .extension()
-                    .and_then(|extension| extension.to_str())
-                    .or(Some(""))
-                    .unwrap();
+        for file_path in dir_entries {
+            let file_path_str = file_path.display().to_string();
+            let file_extension = file_path
+                .extension()
+                .and_then(|extension| extension.to_str())
+                .or(Some(""))
+                .unwrap();
 
-                if file_path_str.contains(".sol.") {
-                    // TODO handle the case where we have multiple solutions ?
-                    solution_file = Some(file_path);
-                    continue;
-                }
-                if file_extension == "toml" {
-                    continue;
-                }
-                // TODO maybe make sure we don't mix .c with .java files here ?
-                // We need to be careful adding this because .c can be mixed with .cpp, .h,
-                // .hpp etc...
-                exo_files.push(file_path);
+            if file_path_str.contains(".sol.") {
+                // TODO handle the case where we have multiple solutions ?
+                solution_file = Some(file_path);
+                continue;
             }
+            if file_extension == "toml" {
+                continue;
+            }
+            // TODO maybe make sure we don't mix .c with .java files here ?
+            // We need to be careful adding this because .c can be mixed with .cpp, .h,
+            // .hpp etc...
+            exo_files.push(file_path);
         }
         (exo_files, solution_file)
     }
