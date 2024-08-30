@@ -1,19 +1,14 @@
 use std::{
     io::Stdout,
-    path,
-    sync::{Arc, Mutex},
+    sync::mpsc::{Receiver, Sender, TryRecvError},
 };
 
-use crate::{
-    core::core::PlxCore,
-    models::ui_state::{self, UiState},
-    ui::pages::home,
-};
+use crate::{models::event::Event, models::key::Key, models::ui_state::UiState, ui::pages::home};
 
 use ratatui::{
     backend::CrosstermBackend,
     crossterm::{
-        event::{self, Event, KeyCode},
+        event::{self, Event as CrosstermEvent, KeyCode},
         terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
         ExecutableCommand,
     },
@@ -25,12 +20,29 @@ use ratatui::{
 };
 use std::io::{self, stdout};
 
+// TODO: is it the correct place to put this function ?
+fn ui_key_to_core_key(key: &KeyCode) -> Option<Key> {
+    match key {
+        KeyCode::Char('q') => Some(Key::Q),
+        KeyCode::Char('h') | KeyCode::Left => Some(Key::H),
+        KeyCode::Char('j') | KeyCode::Down => Some(Key::J),
+        KeyCode::Char('k') | KeyCode::Up => Some(Key::K),
+        KeyCode::Char('l') | KeyCode::Right => Some(Key::L),
+        KeyCode::Enter => Some(Key::Enter),
+        KeyCode::Esc => Some(Key::Esc),
+        // Char('g') => self.go_top(),
+        // Char('G') => self.go_bottom(),
+        _ => None,
+    }
+}
+
 pub struct Ui<'a> {
-    core: Arc<Mutex<PlxCore<'a>>>,
+    tx: Sender<Event>,
+    rx: Receiver<UiState<'a>>,
 }
 impl Ui<'_> {
-    pub fn new(core: Arc<Mutex<PlxCore>>) -> Ui<'_> {
-        Ui { core }
+    pub fn new(tx: Sender<Event>, rx: Receiver<UiState>) -> Ui<'_> {
+        Ui { tx, rx }
     }
     fn setup(&mut self) -> io::Result<()> {
         println!("Ui Setup...");
@@ -45,21 +57,21 @@ impl Ui<'_> {
         Ok(())
     }
     pub fn loop_forever(&mut self) -> io::Result<()> {
+        let mut local_state: Option<UiState> = None;
         self.setup()?;
         let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
 
         loop {
-            match self.core.lock() {
-                Ok(core) => {
-                    // self.run(&mut terminal, core.get_state());
-                    // // if !self.run(&mut terminal, core.get_state()) {
-                    // //     break;
-                    // // }
-                    if !self.run(&mut terminal, core.get_state())? {
-                        break;
-                    }
+            match self.rx.try_recv() {
+                Ok(state) => {
+                    local_state = Some(state); //TODO: how performant is it ??
                 }
-                Err(_) => break,
+                Err(TryRecvError::Disconnected) => break,
+                Err(TryRecvError::Empty) => {}
+            }
+
+            if let Some(state) = &local_state {
+                self.run(&mut terminal, &state);
             }
         }
         self.teardown()?;
@@ -96,23 +108,13 @@ impl Ui<'_> {
 
     fn handle_events(&self /*, ui_state aussi pour render les pages*/) -> io::Result<bool> {
         if event::poll(std::time::Duration::from_millis(50))? {
-            if let Event::Key(key) = event::read()? {
-                match key.code {
-                    KeyCode::Char('q') => return Ok(false),
-
-                    _ => {}
+            if let CrosstermEvent::Key(key) = event::read()? {
+                // if (key.code == 'q')
+                if let Some(k) = ui_key_to_core_key(&key.code) {
+                    self.tx.send(Event::KeyPressed(k));
                 }
             }
         }
         Ok(true)
     }
-
-    // fn handle_events(app_state: &mut AppState) -> io::Result<bool> {
-    //     if event::poll(std::time::Duration::from_millis(50))? {
-    //         if let Event::Key(key) = event::read()? {
-    //             //TODO send event to the core
-    //         }
-    //     }
-    //     Ok(false)
-    // }
 }

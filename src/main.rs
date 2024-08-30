@@ -8,11 +8,11 @@ fn main() {
     let core = PlxCore::new();
     match core {
         Some(core) => {
-            let mut ui = Ui::new(Arc::new(Mutex::new(core)));
-            match ui.loop_forever() {
-                Ok(_) => (),
-                Err(err) => eprintln!("{}", err),
-            }
+            // let mut ui = Ui::new(Arc::new(Mutex::new(core)));
+            // match ui.loop_forever() {
+            //     Ok(_) => (),
+            //     Err(err) => eprintln!("{}", err),
+            // }
         }
         None => {
             eprintln!("Couldn't init Core");
