@@ -1,0 +1,14 @@
+name = 'Basic arguments usage'
+instruction = 'The 2 first program arguments are the firstname and number of legs of a dog. Print a full sentence about the dog. Make sure there is at least 2 arguments, print an error if not.'
+[[checks]]
+name = 'Joe + 5 legs'
+args = ["Joe", "5"]
+type = "output"
+output = 'The dog is Joe and has 5 legs'
+[[checks]]
+name = 'No arg -> error'
+output = "Error: missing argument firstname and legs number"
+[[checks]]
+name = 'One arg -> error'
+args = ["Joe"]
+output = "Error: missing argument firstname and legs number"
