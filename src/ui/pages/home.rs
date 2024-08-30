@@ -17,16 +17,15 @@ pub fn render_home(frame: &mut Frame) {
                     "#;
 
     // how can i change this ???
-    let info_text_one = "Press 'r' to resume progress";
-    let info_text_two = "Press 'l' to list all exercices";
-    let info_text_three = "Press '?' to display help";
+    let quick_help_lines = vec![
+        "Press 'r' to resume progress",
+        "Press 'l' to list all exercices",
+        "Press '?' to display help",
+    ];
 
     // Ratatui needs RGB => need convert hex colors to RGB
-    // starting color = #fc1100 => RGB = 252, 17, 0
-    // ending color = #ffb000 => RGB = 255, 176, 0
-
-    let first_color = (252, 17, 0);
-    let second_color = (255, 176, 0);
+    let first_color = (252, 17, 0); // #fc1100 => RGB = 252, 17, 0
+    let second_color = (255, 176, 0); // #ffb000 => RGB = 255, 176, 0
 
     // Function to mix colors and create the gradient result
     // factor = float qui indique la pos entre la couleur de first et second.
@@ -58,10 +57,9 @@ pub fn render_home(frame: &mut Frame) {
     // prend spans et traduit en It puis map = traduit de type spans a line, collect => rend en vec de line
     // tout ca car Text:: peut pas lire des Vec de spans mais de Line.
     let mut lines: Vec<Line> = spans.into_iter().map(Line::from).collect();
-
-    lines.push(Line::from(info_text_one));
-    lines.push(Line::from(info_text_two));
-    lines.push(Line::from(info_text_three));
+    for l in quick_help_lines {
+        lines.push(Line::from(l));
+    }
 
     let title = Paragraph::new(Text::from(lines))
         .block(Block::default().borders(Borders::NONE))
@@ -70,6 +68,4 @@ pub fn render_home(frame: &mut Frame) {
     // let content = Paragraph::new("").centered().block(Block::default().borders(Borders::ALL).padding(Padding::new(0, 0, 10, 10)).style(Style::default().bold()));
 
     frame.render_widget(title, frame.area());
-
-    // frame.render_widget(content, display[1]);
 }
