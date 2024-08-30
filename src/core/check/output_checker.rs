@@ -117,9 +117,9 @@ mod test {
     #[test]
     fn test_extra_whitespace_beggining_fails() {
         let check = Check::Output {
-            expected: String::from("hello"),
+            expected: String::from("hey\nhello"),
         };
-        let output = " hello";
+        let output = "hey\n hello";
         let event = test(check, output);
         assert!(matches!(event, Event::OutputCheckFailed(..)));
     }
@@ -127,9 +127,20 @@ mod test {
     #[test]
     fn test_tab_at_the_end_passes() {
         let check = Check::Output {
-            expected: String::from("hello"),
+            expected: String::from("yoo\nhello"),
         };
-        let output = "hello\t";
+        let output = "yoo\t\nhello\t";
+
+        let event = test(check, output);
+        assert!(matches!(event, Event::OutputCheckPassed(..)));
+    }
+
+    #[test]
+    fn test_mix_of_whitespaces_at_end_passes() {
+        let check = Check::Output {
+            expected: String::from("yoo     \t\t  \nhello\t \n"),
+        };
+        let output = "yoo\t\nhello\t";
 
         let event = test(check, output);
         assert!(matches!(event, Event::OutputCheckPassed(..)));
@@ -137,9 +148,9 @@ mod test {
     #[test]
     fn test_new_line_at_the_end_is_passes() {
         let check = Check::Output {
-            expected: String::from("hello"),
+            expected: String::from("hey there\nhello\n"),
         };
-        let output = "hello\n";
+        let output = "hey there\nhello";
 
         let event = test(check, output);
         assert!(matches!(event, Event::OutputCheckPassed(..)));
@@ -151,6 +162,17 @@ mod test {
             expected: String::from("hello"),
         };
         let output = "world hello";
+
+        let event = test(check, output);
+        assert!(matches!(event, Event::OutputCheckFailed(..)));
+    }
+
+    #[test]
+    fn test_extra_lines_fails() {
+        let check = Check::Output {
+            expected: String::from("hello\n\nworld"),
+        };
+        let output = "hello\nworld";
 
         let event = test(check, output);
         assert!(matches!(event, Event::OutputCheckFailed(..)));
