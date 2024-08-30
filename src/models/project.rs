@@ -82,25 +82,27 @@ impl FromDir for Project {
 #[cfg(test)]
 mod tests {
 
+    use std::str::FromStr;
+
     use crate::models::{
-        check::{Check, CheckType},
+        check::{Check, CheckTest},
         exo::Exo,
         exo_state::ExoState,
-        solution::Solution,
     };
 
     use super::*;
 
     #[test]
     fn test_full_hierarchy() {
-        let project = Project::from_dir(&("examples/full".into()));
+        let project_path = std::path::PathBuf::from_str("examples/mock-plx-project").unwrap();
+        let project = Project::from_dir(&project_path);
         let expected : Result<(Project, Vec<ParseWarning>), (ParseError, Vec<ParseWarning>)> = Ok((
             Project {
             name: String::from("Full fictive course"),
             skills: vec![
                 Skill {
                     name: String::from("Introduction"),
-                    path: "examples/full/intro".into(),
+                    path: project_path.join("intro"),
                     exos: vec![
                         Exo {
                             name: String::from("Basic arguments usage"),
@@ -109,13 +111,11 @@ mod tests {
                             ),
                             state: ExoState::Todo,
                             files: vec![
-                                "examples/full/intro/basic-args/main.c".into(),
+                               project_path.join("intro").join("basic-args").join("main.c"),
                             ],
-                            solution: Some(
-                                Solution {
-                                    path: "examples/full/intro/basic-args/main.sol.c".into(),
-                                },
-                            ),
+                            solutions: vec![
+                                project_path.join("intro").join("basic-args").join("main.sol.c").into(),
+                            ],
                             checks: vec![
                                 Check {
                                     name: String::from("Joe + 5 legs"),
@@ -123,19 +123,19 @@ mod tests {
                                         String::from("Joe"),
                                         String::from("5"),
                                     ],
-                                    check_type: CheckType::Output,
+                                    test: CheckTest::Output{expected: String::from("The dog is Joe and has 5 legs")},
                                 },
                                 Check {
                                     name: String::from("No arg -> error"),
                                     args: vec![],
-                                    check_type: CheckType::Output,
+                                    test: CheckTest::Output{ expected : String::from("Error: missing argument firstname and legs number")},
                                 },
                                 Check {
                                     name: String::from("One arg -> error"),
                                     args: vec![
                                         String::from("Joe"),
                                     ],
-                                    check_type: CheckType::Output,
+                                    test: CheckTest::Output {expected : String::from("Error: missing argument firstname and legs number")},
                                 },
                             ],
                             favorite: false,
@@ -147,18 +147,16 @@ mod tests {
                             ),
                             state: ExoState::Todo,
                             files: vec![
-                                "examples/full/intro/basic-output/main.c".into(),
+                               project_path.join("intro").join("basic-output").join("main.c"),
                             ],
-                            solution: Some(
-                                Solution {
-                                    path: "examples/full/intro/basic-output/main.sol.c".into(),
-                                },
-                            ),
+                            solutions: vec![
+                               project_path.join("intro").join("basic-output").join("main.sol.c"),
+                            ],
                             checks: vec![
                                 Check {
                                     name: String::from("Lines are correct"),
                                     args: vec![],
-                                    check_type: CheckType::Output,
+                                    test: CheckTest::Output{ expected: String::from("PLX is amazing !\nThis is a neutral opinion...\n")},
                                 },
                             ],
                             favorite: false,
