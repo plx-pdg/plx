@@ -22,13 +22,13 @@ struct ExoStateInfo {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Exo {
-    name: String,
-    instruction: Option<String>,
-    state: ExoState,
-    files: Vec<std::path::PathBuf>,
-    solution: Option<Solution>,
-    checks: Vec<Check>,
-    favorite: bool,
+    pub name: String,
+    pub instruction: Option<String>,
+    pub state: ExoState,
+    pub files: Vec<std::path::PathBuf>,
+    pub solution: Option<Solution>,
+    pub checks: Vec<Check>,
+    pub favorite: bool,
 }
 impl Exo {
     pub fn get_main_file(&self) -> Option<&std::path::PathBuf> {
