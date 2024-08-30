@@ -6,9 +6,10 @@ use std::sync::{
 use crate::models::{event::Event, exo::Exo, project::Project, ui_state::UiState};
 
 use super::{
+    core_error::CoreInitError,
     editor::opener::EditorOpener,
-    file_utils::file_handler,
-    parser::{self, from_dir::FromDir},
+    file_utils::file_handler::{self, current_folder},
+    parser::from_dir::FromDir,
     work::{work::Work, work_handler::WorkHandler},
 };
 pub struct App<'a> {
@@ -19,26 +20,29 @@ pub struct App<'a> {
 }
 
 impl App<'_> {
-    pub fn new() -> Option<Self> {
-        todo!()
-        // if !file_handler::is_plx_folder() {
-        //     return None;
-        // }
-        // let project_file = file_handler::project_file();
-        //
-        // let project = Project::from_dir(dir)
-        // let project = parser::object_creator::create_from_file(&project_file);
-        // if let Ok(project) = project {
-        //     let channel = mpsc::channel();
-        //     Some(App {
-        //         ui_state: UiState::Home,
-        //         project,
-        //         work_handler: (WorkHandler::new(channel.0.clone())),
-        //         event_queue: channel,
-        //     })
-        // } else {
-        //     None
-        // }
+    pub fn new() -> Result<Self, CoreInitError> {
+        let current_folder = match current_folder() {
+            Ok(folder) => folder,
+            Err(_err) => return Err(CoreInitError::PlxProjNotFound), // TODO maybe be more specific
+                                                                     // here by adding the error detail
+        };
+
+        // TODO these warnings should be accessible to the user
+        let (project, _warnings) = match Project::from_dir(&current_folder) {
+            Ok((project, warnings)) => (project, warnings),
+            Err((err, _warnings)) => {
+                // TODO handle these warnings even in case of failure
+                return Err(CoreInitError::ProjFilesParsingError(format!("{:?}", err)));
+            }
+        };
+
+        let channel = mpsc::channel();
+        Ok(App {
+            ui_state: UiState::Home,
+            project,
+            work_handler: (WorkHandler::new(channel.0.clone())),
+            event_queue: channel,
+        })
     }
     pub fn get_state(&self) -> &UiState {
         &self.ui_state
