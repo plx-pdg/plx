@@ -146,13 +146,15 @@ impl Exo {
 
 #[cfg(test)]
 mod test {
+    use std::str::FromStr;
+
     use crate::models::check::CheckType;
 
     use super::*;
 
     #[test]
     fn test_parse_full_intro_basic_args() {
-        let file_path = "examples/full/intro/basic-args";
+        let file_path = "examples/mock-plx-project/intro/basic-args";
 
         let expected = Exo {
         name: String::from("Basic arguments usage"),
@@ -161,10 +163,17 @@ mod test {
                     "The 2 first program arguments are the firstname and number of legs of a dog. Print a full sentence about the dog. Make sure there is at least 2 arguments, print an error if not.")
             ),
         state: ExoState::Todo,
-        files: vec!["examples/full/intro/basic-args/basic-args.c".into()],
+        files: vec![
+            std::path::PathBuf::from_str(file_path)
+                .unwrap()
+                .join("main.c")],
+
         solution: Some(
             Solution::new(
-            "examples/full/intro/basic-args/basic-args.sol.c".into()),
+            std::path::PathBuf::from_str(file_path)
+                .unwrap()
+                .join("main.sol.c")
+            ),
         ),
         checks: vec![
             Check {
@@ -192,7 +201,135 @@ mod test {
     };
         assert_eq!(
             expected,
-            Exo::from_dir(file_path.into()).expect("Couldn't parse file")
+            Exo::from_dir(&(file_path.into()))
+                .expect("Couldn't parse file")
+                .0
         );
+    }
+    #[test]
+    fn test_exo_done() {
+        let file_path = "examples/mock-plx-project/mock-skill/exo-done";
+        let (exo, _warnings) = Exo::from_dir(&(file_path.into())).unwrap();
+        let expected = Exo {
+            name: String::from("Exo Done"),
+            instruction: None,
+            checks: vec![],
+            files: vec![std::path::PathBuf::from_str(file_path)
+                .unwrap()
+                .join("main.c")],
+            favorite: false,
+            state: ExoState::Done,
+            solution: None,
+        };
+        assert_eq!(expected, exo);
+        println!("{:#?}", exo);
+    }
+    #[test]
+    fn test_exo_favorite() {
+        let file_path = "examples/mock-plx-project/mock-skill/exo-favorite";
+        let (exo, _warnings) = Exo::from_dir(&(file_path.into())).unwrap();
+        let expected = Exo {
+            name: String::from("Favorite Exercise"),
+            instruction: None,
+            checks: vec![],
+            files: vec![std::path::PathBuf::from_str(file_path)
+                .unwrap()
+                .join("main.c")],
+            favorite: true,
+            state: ExoState::Todo,
+            solution: None,
+        };
+        assert_eq!(expected, exo);
+        println!("{:#?}", exo);
+    }
+
+    #[test]
+    fn test_exo_in_progress() {
+        let file_path = "examples/mock-plx-project/mock-skill/exo-in-progress";
+        let (exo, _warnings) = Exo::from_dir(&(file_path.into())).unwrap();
+        let expected = Exo {
+            name: String::from("In Progress"),
+            instruction: None,
+            checks: vec![],
+            files: vec![std::path::PathBuf::from_str(file_path)
+                .unwrap()
+                .join("main.c")],
+            favorite: false,
+            state: ExoState::InProgress,
+            solution: None,
+        };
+        assert_eq!(expected, exo);
+        println!("{:#?}", exo);
+    }
+
+    #[test]
+    fn test_exo_multiple_sols() {
+        let file_path = "examples/mock-plx-project/mock-skill/multiple-sols";
+        let sol_file = std::path::PathBuf::from_str(file_path)
+            .unwrap()
+            .join("solution1.sol.c");
+        let (exo, warnings) = Exo::from_dir(&(file_path.into())).unwrap();
+        let expected = Exo {
+            name: String::from("Multiple Sols"),
+            instruction: None,
+            checks: vec![],
+            files: vec![std::path::PathBuf::from_str(file_path)
+                .unwrap()
+                .join("main.c")],
+            favorite: false,
+            state: ExoState::Todo,
+            solution: Some(Solution {
+                path: sol_file.clone(),
+            }),
+        };
+        assert_eq!(expected, exo);
+        assert_eq!(warnings.len(), 1);
+        assert!(matches!(
+            warnings[0],
+            ParseWarning::MultipleSolutionsFound(_)
+        ));
+    }
+    #[test]
+    fn test_no_exo_info() {
+        let file_path = "examples/mock-plx-project/mock-skill/no-exo-info";
+        let ret = Exo::from_dir(&(file_path.into()));
+        assert!(ret.is_err());
+
+        let err = match ret {
+            Ok(_) => panic!("Exo can't be constructed with no exo info"),
+            Err((error, _warnings)) => error,
+        };
+        assert!(matches!(err, ParseError::ReadFileError(_)));
+    }
+    #[test]
+    fn test_no_files() {
+        let file_path = "examples/mock-plx-project/mock-skill/no-files";
+        let ret = Exo::from_dir(&(file_path.into()));
+        assert!(ret.is_err());
+
+        let err = match ret {
+            Ok(_) => panic!("Exo can't be constructed with no files"),
+            Err((error, _warnings)) => error,
+        };
+        assert!(matches!(err, ParseError::NoExoFilesFound(_)));
+    }
+    #[test]
+    fn test_no_solution() {
+        let file_path = "examples/mock-plx-project/mock-skill/no-sol";
+        let (exo, warnings) = Exo::from_dir(&(file_path.into())).unwrap();
+        let expected = Exo {
+            name: String::from("No Sol"),
+            instruction: None,
+            checks: vec![],
+            files: vec![std::path::PathBuf::from_str(file_path)
+                .unwrap()
+                .join("main.c")],
+            favorite: false,
+            state: ExoState::Todo,
+            solution: None,
+        };
+        assert_eq!(expected, exo);
+        assert_eq!(warnings.len(), 1);
+        assert!(matches!(warnings[0], ParseWarning::ExoSolutionNotFound(_)));
     }
 }

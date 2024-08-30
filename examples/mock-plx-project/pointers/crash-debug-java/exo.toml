@@ -1,0 +1,10 @@
+name = 'Make it not crash, but in Java!!'
+instruction = 'Same but in Java. The person info comes from program arguments.'
+[[checks]]
+name = 'Fullname displayed'
+type = "output"
+args = ["Dé", "Javu"]
+output = '''
+Hello there!
+My fullname is Dé Javu
+'''
