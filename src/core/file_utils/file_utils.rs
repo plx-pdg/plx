@@ -20,6 +20,6 @@ pub fn list_dir_files(dir: &std::path::PathBuf) -> Result<Vec<std::path::PathBuf
         .into_iter()
         .filter(|r| r.is_ok()) // Get rid of Err variants for Result<DirEntry>
         .map(|r| r.unwrap().path()) // This is safe, since we only have the Ok variants
-        .filter(|r| r.is_file()) // Filter out non-folders
+        .filter(|r| r.is_file()) // Filter out folders
         .collect())
 }
