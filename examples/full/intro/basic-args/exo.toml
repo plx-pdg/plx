@@ -7,8 +7,10 @@ type = "output"
 output = 'The dog is Joe and has 5 legs'
 [[checks]]
 name = 'No arg -> error'
+type = "output"
 output = "Error: missing argument firstname and legs number"
 [[checks]]
 name = 'One arg -> error'
 args = ["Joe"]
+type = "output"
 output = "Error: missing argument firstname and legs number"
