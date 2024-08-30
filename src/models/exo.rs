@@ -149,7 +149,8 @@ impl Exo {
                         (Some(file_name), Some(extension)) => {
                             // associated exo file should be of foramt <file_name>.<extension>
                             // This essentially removes the .sol part
-                            let exo_target_name = format!("{}.{}", file_name.replace(".sol", ""), extension);
+                            let exo_target_name =
+                                format!("{}.{}", file_name.replace(".sol", ""), extension);
                             let exo_exists = exo_files
                                 .iter()
                                 .find(|exo_file| {
@@ -168,16 +169,19 @@ impl Exo {
                             if !exo_exists {
                                 warnings.push(ParseWarning::ExoFileNotFound(format!(
                                     "Solution file {:?} doesn't have an exo associated with it (expected exo file {:?})",
-                                    solution_file, exo_target_name 
-                                )))
+                                    solution_file, exo_target_name)))
                             }
                         }
-                        (_, _) => {
-                            warnings.push(ParseWarning::InvalidFileName(format!("{:?}", solution_file)))
-                        }
+                        (_, _) => warnings.push(ParseWarning::InvalidFileName(format!(
+                            "{:?}",
+                            solution_file
+                        ))),
                     }
                 }
-                (_, _) => warnings.push(ParseWarning::InvalidFileName(format!("{:?}", solution_file))),
+                (_, _) => warnings.push(ParseWarning::InvalidFileName(format!(
+                    "{:?}",
+                    solution_file
+                ))),
             }
         }
     }
