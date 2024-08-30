@@ -145,17 +145,14 @@ impl Ui<'_> {
                 lines.push(Line::from(info_text_two));
                 lines.push(Line::from(info_text_three));
                 let title = Paragraph::new(Text::from(lines))
-                    .block(
-                        Block::default()
-                            .borders(Borders::NONE)
-                            .padding(Padding::new(0, 0, 10, 10)),
-                    )
+                    .block(Block::default().borders(Borders::ALL))
                     .alignment(ratatui::layout::Alignment::Center);
 
-                let content = Paragraph::new("Press 'r' to resume progress\nPress 'l' to list all exercices\nPress '?' to display help\n").centered().block(Block::default().borders(Borders::NONE).padding(Padding::new(0, 0, 10, 10)).style(Style::default().bold()));
+                // let content = Paragraph::new("").centered().block(Block::default().borders(Borders::ALL).padding(Padding::new(0, 0, 10, 10)).style(Style::default().bold()));
 
-                frame.render_widget(title, display[0]);
-                frame.render_widget(content, display[1]);
+                frame.render_widget(title, frame.area());
+
+                // frame.render_widget(content, display[1]);
             }
             _ => {}
         }
