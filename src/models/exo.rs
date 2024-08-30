@@ -1,5 +1,12 @@
 use std::fs::ReadDir;
+
 use serde::{Deserialize, Serialize};
+
+use crate::core::{
+    file_utils::{file_parser::ParseError, file_utils::list_dir},
+    parser::{self},
+};
+
 use super::{check::Check, exo_state::ExoState, solution::Solution};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -39,6 +46,50 @@ impl Exo {
     }
 }
 impl Exo {
+    pub fn from_dir(directory: std::path::PathBuf) -> Result<Self, ParseError>
+    where
+        Self: serde::de::DeserializeOwned,
+    {
+        let exo_info_file = directory.join("exo.toml");
+        let exo_state_file = directory.join(".exo.state");
+        if !exo_info_file.exists() {
+            return Err(ParseError::FileNotFound(
+                exo_info_file.display().to_string(),
+            ));
+        }
+        let exo_info = parser::object_creator::create_from_file::<ExoInfo>(&exo_info_file)?;
+        let exo_state = parser::object_creator::create_from_file::<ExoStateInfo>(&exo_state_file)
+            .or::<ExoStateInfo>(Ok(ExoStateInfo {
+                favorite: false,
+                state: ExoState::Todo,
+            }))
+            .unwrap();
+        let files =
+            list_dir(&directory).map_err(|err| ParseError::FileDiscoveryFailed(err.to_string()))?;
+        let (exo_files, solution_file) = Exo::find_exo_files(files);
+        if exo_files.is_empty() {
+            return Err(ParseError::NoExoFilesFound(directory));
+        }
+        let state = exo_state.state;
+        let favorite = exo_state.favorite;
+
+        let solution = if let Some(solution_file) = solution_file {
+            Some(Solution::new(solution_file))
+        } else {
+            None
+        };
+
+        Ok(Self {
+            name: exo_info.name,
+            instruction: exo_info.instruction,
+            checks: exo_info.checks,
+            state,
+            files: exo_files,
+            favorite,
+            solution,
+        })
+    }
+
     fn find_exo_files(
         dir_entries: ReadDir,
     ) -> (Vec<std::path::PathBuf>, Option<std::path::PathBuf>) {
