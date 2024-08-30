@@ -8,7 +8,7 @@ use crate::models::{event::Event, exo::Exo, project::Project, ui_state::UiState}
 use super::{
     core_error::CoreInitError,
     editor::opener::EditorOpener,
-    file_utils::file_handler::{self, current_folder},
+    file_utils::file_handler::current_folder,
     parser::from_dir::FromDir,
     work::{work::Work, work_handler::WorkHandler},
 };
