@@ -8,7 +8,7 @@ use crate::models::{event::Event, exo::Exo, project::Project, ui_state::UiState}
 use super::{
     editor::opener::EditorOpener,
     file_utils::file_handler,
-    parser,
+    parser::{self, from_dir::FromDir},
     work::{work::Work, work_handler::WorkHandler},
 };
 pub struct App<'a> {
@@ -20,23 +20,25 @@ pub struct App<'a> {
 
 impl App<'_> {
     pub fn new() -> Option<Self> {
-        if !file_handler::is_plx_folder() {
-            return None;
-        }
-        let project_file = file_handler::project_file();
-
-        let project = parser::object_creator::create_from_file(&project_file);
-        if let Ok(project) = project {
-            let channel = mpsc::channel();
-            Some(App {
-                ui_state: UiState::Home,
-                project,
-                work_handler: (WorkHandler::new(channel.0.clone())),
-                event_queue: channel,
-            })
-        } else {
-            None
-        }
+        todo!()
+        // if !file_handler::is_plx_folder() {
+        //     return None;
+        // }
+        // let project_file = file_handler::project_file();
+        //
+        // let project = Project::from_dir(dir)
+        // let project = parser::object_creator::create_from_file(&project_file);
+        // if let Ok(project) = project {
+        //     let channel = mpsc::channel();
+        //     Some(App {
+        //         ui_state: UiState::Home,
+        //         project,
+        //         work_handler: (WorkHandler::new(channel.0.clone())),
+        //         event_queue: channel,
+        //     })
+        // } else {
+        //     None
+        // }
     }
     pub fn get_state(&self) -> &UiState {
         &self.ui_state
