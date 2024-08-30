@@ -10,6 +10,8 @@ edition = "2021"
 exclude = ["*.md"]
 
 [dependencies]
+console = "0.15.8"
 rand = "0.8.5"
 ratatui = "0.28.1"
-crossterm = "0.20"
+crossterm = "0.28.1"
+similar = { version = "2.6.0", features = ["inline"] }

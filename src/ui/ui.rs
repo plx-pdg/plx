@@ -3,8 +3,8 @@ use std::{
     sync::mpsc::{Receiver, Sender, TryRecvError},
 };
 
+use crate::{core::app::App, models::ui_state::UiState};
 use crate::{models::event::Event, models::key::Key, models::ui_state::UiState, ui::pages::home};
-
 use ratatui::{
     backend::CrosstermBackend,
     crossterm::{
