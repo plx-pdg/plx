@@ -97,6 +97,10 @@ impl Ui<'_> {
 ██        ████████ ██     ██
                     "#;
 
+                let info_text_one = "Press 'r' to resume progress";
+                let info_text_two = "Press 'l' to list all exercices";
+                let info_text_three = "Press '?' to display help";
+
                 // Ratatui needs RGB => need convert hex colors to RGB
                 // starting color = #fc1100 => RGB = 252, 17, 0
                 // ending color = #ffb000 => RGB = 255, 176, 0
@@ -135,7 +139,11 @@ impl Ui<'_> {
 
                 // prend spans et traduit en It puis map = traduit de type spans a line, collect => rend en vec de line
                 // tout ca car Text:: peut pas lire des Vec de spans mais de Line.
-                let lines: Vec<Line> = spans.into_iter().map(Line::from).collect();
+                let mut lines: Vec<Line> = spans.into_iter().map(Line::from).collect();
+
+                lines.push(Line::from(info_text_one));
+                lines.push(Line::from(info_text_two));
+                lines.push(Line::from(info_text_three));
                 let title = Paragraph::new(Text::from(lines))
                     .block(
                         Block::default()
