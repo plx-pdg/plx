@@ -5,4 +5,6 @@ pub enum ParseError {
     FileNotFound(String),
     FileDiscoveryFailed(String),
     NoExoFilesFound(std::path::PathBuf),
+    ErrorParsingSkills(String),
+    ErrorParsingExos(String),
 }
