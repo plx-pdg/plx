@@ -26,8 +26,6 @@ fn ui_key_to_core_key(key: &KeyCode) -> Option<Key> {
         KeyCode::Char('l') | KeyCode::Right => Some(Key::L),
         KeyCode::Enter => Some(Key::Enter),
         KeyCode::Esc => Some(Key::Esc),
-        // Char('g') => self.go_top(),
-        // Char('G') => self.go_bottom(),
         _ => None,
     }
 }
@@ -93,19 +91,17 @@ impl Ui<'_> {
 
     fn render_frame(&self, frame: &mut Frame, state: &UiState) -> bool {
         match state {
-            UiState::Home => {
-                home::render_home(frame);
-                //TODO all other pages
-            }
+            UiState::Home => home::render_home(frame),
+            UiState::Quit => return false, //TODO: this is the way we try to quit for now
+            //TODO all other pages
             _ => {}
         }
-        return true;
+        true
     }
 
     fn handle_events(&self /*, ui_state aussi pour render les pages*/) -> io::Result<bool> {
         if event::poll(std::time::Duration::from_millis(50))? {
             if let CrosstermEvent::Key(key) = event::read()? {
-                // if (key.code == 'q')
                 if let Some(k) = ui_key_to_core_key(&key.code) {
                     self.tx.send(Event::KeyPressed(k));
                 }
