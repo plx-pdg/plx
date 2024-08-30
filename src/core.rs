@@ -1,4 +1,5 @@
 pub mod app;
+pub mod check;
 pub mod core_error;
 pub mod diff;
 pub mod editor;

@@ -161,7 +161,10 @@ mod tests {
                 .unwrap()
                 .should_stop
                 .load(Ordering::Relaxed));
-            matches!(handler.workers.get(&id).unwrap().work, Work::EditorOpen(_));
+            assert!(matches!(
+                handler.workers.get(&id).unwrap().work,
+                Work::EditorOpen(_)
+            ));
         };
     }
     #[test]
