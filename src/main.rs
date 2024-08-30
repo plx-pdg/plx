@@ -1,21 +1,11 @@
 pub mod core;
 pub mod models;
 pub mod ui;
-use core::core::PlxCore;
-use std::sync::{Arc, Mutex};
-use ui::ui::Ui;
+use core::app::App;
+
 fn main() {
-    let core = PlxCore::new();
-    match core {
-        Some(core) => {
-            // let mut ui = Ui::new(Arc::new(Mutex::new(core)));
-            // match ui.loop_forever() {
-            //     Ok(_) => (),
-            //     Err(err) => eprintln!("{}", err),
-            // }
-        }
-        None => {
-            eprintln!("Couldn't init Core");
-        }
+    let app = App::new();
+    if app.is_none() {
+        eprintln!("Couldn't init App");
     }
 }

@@ -3,8 +3,8 @@ use std::{
     sync::mpsc::{Receiver, Sender, TryRecvError},
 };
 
-use crate::{core::app::App, models::ui_state::UiState};
-use crate::{models::event::Event, models::key::Key, models::ui_state::UiState, ui::pages::home};
+use crate::models::ui_state::UiState;
+use crate::{models::event::Event, models::key::Key, ui::pages::home};
 use ratatui::{
     backend::CrosstermBackend,
     crossterm::{
@@ -12,10 +12,6 @@ use ratatui::{
         terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
         ExecutableCommand,
     },
-    layout::{Constraint, Direction, Layout},
-    style::{Color, Style},
-    text::{Line, Span, Text},
-    widgets::{Block, Borders, Paragraph},
     Frame, Terminal,
 };
 use std::io::{self, stdout};
