@@ -1,3 +1,4 @@
+use crossterm::event::KeyCode;
 /// Utilities like constant, small functions and other UI rendering things for Ratatui
 /// shared across multiple pages
 use ratatui::{
@@ -5,6 +6,8 @@ use ratatui::{
     style::{Color, Stylize},
     text::{Line, Span, Text},
 };
+
+use crate::models::key::Key;
 
 // CONSTANTS
 
@@ -25,6 +28,20 @@ pub const LOGO_LEFT_RGB: Color = Color::Rgb(LOGO_LEFT.0, LOGO_LEFT.1, LOGO_LEFT.
 pub const LOGO_RIGHT_RGB: Color = Color::Rgb(LOGO_RIGHT.0, LOGO_RIGHT.1, LOGO_RIGHT.2);
 
 // FUNCTIONS
+
+/// Convert a crossterm::Event::KeyCode to a core::models::key::Key
+pub fn ui_key_to_core_key(key: &KeyCode) -> Option<Key> {
+    match key {
+        KeyCode::Char('q') => Some(Key::Q),
+        KeyCode::Char('h') | KeyCode::Left => Some(Key::H),
+        KeyCode::Char('j') | KeyCode::Down => Some(Key::J),
+        KeyCode::Char('k') | KeyCode::Up => Some(Key::K),
+        KeyCode::Char('l') | KeyCode::Right => Some(Key::L),
+        KeyCode::Enter => Some(Key::Enter),
+        KeyCode::Esc => Some(Key::Esc),
+        _ => None,
+    }
+}
 
 /// Get the mixed color in the middle of 2 colors to colorize a specific part in the gradient
 pub fn mixed_color(start: (u8, u8, u8), end: (u8, u8, u8), factor: f32) -> (u8, u8, u8) {

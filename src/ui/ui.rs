@@ -3,32 +3,19 @@ use std::{
     sync::mpsc::{Receiver, Sender, TryRecvError},
 };
 
+use super::utils::ui_key_to_core_key;
 use crate::models::ui_state::UiState;
-use crate::{models::event::Event, models::key::Key, ui::pages::home};
+use crate::{models::event::Event, ui::pages::home};
 use ratatui::{
     backend::CrosstermBackend,
     crossterm::{
-        event::{self, Event as CrosstermEvent, KeyCode},
+        event::{self, Event as CrosstermEvent},
         terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
         ExecutableCommand,
     },
     Frame, Terminal,
 };
 use std::io::{self, stdout};
-
-// TODO: is it the correct place to put this function ?
-fn ui_key_to_core_key(key: &KeyCode) -> Option<Key> {
-    match key {
-        KeyCode::Char('q') => Some(Key::Q),
-        KeyCode::Char('h') | KeyCode::Left => Some(Key::H),
-        KeyCode::Char('j') | KeyCode::Down => Some(Key::J),
-        KeyCode::Char('k') | KeyCode::Up => Some(Key::K),
-        KeyCode::Char('l') | KeyCode::Right => Some(Key::L),
-        KeyCode::Enter => Some(Key::Enter),
-        KeyCode::Esc => Some(Key::Esc),
-        _ => None,
-    }
-}
 
 pub struct Ui<'a> {
     tx: Sender<Event>,
