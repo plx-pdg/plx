@@ -5,12 +5,10 @@ pub struct Exo {
     title: String,
     instruction: Option<String>,
     state: ExoState,
-    pub(crate) dir_path: PathBuf,
     files: Vec<PathBuf>,
     solution: Option<Solution>,
-    pub(crate) allowed_extensions: Vec<String>,
     checks: Option<Vec<Check>>,
-    favorite: bool,
+    favorite: bool
 }
 impl Exo {
     pub fn new(title: String,
@@ -22,7 +20,7 @@ impl Exo {
                allowed_extensions: Vec<String>,
                checks: Option<Vec<Check>>,
                favorite: bool) -> Self {
-        Exo{title, instruction, state, dir_path, files, solution, allowed_extensions, checks, favorite}
+        Exo{title, instruction, state, files, solution, checks, favorite}
     }
     pub fn get_main_file(&self) -> Option<&std::path::PathBuf> {
         match self.files.iter().find(|file| {
