@@ -145,9 +145,11 @@ mod test {
         let _ = std::fs::remove_file(target);
     }
     #[test]
-    #[ignore = "Ignore for now"]
     #[timeout(5000)]
     fn test_stuck_stdin() {
+        if cfg!(windows) {
+            return;
+        };
         // This code blocks reading stdin forever
         let c_file = "./examples/basics/c/wait_stdin.c";
         let target = "./wait_stdin";
@@ -155,9 +157,11 @@ mod test {
     }
 
     #[test]
-    #[ignore = "Ignore for now"]
     #[timeout(5000)]
     fn test_infinite_loop() {
+        if cfg!(windows) {
+            return;
+        };
         // This code does while(1)
         let c_file = "./examples/basics/c/infinite_loop.c";
         let target = "./infinite_loop";
@@ -165,9 +169,11 @@ mod test {
     }
 
     #[test]
-    #[ignore = "Ignore for now"]
     #[timeout(5000)]
     fn test_infinite_loop_with_sig_mapped() {
+        if cfg!(windows) {
+            return;
+        };
         // This code does while(1) and ignores sigterm and sigint
         let c_file = "./examples/basics/c/infinite_loop_map_signals.c";
         let target = "./infinit_loop_map_signals";
@@ -175,9 +181,11 @@ mod test {
     }
 
     #[test]
-    #[ignore = "Ignore for now"]
     #[timeout(10000)]
     fn test_stdout_during_run() {
+        if cfg!(windows) {
+            return;
+        };
         //This code loops forever and prints Hello <i> every second
         let c_file = "./examples/basics/c/infinite_loop.c";
         let target = "./infinite_loop_stdout";
