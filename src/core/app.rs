@@ -11,6 +11,7 @@ use super::{
     file_utils::file_handler,
     work::{work::Work, work_handler::WorkHandler},
 };
+
 pub struct App<'a> {
     ui_state: UiState<'a>,
     project: Project,
@@ -33,6 +34,7 @@ impl App<'_> {
                 work_handler: (WorkHandler::new(channel.0.clone())),
                 event_queue: channel,
             })
+            //TODO: should we init and loop the UI here ?
         } else {
             Err(CoreInitError::ProjFilesParsingError(String::from("TODO")))
         }
