@@ -152,7 +152,7 @@ mod test {
         };
         // This code blocks reading stdin forever
         let c_file = "./examples/basics/c/wait_stdin.c";
-        let target = "./wait_stdin";
+        let target = "./target/wait_stdin";
         compile_and_run_blocking_program(c_file, target);
     }
 
@@ -164,7 +164,7 @@ mod test {
         };
         // This code does while(1)
         let c_file = "./examples/basics/c/infinite_loop.c";
-        let target = "./infinite_loop";
+        let target = "./target/infinite_loop";
         compile_and_run_blocking_program(c_file, target);
     }
 
@@ -176,7 +176,7 @@ mod test {
         };
         // This code does while(1) and ignores sigterm and sigint
         let c_file = "./examples/basics/c/infinite_loop_map_signals.c";
-        let target = "./infinit_loop_map_signals";
+        let target = "./target/infinit_loop_map_signals";
         compile_and_run_blocking_program(c_file, target);
     }
 
@@ -188,7 +188,7 @@ mod test {
         };
         //This code loops forever and prints Hello <i> every second
         let c_file = "./examples/basics/c/infinite_loop.c";
-        let target = "./infinite_loop_stdout";
+        let target = "./target/infinite_loop_stdout";
         compile_program(c_file, target);
 
         let stop = Arc::new(AtomicBool::new(false));
