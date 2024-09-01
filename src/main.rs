@@ -1,8 +1,7 @@
 pub mod core;
 pub mod models;
 pub mod ui;
+
 fn main() {
-    println!("PLX - Practice programming exos in a delightful Learning eXperience");
-    println!("Testing CI");
-    println!("Testing CI second time");
+    println!("Waiting on core and UI init");
 }

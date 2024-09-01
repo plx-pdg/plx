@@ -12,6 +12,7 @@ use super::{
     parser::from_dir::FromDir,
     work::{work::Work, work_handler::WorkHandler},
 };
+
 pub struct App<'a> {
     ui_state: UiState<'a>,
     project: Project,
