@@ -26,13 +26,11 @@ impl Ui<'_> {
         Ui { tx, rx }
     }
     fn setup(&mut self) -> io::Result<()> {
-        println!("Ui Setup...");
         enable_raw_mode()?;
         stdout().execute(EnterAlternateScreen)?;
         Ok(())
     }
     fn teardown(&mut self) -> io::Result<()> {
-        println!("Ui Teardown...");
         disable_raw_mode()?;
         stdout().execute(LeaveAlternateScreen)?;
         Ok(())
@@ -86,7 +84,7 @@ impl Ui<'_> {
         true
     }
 
-    fn handle_events(&self /*, ui_state aussi pour render les pages*/) -> io::Result<bool> {
+    fn handle_events(&self) -> io::Result<bool> {
         if event::poll(std::time::Duration::from_millis(50))? {
             if let CrosstermEvent::Key(key) = event::read()? {
                 if let Some(k) = ui_key_to_core_key(&key.code) {
