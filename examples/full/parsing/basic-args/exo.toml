@@ -1,7 +1,27 @@
+# TODO: restructure this exo with unit tests with GTest
 name = 'Parse a DY basic exo'
 instruction = 'Given an exo in raw DY syntax, implement parsing the name and solution.'
 [[checks]]
-name = ''
-args = ["Joe", "5"]
+name = 'Basic name and solution can be extracted'
+args = ["Exo: What is the best OS?\n\nSolution: GNU/Linux"]
 type = "output"
-output = 'The dog is Joe and has 5 legs'
+output = '''
+Parsing 'Exo: What is the best OS?
+
+Solution: GNU/Linux
+
+' result in:
+title='What is the best OS?' and solution='GNU/Linux'
+'''
+[[checks]]
+name = 'Values are trimmed'
+args = ["Exo:     What is the best OS?  \t\t \n\nSolution: \tGNU/Linux\n\n"]
+type = "output"
+output = '''
+Parsing 'Exo:     What is the best OS?  		
+
+Solution: 	GNU/Linux
+
+' result in:
+title='What is the best OS?' and solution='GNU/Linux'
+'''

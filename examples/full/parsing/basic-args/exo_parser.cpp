@@ -1,4 +1,5 @@
-#include <exo.h>
-#include <exo_parser.h>
+#include "exo_parser.h"
 
-class ExoParser {}
+Exo ExoParser::parse(const std::string &raw) {
+  // TODO: implement parsing logic here
+}
