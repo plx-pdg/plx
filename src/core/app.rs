@@ -6,10 +6,12 @@ use std::sync::{
 use crate::models::{event::Event, exo::Exo, project::Project, ui_state::UiState};
 
 use super::{
+    core_error::CoreInitError,
     editor::opener::EditorOpener,
     file_utils::file_handler,
     work::{work::Work, work_handler::WorkHandler},
 };
+
 pub struct App<'a> {
     ui_state: UiState<'a>,
     project: Project,
@@ -18,22 +20,23 @@ pub struct App<'a> {
 }
 
 impl App<'_> {
-    pub fn new() -> Option<Self> {
+    pub fn new() -> Result<Self, CoreInitError> {
         if !file_handler::is_plx_folder() {
-            return None;
+            return Err(CoreInitError::PlxProjNotFound);
         }
         let project_file = file_handler::project_file();
         let project = Project::try_from(project_file);
         if let Ok(project) = project {
             let channel = mpsc::channel();
-            Some(App {
+            Ok(App {
                 ui_state: UiState::Home,
                 project,
                 work_handler: (WorkHandler::new(channel.0.clone())),
                 event_queue: channel,
             })
+            //TODO: should we init and loop the UI here ?
         } else {
-            None
+            Err(CoreInitError::ProjFilesParsingError(String::from("TODO")))
         }
     }
     pub fn get_state(&self) -> &UiState {
