@@ -1,7 +1,7 @@
 use std::{
     ffi::OsStr,
     io,
-    process::{Child, Command, ExitStatus, Output, Stdio},
+    process::{Child, Command, ExitStatus, Stdio},
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc,

@@ -102,19 +102,19 @@ mod test {
 
     use super::*;
 
-    fn compile_program(c_file: &str, file_name: &str) {
+    fn compile_program(c_file: &str, target: &str) {
         Command::new("gcc")
             .arg(c_file)
             .arg("-o")
-            .arg(file_name)
+            .arg(target)
             .output()
             .expect("Couldn't compile program");
     }
     fn launch_program(
-        file_name: &str,
+        target: &str,
         stop: Arc<AtomicBool>,
     ) -> (JoinHandle<Result<ExitStatus, ()>>, Receiver<Event>) {
-        let runner = Runner::new(file_name.to_string(), vec![]);
+        let runner = Runner::new(target.to_string(), vec![]);
 
         let (tx, rx) = channel();
         let thread_stop = stop.clone();
@@ -128,10 +128,10 @@ mod test {
             rx,
         )
     }
-    fn run_blocking_program(file_name: &str) {
+    fn run_blocking_program(target: &str) {
         sleep(Duration::from_secs(1));
         let stop = Arc::new(AtomicBool::new(false));
-        let (handler, _) = launch_program(file_name, stop.clone());
+        let (handler, _) = launch_program(target, stop.clone());
         // Stop should kill the process no matter the condition it is in
         stop.store(true, Ordering::Relaxed);
         handler
@@ -139,10 +139,10 @@ mod test {
             .expect("Couldn't join thread")
             .expect("Couldn't get child exit status");
     }
-    fn compile_and_run_blocking_program(c_file: &str, file_name: &str) {
-        compile_program(c_file, file_name);
-        run_blocking_program(file_name);
-        let _ = std::fs::remove_file(file_name);
+    fn compile_and_run_blocking_program(c_file: &str, target: &str) {
+        compile_program(c_file, target);
+        run_blocking_program(target);
+        let _ = std::fs::remove_file(target);
     }
     #[test]
     #[ignore = "Ignore for now"]
@@ -150,8 +150,8 @@ mod test {
     fn test_stuck_stdin() {
         // This code blocks reading stdin forever
         let c_file = "./examples/basics/c/wait_stdin.c";
-        let file_name = "./wait_stdin";
-        compile_and_run_blocking_program(c_file, file_name);
+        let target = "./wait_stdin";
+        compile_and_run_blocking_program(c_file, target);
     }
 
     #[test]
@@ -160,8 +160,8 @@ mod test {
     fn test_infinite_loop() {
         // This code does while(1)
         let c_file = "./examples/basics/c/infinite_loop.c";
-        let file_name = "./infinite_loop";
-        compile_and_run_blocking_program(c_file, file_name);
+        let target = "./infinite_loop";
+        compile_and_run_blocking_program(c_file, target);
     }
 
     #[test]
@@ -170,8 +170,8 @@ mod test {
     fn test_infinite_loop_with_sig_mapped() {
         // This code does while(1) and ignores sigterm and sigint
         let c_file = "./examples/basics/c/infinite_loop_map_signals.c";
-        let file_name = "./infinit_loop_map_signals";
-        compile_and_run_blocking_program(c_file, file_name);
+        let target = "./infinit_loop_map_signals";
+        compile_and_run_blocking_program(c_file, target);
     }
 
     #[test]
@@ -180,11 +180,11 @@ mod test {
     fn test_stdout_during_run() {
         //This code loops forever and prints Hello <i> every second
         let c_file = "./examples/basics/c/infinite_loop.c";
-        let file_name = "./infinite_loop_stdout";
-        compile_program(c_file, file_name);
+        let target = "./infinite_loop_stdout";
+        compile_program(c_file, target);
 
         let stop = Arc::new(AtomicBool::new(false));
-        let (handler, rx) = launch_program(file_name, stop.clone());
+        let (handler, rx) = launch_program(target, stop.clone());
 
         //give the program some time to start
         sleep(Duration::from_millis(1000));
@@ -199,6 +199,6 @@ mod test {
             .join()
             .expect("Couldn't join thread")
             .expect("Couldn't get child exit status");
-        let _ = std::fs::remove_file(file_name);
+        let _ = std::fs::remove_file(target);
     }
 }
