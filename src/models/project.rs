@@ -93,6 +93,20 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_example_full() {
+        let project_path = std::path::PathBuf::from_str("examples/full").unwrap();
+        let ret = Project::from_dir(&project_path);
+
+        println!("{:#?}", ret);
+        assert!(ret.is_ok());
+        let (project, warnings) = ret.unwrap();
+        assert!(project.skills.len() == 3);
+        assert!(project.skills[0].exos.len() == 3);
+        assert!(project.skills[1].exos.len() == 1);
+        assert!(project.skills[2].exos.len() == 2);
+        assert!(warnings.len() < 2);
+    }
+    #[test]
     fn test_full_hierarchy() {
         let project_path = std::path::PathBuf::from_str("examples/mock-plx-project").unwrap();
         let project = Project::from_dir(&project_path);
