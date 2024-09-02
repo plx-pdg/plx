@@ -97,7 +97,7 @@ impl App {
         while self.run {
             if let Ok(event) = self.event_rx.recv() {
                 match event {
-                    Event::KeyPressed(key) => self.on_key_pressed(key),
+                    Event::KeyPressed(key) => self.on_key_press(key),
                     Event::EditorOpened => todo!(),
                     Event::CouldNotOpenEditor => todo!(),
                     Event::ProcessCreationFailed => todo!(),
