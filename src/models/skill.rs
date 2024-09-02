@@ -3,7 +3,7 @@ use crate::core::{
     parser::{self, from_dir::FromDir},
 };
 
-use super::{constants::SKILL_INFO_FILE, exo::Exo};
+use super::{constants::SKILL_INFO_FILE, exo::Exo, exo_state::ExoState};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Eq)]
@@ -21,6 +21,12 @@ struct SkillInfo {
 impl Skill {
     pub fn new(name: String, path: std::path::PathBuf, exos: Vec<Exo>) -> Self {
         Self { name, path, exos }
+    }
+    pub fn get_next_todo_exo(&self) -> Option<(usize, &Exo)> {
+        self.exos
+            .iter()
+            .enumerate()
+            .find(|(_, exo)| exo.state == ExoState::Todo)
     }
 }
 impl FromDir for Skill {
