@@ -56,7 +56,7 @@ impl Ui {
         Ok(())
     }
 
-    pub fn run(
+    pub fn tick(
         &self,
         terminal: &mut Terminal<CrosstermBackend<Stdout>>,
         state: &UiState,
