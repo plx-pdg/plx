@@ -53,6 +53,17 @@ impl App {
             work_handler.spawn_worker(work);
         }
     }
+    fn start_ui(&mut self, ui_state_rx: Receiver<UiState>) {
+        let ui = Ui::new(ui_state_rx);
+        let _ = self.ui_state_tx.send(UiState::Home);
+        self.start_work(Box::new(ui));
+    }
+    fn stop_ui(&mut self) {
+        if let Ok(mut work_handler) = self.work_handler.lock() {
+            work_handler.stop_workers(WorkType::Ui);
+        }
+    }
+
     fn open_editor(&mut self, exo: &Exo) {
         if let Some(file) = exo.get_main_file() {
             if let Some(opener) = EditorOpener::new_default_editor(file.to_path_buf()) {
