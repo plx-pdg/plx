@@ -5,7 +5,7 @@ use std::{
     sync::{atomic::AtomicBool, mpsc::Sender, Arc},
     thread::{self, JoinHandle},
 };
-pub struct Worker {
+pub(super) struct Worker {
     id: usize,
     work_tx: Sender<WorkEvent>,
     pub work: Box<dyn Work + Send>,
