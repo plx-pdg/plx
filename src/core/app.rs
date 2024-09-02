@@ -3,54 +3,79 @@ use std::sync::{
     Arc, Mutex,
 };
 
-use crate::models::{event::Event, exo::Exo, project::Project, ui_state::UiState};
+use crate::{
+    models::{event::Event, exo::Exo, project::Project, ui_state::UiState},
+    ui::ui::Ui,
+};
 
 use super::{
     core_error::CoreInitError,
     editor::opener::EditorOpener,
-    file_utils::file_handler,
-    work::{work::Work, work_handler::WorkHandler},
+    file_utils::file_handler::current_folder,
+    parser::from_dir::FromDir,
+    work::{work::Work, work_handler::WorkHandler, work_type::WorkType},
 };
 
-pub struct App<'a> {
-    ui_state: UiState<'a>,
+pub struct App {
+    ui_state: UiState,
     project: Project,
     work_handler: Arc<Mutex<WorkHandler>>,
-    event_queue: (Sender<Event>, Receiver<Event>),
+    event_tx: Sender<Event>,
+    event_rx: Receiver<Event>,
+    ui_state_tx: Sender<UiState>,
 }
 
-impl App<'_> {
+impl App {
     pub fn new() -> Result<Self, CoreInitError> {
-        if !file_handler::is_plx_folder() {
-            return Err(CoreInitError::PlxProjNotFound);
-        }
-        let project_file = file_handler::project_file();
-        let project = Project::try_from(project_file);
-        if let Ok(project) = project {
-            let channel = mpsc::channel();
-            Ok(App {
-                ui_state: UiState::Home,
-                project,
-                work_handler: (WorkHandler::new(channel.0.clone())),
-                event_queue: channel,
-            })
-            //TODO: should we init and loop the UI here ?
-        } else {
-            Err(CoreInitError::ProjFilesParsingError(String::from("TODO")))
-        }
+        let current_folder = match current_folder() {
+            Ok(folder) => folder,
+            Err(_err) => return Err(CoreInitError::PlxProjNotFound), // TODO maybe be more specific
+                                                                     // here by adding the error detail
+        };
+        // TODO these warnings should be accessible to the user
+        let (project, _warnings) = match Project::from_dir(&current_folder) {
+            Ok((project, warnings)) => (project, warnings),
+            Err((err, _warnings)) => {
+                // TODO handle these warnings even in case of failure
+                return Err(CoreInitError::ProjFilesParsingError(format!("{:?}", err)));
+            }
+        };
+        let (event_tx, event_rx) = mpsc::channel();
+        let (ui_state_tx, ui_state_rx) = mpsc::channel();
+        let work_handler = WorkHandler::new(event_tx.clone());
+
+        let mut app = App {
+            ui_state: UiState::Home,
+            project,
+            work_handler,
+            event_tx,
+            event_rx,
+            ui_state_tx,
+        };
+        app.start_ui(ui_state_rx);
+        Ok(app)
     }
-    pub fn get_state(&self) -> &UiState {
-        &self.ui_state
-    }
-    fn start_work(&mut self, work: Work) {
+
+    fn start_work(&mut self, work: Box<dyn Work + Send>) {
         if let Ok(mut work_handler) = self.work_handler.lock() {
             work_handler.spawn_worker(work);
         }
     }
+    fn start_ui(&mut self, ui_state_rx: Receiver<UiState>) {
+        let ui = Ui::new(ui_state_rx);
+        let _ = self.ui_state_tx.send(UiState::Home);
+        self.start_work(Box::new(ui));
+    }
+    fn stop_ui(&mut self) {
+        if let Ok(mut work_handler) = self.work_handler.lock() {
+            work_handler.stop_workers(WorkType::Ui);
+        }
+    }
+
     fn open_editor(&mut self, exo: &Exo) {
         if let Some(file) = exo.get_main_file() {
             if let Some(opener) = EditorOpener::new_default_editor(file.to_path_buf()) {
-                self.start_work(Work::EditorOpen(opener));
+                self.start_work(Box::new(opener));
             }
         }
     }
