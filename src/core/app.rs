@@ -42,7 +42,7 @@ impl App<'_> {
     pub fn get_state(&self) -> &UiState {
         &self.ui_state
     }
-    fn start_work(&mut self, work: Work) {
+    fn start_work(&mut self, work: Box<dyn Work + Send>) {
         if let Ok(mut work_handler) = self.work_handler.lock() {
             work_handler.spawn_worker(work);
         }
@@ -50,7 +50,7 @@ impl App<'_> {
     fn open_editor(&mut self, exo: &Exo) {
         if let Some(file) = exo.get_main_file() {
             if let Some(opener) = EditorOpener::new_default_editor(file.to_path_buf()) {
-                self.start_work(Work::EditorOpen(opener));
+                self.start_work(Box::new(opener));
             }
         }
     }
