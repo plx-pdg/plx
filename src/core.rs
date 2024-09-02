@@ -7,4 +7,5 @@ pub mod file_utils;
 pub mod parser;
 pub mod process;
 pub mod runner;
+mod watcher;
 pub mod work;
