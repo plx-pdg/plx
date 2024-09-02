@@ -111,7 +111,11 @@ mod test {
             .join("mock-plx-project")
             .join("intro")
             .join("basic-args");
-        let output_path = PathBuf::from("target").join("compile_valid_exo_one_file");
+        let output_path = if cfg!(windows) {
+            PathBuf::from("target").join("exo_one_file.exe")
+        } else {
+            PathBuf::from("target").join("exo_one_file")
+        };
         let compiler = create_compiler(&Compiler::Gcc, &path, &output_path);
 
         let command = compiler.get_full_command();
@@ -129,7 +133,12 @@ mod test {
             .join("mock-plx-project")
             .join("datastructures")
             .join("queue");
-        let output_path = PathBuf::from("target").join("queue");
+
+        let output_path = if cfg!(windows) {
+            PathBuf::from("target").join("queue.exe")
+        } else {
+            PathBuf::from("target").join("queue")
+        };
         let compiler = create_compiler(&Compiler::Gcc, &path, &output_path);
 
         let command = compiler.get_full_command();
@@ -148,7 +157,11 @@ mod test {
             .join("mock-plx-project")
             .join("mock-skill")
             .join("doesntcompile");
-        let output_path = PathBuf::from("target").join("doesntcompile");
+        let output_path = if cfg!(windows) {
+            PathBuf::from("target").join("doesntcompile.exe")
+        } else {
+            PathBuf::from("target").join("doesntcompile")
+        };
         let compiler = create_compiler(&Compiler::Gcc, &path, &output_path);
 
         let command = compiler.get_full_command();
@@ -168,6 +181,6 @@ mod test {
                 event => println!("Event {:#?}", event),
             }
         }
-        assert!(!compilation_status.unwrap());
+        assert!(!compilation_status.expect("Didn't receive the CompilationEnd event"));
     }
 }
