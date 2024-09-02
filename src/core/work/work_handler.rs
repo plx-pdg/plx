@@ -217,6 +217,34 @@ mod tests {
             for flag in stop_flags {
                 assert!(flag.load(Ordering::Relaxed));
             }
+            assert_eq!(handler.workers.len(), 10);
+        };
+    }
+
+    #[test]
+    fn test_stop_all_workers_wait() {
+        let (tx, _) = channel();
+        let handler = WorkHandler::new(tx.clone());
+
+        if let Ok(mut handler) = handler.lock() {
+            let range = 10;
+            for _ in 0..range {
+                let _ = handler.spawn_worker(Box::new(EditorOpener::new(
+                    "echo".to_string(),
+                    "null".into(),
+                )));
+            }
+            let stop_flags: Vec<Arc<AtomicBool>> = handler
+                .workers
+                .values()
+                .into_iter()
+                .map(|work_info| work_info.should_stop.clone())
+                .collect();
+            assert_eq!(handler.workers.len(), range);
+            handler.stop_all_workers_and_wait();
+            for flag in stop_flags {
+                assert!(flag.load(Ordering::Relaxed));
+            }
             assert_eq!(handler.workers.len(), 0);
         };
     }
