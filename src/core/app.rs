@@ -12,14 +12,14 @@ use super::{
     work::{work::Work, work_handler::WorkHandler},
 };
 
-pub struct App {
-    ui_state: UiState,
+pub struct App<'a> {
+    ui_state: UiState<'a>,
     project: Project,
     work_handler: Arc<Mutex<WorkHandler>>,
     event_queue: (Sender<Event>, Receiver<Event>),
 }
 
-impl App {
+impl App<'_> {
     pub fn new() -> Result<Self, CoreInitError> {
         if !file_handler::is_plx_folder() {
             return Err(CoreInitError::PlxProjNotFound);

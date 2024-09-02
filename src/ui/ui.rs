@@ -17,12 +17,12 @@ use ratatui::{
 };
 use std::io::{self, stdout};
 
-pub struct Ui {
+pub struct Ui<'a> {
     tx: Sender<Event>,
-    rx: Receiver<UiState>,
+    rx: Receiver<UiState<'a>>,
 }
-impl Ui {
-    pub fn new(tx: Sender<Event>, rx: Receiver<UiState>) -> Ui {
+impl Ui<'_> {
+    pub fn new(tx: Sender<Event>, rx: Receiver<UiState>) -> Ui<'_> {
         Ui { tx, rx }
     }
     fn setup(&mut self) -> io::Result<()> {
