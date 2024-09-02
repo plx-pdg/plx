@@ -1,3 +1,3 @@
-void queue_put(int value)
+void queue_push(int value)
 {
 }
