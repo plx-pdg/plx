@@ -1,10 +1,16 @@
 use std::{
     io::Stdout,
-    sync::mpsc::{Receiver, Sender, TryRecvError},
+    sync::{
+        atomic::Ordering,
+        mpsc::{Receiver, Sender, TryRecvError},
+    },
 };
 
 use super::utils::ui_key_to_core_key;
-use crate::models::ui_state::UiState;
+use crate::{
+    core::work::{work::Work, work_type::WorkType},
+    models::ui_state::UiState,
+};
 use crate::{models::event::Event, ui::pages::home};
 use ratatui::{
     backend::CrosstermBackend,
@@ -32,27 +38,6 @@ impl Ui {
     fn teardown(&self) -> io::Result<()> {
         disable_raw_mode()?;
         stdout().execute(LeaveAlternateScreen)?;
-        Ok(())
-    }
-    pub fn loop_forever(&mut self) -> io::Result<()> {
-        let mut local_state: Option<UiState> = None;
-        self.setup()?;
-        let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
-
-        loop {
-            match self.rx.try_recv() {
-                Ok(state) => {
-                    local_state = Some(state); //TODO: how performant is it ??
-                }
-                Err(TryRecvError::Disconnected) => break,
-                Err(TryRecvError::Empty) => {}
-            }
-
-            if let Some(state) = &local_state {
-                self.run(&mut terminal, &state);
-            }
-        }
-        self.teardown()?;
         Ok(())
     }
 
@@ -84,5 +69,44 @@ impl Ui {
             }
         }
         Ok(())
+    }
+}
+impl Work for Ui {
+    fn run(&self, tx: Sender<Event>, stop: std::sync::Arc<std::sync::atomic::AtomicBool>) -> bool {
+        let mut local_state: Option<UiState> = None;
+        if let Err(err) = self.setup() {
+            eprintln!("Couldn't initialize UI {}", err);
+            return false;
+        }
+        let mut terminal = match Terminal::new(CrosstermBackend::new(stdout())) {
+            Ok(terminal) => terminal,
+            Err(err) => {
+                eprintln!("Couldn't setup terminal {}", err);
+                return false;
+            }
+        };
+
+        while !stop.load(Ordering::Relaxed) {
+            match self.rx.try_recv() {
+                Ok(state) => {
+                    local_state = Some(state);
+                }
+                Err(TryRecvError::Disconnected) => break,
+                Err(TryRecvError::Empty) => {}
+            }
+
+            if let Some(state) = &local_state {
+                let _ = self.tick(&mut terminal, &state, &tx);
+            }
+        }
+
+        if let Err(err) = self.teardown() {
+            eprintln!("Error tearing down UI {}", err);
+        }
+        return true;
+    }
+
+    fn work_type(&self) -> crate::core::work::work_type::WorkType {
+        WorkType::Ui
     }
 }
