@@ -3,7 +3,7 @@ use std::{
     sync::mpsc::{Receiver, Sender, TryRecvError},
 };
 
-use super::utils::ui_key_to_core_key;
+use super::{pages::list, utils::ui_key_to_core_key};
 use crate::models::ui_state::UiState;
 use crate::{models::event::Event, ui::pages::home};
 use ratatui::{
@@ -77,6 +77,16 @@ impl Ui<'_> {
     fn render_frame(&self, frame: &mut Frame, state: &UiState) -> bool {
         match state {
             UiState::Home => home::render_home(frame),
+            UiState::SkillSelection {
+                skills,
+                skill_index,
+            } => list::render_list(frame, &state),
+            UiState::ExoSelection {
+                skills,
+                skill_index,
+                exos,
+                exo_index,
+            } => list::render_list(frame, &state),
             UiState::Quit => return false, //TODO: this is the way we try to quit for now
             //TODO all other pages
             _ => {}
