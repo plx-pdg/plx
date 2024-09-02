@@ -3,7 +3,7 @@ use crate::core::{
     parser::{self, from_dir::FromDir},
 };
 
-use super::exo::Exo;
+use super::{constants::SKILL_INFO_FILE, exo::Exo};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Eq)]
@@ -33,9 +33,8 @@ impl FromDir for Skill {
         dir: &std::path::PathBuf,
     ) -> Result<(Self, Vec<ParseWarning>), (ParseError, Vec<ParseWarning>)> {
         // Get skill info by searching for the skill.toml file
-        // TODO magic value maybe change this ?
-        let skill_info_file = dir.join("skill.toml");
         println!("{:?}", skill_info_file);
+        let skill_info_file = dir.join(SKILL_INFO_FILE);
         let info = parser::object_creator::create_from_file::<SkillInfo>(&skill_info_file)
             .map_err(|err| (err, vec![]))?;
 

@@ -8,7 +8,11 @@ use crate::core::{
     parser::{self, from_dir::FromDir},
 };
 
-use super::{check::Check, exo_state::ExoState};
+use super::{
+    check::Check,
+    constants::{EXO_INFO_FILE, EXO_STATE_FILE},
+    exo_state::ExoState,
+};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct ExoInfo {
@@ -58,8 +62,8 @@ impl FromDir for Exo {
     ) -> Result<(Self, Vec<ParseWarning>), (ParseError, Vec<ParseWarning>)> {
         // Get the exo info and the state if it exists.
         let mut warnings = Vec::new();
-        let exo_info_file = dir.join("exo.toml");
-        let exo_state_file = dir.join(".exo-state.toml");
+        let exo_info_file = dir.join(EXO_INFO_FILE);
+        let exo_state_file = dir.join(EXO_STATE_FILE);
         let exo_info = parser::object_creator::create_from_file::<ExoInfo>(&exo_info_file)
             .map_err(|err| (err, vec![]))?;
 

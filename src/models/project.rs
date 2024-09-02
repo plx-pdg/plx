@@ -5,7 +5,7 @@ use crate::core::{
     parser::{from_dir::FromDir, object_creator},
 };
 
-use super::skill::Skill;
+use super::{constants::COURSE_INFO_FILE, skill::Skill};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Project {
@@ -31,7 +31,7 @@ impl FromDir for Project {
     ) -> Result<(Self, Vec<ParseWarning>), (ParseError, Vec<ParseWarning>)> {
         // Get course info by searching for the course.toml file
         // TODO magic value maybe change this
-        let course_info_file = dir.join("course.toml");
+        let course_info_file = dir.join(COURSE_INFO_FILE);
         let course_info = object_creator::create_from_file::<ProjectInfo>(&course_info_file)
             .map_err(|err| (err, vec![]))?;
 
