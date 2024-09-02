@@ -32,7 +32,7 @@ impl Worker {
     pub fn run_on_separate_thread(self) -> JoinHandle<()> {
         return thread::spawn(move || {
             self.work.run(self.tx, self.should_stop);
-            self.work_tx.send(WorkEvent::Done(self.id));
+            let _ = self.work_tx.send(WorkEvent::Done(self.id));
         });
     }
 }
