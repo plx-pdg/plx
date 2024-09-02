@@ -156,10 +156,6 @@ impl Exo {
                                     if let Some(exo_file_name) = exo_file.file_name() {
                                         *exo_file_name == *exo_target_name
                                     } else {
-                                        warnings.push(ParseWarning::InvalidFileName(format!(
-                                            "{:?}",
-                                            solution_file
-                                        )));
                                         false
                                     }
                                 })
