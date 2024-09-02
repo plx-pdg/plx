@@ -7,6 +7,7 @@ pub fn list_dir(directory: &std::path::PathBuf) -> Result<ReadDir, io::Error> {
     std::fs::read_dir(directory)
 }
 
+// From https://stackoverflow.com/a/58063083
 pub fn list_dir_folders(dir: &std::path::PathBuf) -> Result<Vec<std::path::PathBuf>, io::Error> {
     Ok(std::fs::read_dir(dir)?
         .into_iter()
@@ -15,6 +16,8 @@ pub fn list_dir_folders(dir: &std::path::PathBuf) -> Result<Vec<std::path::PathB
         .filter(|r| r.is_dir()) // Filter out non-folders
         .collect())
 }
+
+// From https://stackoverflow.com/a/58063083
 pub fn list_dir_files(dir: &std::path::PathBuf) -> Result<Vec<std::path::PathBuf>, io::Error> {
     Ok(std::fs::read_dir(dir)?
         .into_iter()
