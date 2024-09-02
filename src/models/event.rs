@@ -9,6 +9,9 @@ pub enum Event {
     CouldNotOpenEditor,
     ProcessCreationFailed,
     ProcessOutputLine(String),
+    CompilationStart,
+    CompilationEnd(bool),
+    CompilationOutputLine(String),
     OutputCheckPassed(usize),
     OutputCheckFailed(usize, Diff),
 }
