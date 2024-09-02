@@ -1,3 +1,8 @@
+use super::{
+    check::Check,
+    constants::{EXO_INFO_FILE, EXO_STATE_FILE},
+    exo_state::ExoState,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::core::{
@@ -6,12 +11,6 @@ use crate::core::{
         file_utils::list_dir_files,
     },
     parser::{self, from_dir::FromDir},
-};
-
-use super::{
-    check::Check,
-    constants::{EXO_INFO_FILE, EXO_STATE_FILE},
-    exo_state::ExoState,
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -38,25 +37,11 @@ pub struct Exo {
     pub checks: Vec<Check>,
     pub favorite: bool,
 }
-impl Exo {
-    pub fn get_main_file(&self) -> Option<&std::path::PathBuf> {
-        match self.files.iter().find(|file| {
-            if let Some(file_name) = file.file_stem() {
-                return file_name == "main";
-            }
-            return false;
-        }) {
-            Some(file) => Some(file),
-            None => self.files.first(),
-        }
-    }
-}
 impl FromDir for Exo {
     ///
     /// Tries to build an exo from dir
     /// Returns Ok if we were able to get the exo info and at least 1 exo file
     /// else Error
-    ///
     fn from_dir(
         dir: &std::path::PathBuf,
     ) -> Result<(Self, Vec<ParseWarning>), (ParseError, Vec<ParseWarning>)> {
@@ -178,6 +163,18 @@ impl Exo {
                     solution_file
                 ))),
             }
+        }
+    }
+
+    pub fn get_main_file(&self) -> Option<&std::path::PathBuf> {
+        match self.files.iter().find(|file| {
+            if let Some(file_name) = file.file_stem() {
+                return file_name == "main";
+            }
+            return false;
+        }) {
+            Some(file) => Some(file),
+            None => self.files.first(),
         }
     }
 }

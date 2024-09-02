@@ -7,6 +7,7 @@ pub enum Event {
     KeyPressed(Key),
     EditorOpened,
     CouldNotOpenEditor,
+    FileSaved,
     ProcessCreationFailed,
     ProcessOutputLine(String),
     OutputCheckPassed(usize),

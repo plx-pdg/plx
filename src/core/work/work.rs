@@ -1,6 +1,7 @@
-use std::sync::{atomic::AtomicBool, mpsc::Sender, Arc};
-
+use crate::core::editor::opener::EditorOpener;
+use crate::core::watcher::watcher::FileWatcher;
 use crate::models::event::Event;
+use std::sync::{atomic::AtomicBool, mpsc::Sender, Arc};
 
 use super::work_type::WorkType;
 
