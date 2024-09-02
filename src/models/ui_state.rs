@@ -1,4 +1,4 @@
-use super::{check_state::CheckState, exo::Exo};
+use super::{check_state::CheckState, exo::Exo, skill::Skill};
 
 // The list of states and associated values for the UI to represent
 pub enum UiState<'a> {
@@ -7,10 +7,13 @@ pub enum UiState<'a> {
     Help, // Help page with shortcuts documentation
     // List page
     SkillSelection {
+        skills: &'a Vec<Skill>,
         skill_index: usize,
     },
     ExoSelection {
+        skills: &'a Vec<Skill>,
         skill_index: usize,
+        exos: &'a Vec<Exo>,
         exo_index: usize,
     },
     ExoPreview {
