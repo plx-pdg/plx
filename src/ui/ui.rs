@@ -66,14 +66,13 @@ impl Ui {
         Ui::handle_events(tx)
     }
 
-    fn render_frame(&self, frame: &mut Frame, state: &UiState) -> bool {
+    fn render_frame(&self, frame: &mut Frame, state: &UiState) {
         match state {
             UiState::Home => home::render_home(frame),
-            UiState::Quit => return false, //TODO: this is the way we try to quit for now
+            UiState::Quit => return,
             //TODO all other pages
             _ => {}
         }
-        true
     }
 
     fn handle_events(tx: &Sender<Event>) -> io::Result<()> {
