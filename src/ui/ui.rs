@@ -83,14 +83,14 @@ impl Ui {
         true
     }
 
-    fn handle_events(&self) -> io::Result<bool> {
+    fn handle_events(tx: &Sender<Event>) -> io::Result<()> {
         if event::poll(std::time::Duration::from_millis(50))? {
             if let CrosstermEvent::Key(key) = event::read()? {
                 if let Some(k) = ui_key_to_core_key(&key.code) {
-                    self.tx.send(Event::KeyPressed(k));
+                    let _ = tx.send(Event::KeyPressed(k));
                 }
             }
         }
-        Ok(true)
+        Ok(())
     }
 }
