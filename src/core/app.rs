@@ -74,6 +74,7 @@ impl App {
                     Event::ProcessOutputLine(_) => todo!(),
                     Event::OutputCheckPassed(_) => todo!(),
                     Event::OutputCheckFailed(_, _) => todo!(),
+                    Event::FileSaved => todo!(),
                 }
             }
         }
