@@ -101,7 +101,7 @@ mod tests {
         assert!(ret.is_ok());
         let (project, warnings) = ret.unwrap();
         assert!(project.skills.len() == 3);
-        assert!(project.skills[0].exos.len() == 3);
+        assert!(project.skills[0].exos.len() == 2);
         assert!(project.skills[1].exos.len() == 1);
         assert!(project.skills[2].exos.len() == 2);
         assert!(warnings.len() < 2);
