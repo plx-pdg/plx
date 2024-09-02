@@ -15,7 +15,7 @@ pub struct Skill {
 #[derive(Deserialize, Serialize)]
 struct SkillInfo {
     name: String,
-    #[serde(alias = "exos")]
+    #[serde(rename = "exos")]
     exo_folders: Vec<std::path::PathBuf>,
 }
 impl Skill {

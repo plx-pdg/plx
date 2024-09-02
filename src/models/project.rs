@@ -16,7 +16,7 @@ pub struct Project {
 #[derive(Deserialize)]
 struct ProjectInfo {
     name: String,
-    #[serde(alias = "skills")]
+    #[serde(rename = "skills")]
     skill_folders: Vec<std::path::PathBuf>,
 }
 
