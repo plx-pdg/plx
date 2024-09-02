@@ -26,6 +26,7 @@ pub struct WorkHandler {
     workers: HashMap<usize, WorkInfo>,
     tx: Sender<Event>,
     work_tx: Sender<WorkEvent>,
+    work_id: usize,
 }
 impl WorkInfo {
     fn new(work: WorkType, should_stop: Arc<AtomicBool>, join_handle: JoinHandle<()>) -> Self {
@@ -53,21 +54,15 @@ impl WorkHandler {
             workers: HashMap::new(),
             tx,
             work_tx,
+            work_id: 0,
         }));
         WorkHandler::run(ret.clone(), rx);
         ret
     }
 
-    fn spawn_id(&self) -> usize {
-        loop {
-            let id = rand::random::<usize>();
-            if !self.workers.contains_key(&id) {
-                return id;
-            }
-        }
-    }
     pub fn spawn_worker(&mut self, work: Box<dyn Work + Send>) -> usize {
-        let id = self.spawn_id();
+        let id = self.work_id;
+        self.work_id += 1;
         let stop = Arc::new(AtomicBool::new(false));
         let work_type = work.work_type();
         let worker = Worker::new(
