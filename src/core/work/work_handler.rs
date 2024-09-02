@@ -10,7 +10,11 @@ use std::{
 
 use crate::models::event::Event;
 
-use super::{work::Work, work_type::WorkType, worker::Worker};
+use super::{
+    work::Work,
+    work_type::WorkType,
+    worker::{self, Worker},
+};
 
 pub(crate) enum WorkEvent {
     Done(usize),
@@ -104,12 +108,21 @@ impl WorkHandler {
             .for_each(|(_, worker)| worker.stop());
         self.workers.retain(|_, worker| worker.work != work_type);
     }
-    pub fn stop_all_workers(&mut self) {
+    fn stop_all_workers(&mut self) {
         self.workers
             .iter_mut()
             .for_each(|(_, worker)| worker.stop());
-        self.workers.clear();
     }
+
+    pub fn stop_all_workers_and_wait(&mut self) {
+        self.stop_all_workers(); // Signal every worker to stop
+        let workers: Vec<_> = self.workers.drain().map(|(_, worker)| worker).collect();
+
+        for worker in workers {
+            worker.join(); // join here
+        }
+    }
+
     fn remove_worker(&mut self, id: usize) {
         self.workers.remove(&id);
     }

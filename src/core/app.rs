@@ -4,7 +4,7 @@ use std::sync::{
 };
 
 use crate::{
-    models::{event::Event, exo::Exo, project::Project, ui_state::UiState},
+    models::{event::Event, exo::Exo, key::Key, project::Project, ui_state::UiState},
     ui::ui::Ui,
 };
 
@@ -57,10 +57,16 @@ impl App {
         app.start_ui(ui_state_rx);
         Ok(app)
     }
-    pub fn run_forever(self) {
+    pub fn run_forever(mut self) {
         while self.run {
             if let Ok(event) = self.event_rx.recv() {
                 match event {
+                    Event::KeyPressed(Key::Q) => {
+                        self.run = false;
+                        if let Ok(mut wh) = self.work_handler.lock() {
+                            wh.stop_all_workers_and_wait();
+                        }
+                    }
                     Event::KeyPressed(_) => todo!(),
                     Event::EditorOpened => todo!(),
                     Event::CouldNotOpenEditor => todo!(),
