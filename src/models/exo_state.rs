@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::core::file_utils::{file_parser::ParseError, file_utils::read_file};
+use crate::core::file_utils::file_utils::read_file;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum ExoState {
