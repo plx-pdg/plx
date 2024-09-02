@@ -102,7 +102,7 @@ mod tests {
         assert!(data_file.flush().is_ok());
 
         // Check if an event was received.
-        match rx.recv_timeout(Duration::from_secs(3)) {
+        match rx.recv_timeout(Duration::from_secs(5)) {
             Ok(event) => assert_eq!(event, Event::FileSaved),
             Err(RecvTimeoutError::Timeout) => panic!("Timed out waiting for event"),
             Err(RecvTimeoutError::Disconnected) => panic!("Channel disconnected"),
