@@ -85,11 +85,9 @@ mod tests {
         let should_stop = Arc::new(AtomicBool::new(false));
         let watcher = FileWatcher::new(path.clone());
 
-        let should_stop_clone = Arc::clone(&should_stop);
+        let should_stop_clone = should_stop.clone();
         // Run the file watcher in a separate thread.
-        let handle = thread::spawn(move || {
-            watcher.clone().run(tx, should_stop_clone);
-        });
+        let handle = thread::spawn(move || watcher.run(tx, should_stop_clone));
 
         thread::sleep(Duration::from_secs(1));
 
@@ -100,8 +98,8 @@ mod tests {
             .expect("cannot open file");
 
         // Write to a file
-        data_file.write_all("test".as_bytes());
-        data_file.flush();
+        assert!(data_file.write_all("test".as_bytes()).is_ok());
+        assert!(data_file.flush().is_ok());
 
         // Allow debounce time to trigger modification event.
         thread::sleep(Duration::from_secs(3));
@@ -113,6 +111,6 @@ mod tests {
             Err(TryRecvError::Disconnected) => panic!("Channel disconnected"),
         }
         should_stop.store(true, Ordering::Relaxed);
-        handle.join();
+        assert!(handle.join().expect("Couldn't join thread"));
     }
 }
