@@ -87,15 +87,18 @@ mod test {
         let exo = build_exo(&exo_path);
         CompileRunner::new(compiler, &exo, &output_path).expect("Couldn't create compile runner")
     }
-    fn compile(compiler: CompileRunner, output_path: &PathBuf) {
+    fn compile_and_assert_ok(compiler: CompileRunner, output_path: &PathBuf) {
         let (tx, rx) = mpsc::channel();
         let stop = Arc::new(AtomicBool::new(false));
         compiler.run(tx, stop);
-        match rx.recv_timeout(Duration::from_secs(5)) {
-            Ok(Event::CompilationEnd(success)) => assert!(success),
-            Ok(event) => println!("Event {:#?}", event),
-            Err(err) => println!("Err {:#?}", err),
+        let mut compilation_status = None;
+        while let Ok(msg) = rx.recv_timeout(Duration::from_secs(1)) {
+            match msg {
+                Event::CompilationEnd(success) => compilation_status = Some(success),
+                event => println!("Event {:#?}", event),
+            }
         }
+        assert!(compilation_status.unwrap());
         //This helps out work out possible problems
         let output_folder = output_path.parent().unwrap().to_path_buf();
         println!("{:#?}", list_dir_files(&output_folder));
@@ -117,7 +120,7 @@ mod test {
         assert!(command.contains("main.c"));
         assert!(command.contains(&format!("-o {}", output_path.to_str().unwrap())));
 
-        compile(compiler, &output_path);
+        compile_and_assert_ok(compiler, &output_path);
     }
 
     #[test]
@@ -136,6 +139,35 @@ mod test {
         assert!(command.contains("main.c"));
         assert!(command.contains("queue.c"));
         assert!(command.contains(&format!("-o {}", output_path.to_str().unwrap())));
-        compile(compiler, &output_path);
+        compile_and_assert_ok(compiler, &output_path);
+    }
+
+    #[test]
+    fn compile_invalid_exo() {
+        let path = PathBuf::from("examples")
+            .join("mock-plx-project")
+            .join("mock-skill")
+            .join("doesntcompile");
+        let output_path = PathBuf::from("target").join("doesntcompile");
+        let compiler = create_compiler(&Compiler::Gcc, &path, &output_path);
+
+        let command = compiler.get_full_command();
+
+        println!("Command: {}", command);
+        assert!(command.contains("gcc"));
+        assert!(command.contains("main.c"));
+        assert!(command.contains(&format!("-o {}", output_path.to_str().unwrap())));
+
+        let (tx, rx) = mpsc::channel();
+        let stop = Arc::new(AtomicBool::new(false));
+        compiler.run(tx, stop);
+        let mut compilation_status = None;
+        while let Ok(msg) = rx.recv_timeout(Duration::from_secs(1)) {
+            match msg {
+                Event::CompilationEnd(success) => compilation_status = Some(success),
+                event => println!("Event {:#?}", event),
+            }
+        }
+        assert!(!compilation_status.unwrap());
     }
 }
