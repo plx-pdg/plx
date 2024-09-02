@@ -60,17 +60,10 @@ impl Ui {
         &self,
         terminal: &mut Terminal<CrosstermBackend<Stdout>>,
         state: &UiState,
-    ) -> Result<bool, io::Error> {
-        terminal.draw(|frame| {
-            if !self.render_frame(frame, state) {
-                // return Ok(false);
-                self.render_frame(frame, state);
-            }
-        })?;
-        if !self.handle_events()? {
-            return Ok(false);
-        };
-        Ok(true)
+        tx: &Sender<Event>,
+    ) -> Result<(), io::Error> {
+        terminal.draw(|frame| self.render_frame(frame, state))?;
+        Ui::handle_events(tx)
     }
 
     fn render_frame(&self, frame: &mut Frame, state: &UiState) -> bool {
