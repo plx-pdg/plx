@@ -4,24 +4,22 @@ instruction = 'Given an exo in raw DY syntax, implement parsing the name and sol
 [[checks]]
 name = 'Basic name and solution can be extracted'
 args = ["Exo: What is the best OS?\n\nSolution: GNU/Linux"]
-type = "output"
-output = '''
+test = { type = "output", expected = '''
 Parsing 'Exo: What is the best OS?
 
 Solution: GNU/Linux
 
 ' result in:
 title='What is the best OS?' and solution='GNU/Linux'
-'''
+''' }
 [[checks]]
 name = 'Values are trimmed'
 args = ["Exo:     What is the best OS?  \t\t \n\nSolution: \tGNU/Linux\n\n"]
-type = "output"
-output = '''
+test = { type = "output", expected = '''
 Parsing 'Exo:     What is the best OS?  		
 
 Solution: 	GNU/Linux
 
 ' result in:
 title='What is the best OS?' and solution='GNU/Linux'
-'''
+''' }

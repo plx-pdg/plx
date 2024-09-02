@@ -4,7 +4,7 @@ instruction = 'Same but in Java. The person info comes from program arguments.'
 name = 'Fullname displayed'
 type = "output"
 args = ["Dé", "Javu"]
-output = '''
+test = { type = "output", expected = '''
 Hello there!
 My fullname is Dé Javu
-'''
+''' }
