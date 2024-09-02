@@ -2,7 +2,7 @@ use similar::{ChangeTag, TextDiff};
 
 use super::{diff_type::DiffType, hunk::Hunk, line::Line, line_chunk::LineChunk};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Diff {
     differences: Vec<Hunk>,
 }
@@ -10,6 +10,9 @@ pub struct Diff {
 impl Diff {
     fn new(differences: Vec<Hunk>) -> Self {
         Self { differences }
+    }
+    pub fn contains_differences(&self) -> bool {
+        !self.differences.is_empty()
     }
     pub fn to_ansi_colors(&self) -> String {
         let mut result = String::new();
@@ -21,13 +24,23 @@ impl Diff {
         }
         result
     }
+    fn trim_lines(text: &str) -> String {
+        text.lines()
+            .map(|line| line.trim_end())
+            .collect::<Vec<&str>>()
+            .join("\n")
+    }
     // Based on similar sample https://github.com/mitsuhiko/similar/blob/844769ae19f7451c5a5be3505d8865100dd300a0/examples/terminal-inline.rs
+    //TODO add timeout param here for very large files
     pub fn calculate_difference(
         old: &str,
         new: &str,
         lines_between_changes: Option<usize>,
     ) -> Self {
-        let diff = TextDiff::from_lines(old, new);
+        let old = Diff::trim_lines(old);
+        let new = Diff::trim_lines(new);
+
+        let diff = TextDiff::from_lines(&old, &new);
 
         let mut differences = Vec::new();
         for group in &diff.grouped_ops(lines_between_changes.unwrap_or(3)) {
@@ -75,7 +88,7 @@ mod tests {
     #[test]
     fn test_diff() {
         let old = "Hello\nWorld";
-        let new = "Hello\nWorld\n";
+        let new = "Hello\nWorld Test\n";
         let diff = Diff::calculate_difference(old, new, None);
         let expected = Diff {
             differences: vec![Hunk::new(vec![
@@ -92,9 +105,9 @@ mod tests {
                 Line::new(
                     vec![
                         LineChunk::new(String::from("World"), false),
-                        LineChunk::new(String::from("\n"), false),
+                        LineChunk::new(String::from(" Test"), true),
                     ],
-                    false,
+                    true,
                     DiffType::Added,
                 ),
             ])],
@@ -108,11 +121,7 @@ mod tests {
         let new = "\n";
         let diff = Diff::calculate_difference(old, new, None);
         let expected = Diff {
-            differences: vec![Hunk::new(vec![Line::new(
-                vec![LineChunk::new(String::from("\n"), false)],
-                false,
-                DiffType::Added,
-            )])],
+            differences: vec![],
         };
         println!("{}", diff.to_ansi_colors());
         assert_eq!(expected, diff);
@@ -149,10 +158,8 @@ mod tests {
         let new = "Hello\nWorld Test\n";
         let diff = Diff::calculate_difference(old, new, None);
         let ansi = diff.to_ansi_colors();
-        let expected_ansi = r"[2m [0m[2mHello
-[0m[31m[1m-[0m[31m[1m[2mWorld[0m[31m[1m[2m
-[0m[32m[1m+[0m[32m[1m[2mWorld[0m[32m[1m Test[0m[32m[1m[2m
-[0m";
+        let expected_ansi = "\u{1b}[2m \u{1b}[0m\u{1b}[2mHello\n\u{1b}[0m\u{1b}[31m\u{1b}[1m-\u{1b}[0m\u{1b}[31m\u{1b}[1m\u{1b}[2mWorld\u{1b}[0m\n\u{1b}[32m\u{1b}[1m+\u{1b}[0m\u{1b}[32m\u{1b}[1m\u{1b}[2mWorld\u{1b}[0m\u{1b}[32m\u{1b}[1m Test\u{1b}[0m\n";
+
         println!("{}", diff.to_ansi_colors());
         assert_eq!(expected_ansi, ansi);
     }

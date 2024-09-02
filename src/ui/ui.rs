@@ -1,39 +1,97 @@
-use std::sync::{Mutex, Weak};
+use std::{
+    io::Stdout,
+    sync::mpsc::{Receiver, Sender, TryRecvError},
+};
 
-use crate::{core::app::App, models::ui_state::UiState};
+use super::utils::ui_key_to_core_key;
+use crate::models::ui_state::UiState;
+use crate::{models::event::Event, ui::pages::home};
+use ratatui::{
+    backend::CrosstermBackend,
+    crossterm::{
+        event::{self, Event as CrosstermEvent},
+        terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+        ExecutableCommand,
+    },
+    Frame, Terminal,
+};
+use std::io::{self, stdout};
 
 pub struct Ui<'a> {
-    core: Weak<Mutex<App<'a>>>,
+    tx: Sender<Event>,
+    rx: Receiver<UiState<'a>>,
 }
 impl Ui<'_> {
-    pub fn new(core: Weak<Mutex<App>>) -> Ui<'_> {
-        Ui { core }
+    pub fn new(tx: Sender<Event>, rx: Receiver<UiState>) -> Ui<'_> {
+        Ui { tx, rx }
     }
-    fn setup(&mut self) {
-        println!("Ui Setup...");
+    fn setup(&mut self) -> io::Result<()> {
+        enable_raw_mode()?;
+        stdout().execute(EnterAlternateScreen)?;
+        Ok(())
     }
-    fn teardown(&mut self) {
-        println!("Ui Teardown...");
+    fn teardown(&mut self) -> io::Result<()> {
+        disable_raw_mode()?;
+        stdout().execute(LeaveAlternateScreen)?;
+        Ok(())
     }
-    pub fn loop_forever(&mut self) {
-        self.setup();
+    pub fn loop_forever(&mut self) -> io::Result<()> {
+        let mut local_state: Option<UiState> = None;
+        self.setup()?;
+        let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
 
         loop {
-            match self.core.upgrade() {
-                Some(core) => {
-                    if let Ok(core) = core.lock() {
-                        if !self.render(core.get_state()) {
-                            break;
-                        }
-                    }
+            match self.rx.try_recv() {
+                Ok(state) => {
+                    local_state = Some(state); //TODO: how performant is it ??
                 }
-                None => break,
+                Err(TryRecvError::Disconnected) => break,
+                Err(TryRecvError::Empty) => {}
+            }
+
+            if let Some(state) = &local_state {
+                self.run(&mut terminal, &state);
             }
         }
-        self.teardown();
+        self.teardown()?;
+        Ok(())
     }
-    fn render(&mut self, state: &UiState) -> bool {
-        todo!();
-        return true;
+
+    pub fn run(
+        &self,
+        terminal: &mut Terminal<CrosstermBackend<Stdout>>,
+        state: &UiState,
+    ) -> Result<bool, io::Error> {
+        terminal.draw(|frame| {
+            if !self.render_frame(frame, state) {
+                // return Ok(false);
+                self.render_frame(frame, state);
+            }
+        })?;
+        if !self.handle_events()? {
+            return Ok(false);
+        };
+        Ok(true)
+    }
+
+    fn render_frame(&self, frame: &mut Frame, state: &UiState) -> bool {
+        match state {
+            UiState::Home => home::render_home(frame),
+            UiState::Quit => return false, //TODO: this is the way we try to quit for now
+            //TODO all other pages
+            _ => {}
+        }
+        true
+    }
+
+    fn handle_events(&self) -> io::Result<bool> {
+        if event::poll(std::time::Duration::from_millis(50))? {
+            if let CrosstermEvent::Key(key) = event::read()? {
+                if let Some(k) = ui_key_to_core_key(&key.code) {
+                    self.tx.send(Event::KeyPressed(k));
+                }
+            }
+        }
+        Ok(true)
     }
 }
