@@ -16,6 +16,7 @@ toml = "0.8.19"
 ratatui = "0.28.1"
 crossterm = "0.28.1"
 similar = { version = "2.6.0", features = ["inline"] }
+dunce = "1.0.5"
 
 [dev-dependencies]
 ntest = "0.9.3"

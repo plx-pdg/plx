@@ -32,5 +32,5 @@ pub fn list_dir_files(dir: &std::path::PathBuf) -> Result<Vec<std::path::PathBuf
 
 // From https://stackoverflow.com/a/38384901
 pub fn get_full_path(path: &std::path::PathBuf) -> Result<std::path::PathBuf, io::Error> {
-    std::fs::canonicalize(path)
+    dunce::canonicalize(path)
 }
