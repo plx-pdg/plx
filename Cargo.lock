@@ -291,6 +291,7 @@ dependencies = [
  "rand",
  "ratatui",
  "similar",
+ "strum",
 ]
 
 [[package]]

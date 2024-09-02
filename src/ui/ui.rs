@@ -79,6 +79,7 @@ impl Ui<'_> {
     fn render_frame(&self, frame: &mut Frame, state: &UiState) -> bool {
         match state {
             UiState::Home => home::render_home(frame),
+            UiState::Help => help::render_help(frame),
             UiState::Quit => return false, //TODO: this is the way we try to quit for now
             //TODO all other pages
             _ => {}
