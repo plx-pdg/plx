@@ -73,7 +73,7 @@ mod tests {
     use std::fs::OpenOptions;
     use std::io::Write;
     use std::sync::atomic::Ordering;
-    use std::sync::mpsc::{channel, TryRecvError};
+    use std::sync::mpsc::{channel, RecvTimeoutError, TryRecvError};
     use std::thread;
     use std::time::Duration;
 
@@ -101,14 +101,11 @@ mod tests {
         assert!(data_file.write_all("test".as_bytes()).is_ok());
         assert!(data_file.flush().is_ok());
 
-        // Allow debounce time to trigger modification event.
-        thread::sleep(Duration::from_secs(3));
-
         // Check if an event was received.
-        match rx.try_recv() {
+        match rx.recv_timeout(Duration::from_secs(3)) {
             Ok(event) => assert_eq!(event, Event::FileSaved),
-            Err(TryRecvError::Empty) => panic!("Expected an event but got none"),
-            Err(TryRecvError::Disconnected) => panic!("Channel disconnected"),
+            Err(RecvTimeoutError::Timeout) => panic!("Timed out waiting for event"),
+            Err(RecvTimeoutError::Disconnected) => panic!("Channel disconnected"),
         }
         should_stop.store(true, Ordering::Relaxed);
         assert!(handle.join().expect("Couldn't join thread"));
