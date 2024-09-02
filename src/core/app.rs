@@ -18,6 +18,7 @@ pub struct App<'a> {
     project: Project,
     work_handler: Arc<Mutex<WorkHandler>>,
     event_queue: (Sender<Event>, Receiver<Event>),
+    run: bool,
 }
 
 impl App<'_> {
@@ -43,10 +44,23 @@ impl App<'_> {
             project,
             work_handler: (WorkHandler::new(channel.0.clone())),
             event_queue: channel,
+            run: true,
         })
     }
-    pub fn get_state(&self) -> &UiState {
-        &self.ui_state
+    pub fn run_forever(self) {
+        while self.run {
+            if let Ok(event) = self.event_queue.1.recv() {
+                match event {
+                    Event::KeyPressed(_) => todo!(),
+                    Event::EditorOpened => todo!(),
+                    Event::CouldNotOpenEditor => todo!(),
+                    Event::ProcessCreationFailed => todo!(),
+                    Event::ProcessOutputLine(_) => todo!(),
+                    Event::OutputCheckPassed(_) => todo!(),
+                    Event::OutputCheckFailed(_, _) => todo!(),
+                }
+            }
+        }
     }
     fn start_work(&mut self, work: Box<dyn Work + Send>) {
         if let Ok(mut work_handler) = self.work_handler.lock() {
