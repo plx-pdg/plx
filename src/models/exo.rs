@@ -22,7 +22,7 @@ struct ExoInfo {
     checks: Vec<Check>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 struct ExoStateInfo {
     state: ExoState,
     favorite: bool,
@@ -69,11 +69,7 @@ impl FromDir for Exo {
 
         // If the exo hasn't been started, the state file won't exist
         let exo_state = parser::object_creator::create_from_file::<ExoStateInfo>(&exo_state_file)
-            .or::<ExoStateInfo>(Ok(ExoStateInfo {
-                favorite: false,
-                state: ExoState::Todo,
-            }))
-            .unwrap(); // this is safe with or fn
+            .unwrap_or_default();
 
         // Get all the dir files and find the exo and solution files
         let files = list_dir_files(&dir)
@@ -118,8 +114,7 @@ impl Exo {
             let file_extension = file_path
                 .extension()
                 .and_then(|extension| extension.to_str())
-                .or(Some(""))
-                .unwrap();
+                .unwrap_or_default();
 
             // Ignore our files
             if file_extension == "toml" {
