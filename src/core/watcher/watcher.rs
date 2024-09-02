@@ -28,7 +28,7 @@ impl FileWatcher {
     pub fn run(self, tx: Sender<Event>, should_stop: Arc<AtomicBool>) -> bool {
         let debouncer =
             new_debouncer(
-                Duration::from_secs(2),
+                Duration::from_secs(1),
                 move |res: DebounceEventResult| match res {
                     Ok(events) => {
                         for event in events {
