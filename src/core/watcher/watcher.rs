@@ -1,4 +1,4 @@
-use notify::{RecursiveMode, Watcher};
+use notify::RecursiveMode;
 use notify_debouncer_mini::{new_debouncer, DebounceEventResult, DebouncedEventKind};
 use std::path::PathBuf;
 use std::sync::{atomic::AtomicBool, mpsc::Sender, Arc};
@@ -53,7 +53,7 @@ impl FileWatcher {
                             if let DebouncedEventKind::Any = event.kind {
                                 // Send an event if a file change is detected
                                 if tx.send(Event::FileSaved).is_err() {
-                                    return ;
+                                    return;
                                 }
                                 break;
                             }
