@@ -74,7 +74,7 @@ impl FromDir for Exo {
         // Get all the dir files and find the exo and solution files
         let files = list_dir_files(&dir)
             .map_err(|err| (ParseError::FileDiscoveryFailed(err.to_string()), vec![]))?;
-        let (exo_files, solution_files) = Exo::find_exo_files(files);
+        let (exo_files, solution_files) = Exo::find_exo_and_solution_files(files);
 
         if exo_files.is_empty() {
             return Err((ParseError::NoExoFilesFound(dir.to_path_buf()), vec![]));
@@ -104,12 +104,12 @@ impl FromDir for Exo {
 }
 impl Exo {
     /// Finds exo and solution from a bunch of folder files
-    fn find_exo_files(
-        dir_entries: Vec<std::path::PathBuf>,
+    fn find_exo_and_solution_files(
+        files: Vec<std::path::PathBuf>,
     ) -> (Vec<std::path::PathBuf>, Vec<std::path::PathBuf>) {
         let mut exo_files = Vec::new();
         let mut solution_files = Vec::new();
-        for file_path in dir_entries {
+        for file_path in files {
             let file_path_str = file_path.display().to_string();
             let file_extension = file_path
                 .extension()
