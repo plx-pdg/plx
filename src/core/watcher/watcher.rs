@@ -1,54 +1,69 @@
-use std::path::PathBuf;
-use std::sync::Arc;
-use std::sync::atomic::AtomicBool;
-use std::sync::mpsc:: Sender;
-use std::time::Duration;
-use notify::{EventKind, RecursiveMode, Watcher};
+use notify::RecursiveMode;
+use notify::Watcher;
 use notify_debouncer_mini::{new_debouncer, DebounceEventResult, DebouncedEventKind};
+use std::path::PathBuf;
+use std::sync::atomic::AtomicBool;
+use std::sync::mpsc::Sender;
+use std::sync::Arc;
+use std::thread::sleep;
+use std::time::Duration;
 
-use crate::{models::event::Event};
+use crate::models::event::Event;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct FileWatcher{
+pub struct FileWatcher {
     // Used for directory or file
     path: PathBuf,
 }
 
 impl FileWatcher {
-    pub fn new(path: PathBuf) -> Self{
-        FileWatcher{path}
+    pub fn new(path: PathBuf) -> Self {
+        FileWatcher { path }
     }
 
-    pub fn run(self, tx: Sender<Event>, should_stop: Arc<AtomicBool>){
-        let mut debouncer = new_debouncer(Duration::from_secs(30),move |res: DebounceEventResult| {
-            match res {
+    pub fn run(self, tx: Sender<Event>, should_stop: Arc<AtomicBool>) {
+        let mut debouncer = new_debouncer(
+            Duration::from_secs(2),
+            move |res: DebounceEventResult| match res {
                 Ok(events) => {
-                    for event in events{
+                    for event in events {
+                        println!("{:?}", event);
                         if let DebouncedEventKind::Any = event.kind {
                             tx.send(Event::FileSaved).unwrap();
                             break;
                         }
                     }
                 }
-                Err(_) => { }
-            }
-        }).unwrap();
+                Err(_) => {}
+            },
+        )
+        .unwrap();
 
         // If the path is a directory, recursive_mode will be evaluated.
         // If recursive_mode is RecursiveMode::Recursive events will be delivered for all files in that tree.
         // If the path is a file, recursive_mode will be ignored and events will be delivered only for the file.
-        debouncer.watcher().watch(&self.path, RecursiveMode::Recursive);
-
+        let watcher = debouncer
+            .watcher()
+            .watch(&self.path, RecursiveMode::Recursive);
+        if watcher.is_err() {
+            //TODO handler err
+            eprintln!("Couldn't start watcher");
+        } else {
+            while !should_stop.load(std::sync::atomic::Ordering::Relaxed) {
+                sleep(Duration::from_millis(10));
+            }
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::mpsc::{channel, TryRecvError};
-    use std::thread;
     use std::fs::OpenOptions;
     use std::io::Write;
+    use std::sync::atomic::Ordering;
+    use std::sync::mpsc::{channel, TryRecvError};
+    use std::thread;
     use std::time::Duration;
 
     /// Tests the creation of a new `FileWatcher` instance.
@@ -61,7 +76,7 @@ mod tests {
 
         let should_stop_clone = Arc::clone(&should_stop);
         // Run the file watcher in a separate thread.
-        let handel = thread::spawn(move || {
+        let handle = thread::spawn(move || {
             watcher.clone().run(tx, should_stop_clone);
         });
 
@@ -86,6 +101,7 @@ mod tests {
             Err(TryRecvError::Empty) => panic!("Expected an event but got none"),
             Err(TryRecvError::Disconnected) => panic!("Channel disconnected"),
         }
-        handel.join();
+        should_stop.store(true, Ordering::Relaxed);
+        handle.join();
     }
 }
