@@ -146,7 +146,7 @@ impl Exo {
                     //try to parse file name to string
                     match (file_name.to_str(), extension.to_str()) {
                         (Some(file_name), Some(extension)) => {
-                            // associated exo file should be of foramt <file_name>.<extension>
+                            // associated exo file should be of format <file_name>.<extension>
                             // This essentially removes the .sol part
                             let exo_target_name =
                                 format!("{}.{}", file_name.replace(".sol", ""), extension);
