@@ -10,11 +10,15 @@ use std::{
     time::Duration,
 };
 
-use crate::{
-    core::process::process_handler::{self, ProcessStatus},
-    models::event::Event,
-};
+use crate::core::process::process_handler::{self, ProcessStatus};
 
+#[derive(Debug, PartialEq)]
+pub enum RunEvent {
+    ProcessCreationFailed(String),
+    ProcessCreated,
+    ProcessEnd(bool),
+    ProcessNewOutputLine(String),
+}
 pub struct Runner {
     command: String,
     args: Vec<String>,
@@ -24,27 +28,34 @@ impl Runner {
     pub fn new(command: String, args: Vec<String>) -> Self {
         Self { command, args }
     }
+    pub fn get_full_command(&self) -> String {
+        format!("{} {}", &self.command, &self.args.join(" "))
+    }
 
-    fn read_stream<T: Read>(tx: Sender<Event>, stream: T) {
+    fn read_stream<T: Read>(tx: Sender<RunEvent>, stream: T) {
         let reader = BufReader::new(stream);
         reader.lines().for_each(|line| match line {
             Ok(line) => {
-                let _ = tx.send(Event::ProcessOutputLine(line));
+                let _ = tx.send(RunEvent::ProcessNewOutputLine(line));
             }
             Err(_) => return,
         });
     }
-    fn launch_stream_reader<T>(tx: Sender<Event>, stream: T) -> JoinHandle<()>
+    fn launch_stream_reader<T>(tx: Sender<RunEvent>, stream: T) -> JoinHandle<()>
     where
         T: Read + Send + 'static,
     {
         thread::spawn(move || Runner::read_stream(tx, stream))
     }
 
-    pub fn run(self, tx: Sender<Event>, should_stop: Arc<AtomicBool>) -> Result<ExitStatus, ()> {
-        let mut process =
-            process_handler::spawn_process(&self.command, self.args).map_err(|_err| {
-                let _ = tx.send(Event::ProcessCreationFailed);
+    pub fn run(
+        &self,
+        tx: Sender<RunEvent>,
+        should_stop: Arc<AtomicBool>,
+    ) -> Result<ExitStatus, ()> {
+        let mut process = process_handler::spawn_process(&self.command, self.args.clone())
+            .map_err(|err| {
+                let _ = tx.send(RunEvent::ProcessCreationFailed(format!("{:?}", err)));
             })?;
 
         let mut stdout_thread = {
@@ -87,6 +98,14 @@ impl Runner {
         if let Some(t) = stderr_thread.take() {
             let _ = t.join();
         }
+
+        let success = if let Some(exit_status) = exit_status {
+            exit_status.success()
+        } else {
+            false
+        };
+
+        tx.send(RunEvent::ProcessEnd(success));
         exit_status.ok_or(())
     }
 }
@@ -113,7 +132,7 @@ mod test {
     fn launch_program(
         target: &str,
         stop: Arc<AtomicBool>,
-    ) -> (JoinHandle<Result<ExitStatus, ()>>, Receiver<Event>) {
+    ) -> (JoinHandle<Result<ExitStatus, ()>>, Receiver<RunEvent>) {
         let runner = Runner::new(target.to_string(), vec![]);
 
         let (tx, rx) = channel();
@@ -199,7 +218,7 @@ mod test {
         for i in 1..=4 {
             assert_eq!(
                 rx.recv().expect("Didn't receive data from process"),
-                Event::ProcessOutputLine(String::from(format!("Hello {}", i)))
+                RunEvent::ProcessNewOutputLine(String::from(format!("Hello {}", i)))
             );
         }
         stop.store(true, Ordering::Relaxed);
