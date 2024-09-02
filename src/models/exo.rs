@@ -27,7 +27,7 @@ struct ExoStateInfo {
     favorite: bool,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Exo {
     pub name: String,
     pub instruction: Option<String>,
