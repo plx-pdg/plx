@@ -7,7 +7,6 @@ pub struct Check {
     #[serde(default)]
     pub args: Vec<String>,
 
-    #[serde(alias = "type")]
     pub test: CheckTest,
 }
 
