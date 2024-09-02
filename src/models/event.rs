@@ -10,6 +10,7 @@ pub enum Event {
     CompilationStart,
     CompilationEnd(bool),
     CompilationOutputLine(String),
+    FileSaved,
     OutputCheckPassed(usize),
     OutputCheckFailed(usize, Diff),
 }

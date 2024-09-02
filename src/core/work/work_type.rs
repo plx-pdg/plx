@@ -3,4 +3,5 @@ pub enum WorkType {
     EditorOpen,
     Compilation,
     Ui,
+    DirectoryWatcher,
 }
