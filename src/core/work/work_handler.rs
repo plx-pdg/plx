@@ -10,14 +10,14 @@ use std::{
 
 use crate::models::event::Event;
 
-use super::{work::Work, worker::Worker};
+use super::{work::Work, work_type::WorkType, worker::Worker};
 
 pub(crate) enum WorkEvent {
     Done(usize),
     Stop(usize),
 }
 struct WorkInfo {
-    work: Work,
+    work: WorkType,
     should_stop: Arc<AtomicBool>,
     join_handle: JoinHandle<()>,
 }
@@ -28,7 +28,7 @@ pub struct WorkHandler {
     work_tx: Sender<WorkEvent>,
 }
 impl WorkInfo {
-    fn new(work: Work, should_stop: Arc<AtomicBool>, join_handle: JoinHandle<()>) -> Self {
+    fn new(work: WorkType, should_stop: Arc<AtomicBool>, join_handle: JoinHandle<()>) -> Self {
         WorkInfo {
             work,
             should_stop,
@@ -66,17 +66,18 @@ impl WorkHandler {
             }
         }
     }
-    pub fn spawn_worker(&mut self, work_type: Work) -> usize {
+    pub fn spawn_worker(&mut self, work: Box<dyn Work + Send>) -> usize {
         let id = self.spawn_id();
         let stop = Arc::new(AtomicBool::new(false));
+        let work_type = work.work_type();
         let worker = Worker::new(
             id,
             self.work_tx.clone(),
             self.tx.clone(),
             stop.clone(),
-            work_type.clone(),
+            work,
         );
-        let join_handle = worker.run();
+        let join_handle = worker.run_on_separate_thread();
         self.workers
             .insert(id, WorkInfo::new(work_type, stop, join_handle));
         id
@@ -101,7 +102,7 @@ impl WorkHandler {
             None => (),
         }
     }
-    pub fn stop_workers(&mut self, work_type: Work) {
+    pub fn stop_workers(&mut self, work_type: WorkType) {
         self.workers
             .iter_mut()
             .filter(|(_, worker)| worker.work == work_type)
@@ -131,7 +132,7 @@ mod tests {
         let mut last_id: Option<usize> = None;
         for _ in 0..10 {
             if let Ok(mut handler) = handler.lock() {
-                let id = handler.spawn_worker(Work::EditorOpen(EditorOpener::new(
+                let id = handler.spawn_worker(Box::new(EditorOpener::new(
                     "echo".to_string(),
                     "null".into(),
                 )));
@@ -149,7 +150,7 @@ mod tests {
         let handler = WorkHandler::new(tx.clone());
 
         if let Ok(mut handler) = handler.lock() {
-            let id = handler.spawn_worker(Work::EditorOpen(EditorOpener::new(
+            let id = handler.spawn_worker(Box::new(EditorOpener::new(
                 "echo".to_string(),
                 "null".into(),
             )));
@@ -163,7 +164,7 @@ mod tests {
                 .load(Ordering::Relaxed));
             assert!(matches!(
                 handler.workers.get(&id).unwrap().work,
-                Work::EditorOpen(_)
+                WorkType::EditorOpen
             ));
         };
     }
@@ -173,7 +174,7 @@ mod tests {
         let handler = WorkHandler::new(tx.clone());
 
         if let Ok(mut handler) = handler.lock() {
-            let id = handler.spawn_worker(Work::EditorOpen(EditorOpener::new(
+            let id = handler.spawn_worker(Box::new(EditorOpener::new(
                 "echo".to_string(),
                 "null".into(),
             )));
@@ -192,7 +193,7 @@ mod tests {
         if let Ok(mut handler) = handler.lock() {
             let range = 10;
             for _ in 0..range {
-                let _ = handler.spawn_worker(Work::EditorOpen(EditorOpener::new(
+                let _ = handler.spawn_worker(Box::new(EditorOpener::new(
                     "echo".to_string(),
                     "null".into(),
                 )));
