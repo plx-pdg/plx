@@ -33,7 +33,6 @@ impl FromDir for Skill {
         dir: &std::path::PathBuf,
     ) -> Result<(Self, Vec<ParseWarning>), (ParseError, Vec<ParseWarning>)> {
         // Get skill info by searching for the skill.toml file
-        println!("{:?}", skill_info_file);
         let skill_info_file = dir.join(SKILL_INFO_FILE);
         let info = parser::object_creator::create_from_file::<SkillInfo>(&skill_info_file)
             .map_err(|err| (err, vec![]))?;
