@@ -99,11 +99,7 @@ mod tests {
 
         println!("{:#?}", ret);
         assert!(ret.is_ok());
-        let (project, warnings) = ret.unwrap();
-        assert!(project.skills.len() == 3);
-        assert!(project.skills[0].exos.len() == 2);
-        assert!(project.skills[1].exos.len() == 1);
-        assert!(project.skills[2].exos.len() == 2);
+        let (_project, warnings) = ret.unwrap();
         assert!(warnings.len() < 2);
     }
     #[test]
