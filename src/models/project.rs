@@ -1,23 +1,52 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::core::{
     file_utils::file_parser::{ParseError, ParseWarning},
     parser::{from_dir::FromDir, object_creator},
 };
 
-use super::{constants::COURSE_INFO_FILE, skill::Skill};
+use super::{
+    constants::{COURSE_INFO_FILE, COURSE_STATE_FILE},
+    exo::Exo,
+    skill::Skill,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Project {
     name: String,
     skills: Vec<Skill>,
+    state: ProjectState,
 }
 
+#[derive(Serialize, Deserialize, Default, PartialEq, Eq, Debug)]
+struct ProjectState {
+    current_skill_idx: usize,
+    current_exo_idx: usize,
+}
 #[derive(Deserialize)]
 struct ProjectInfo {
     name: String,
     #[serde(rename = "skills")]
     skill_folders: Vec<std::path::PathBuf>,
+}
+impl Project {
+    pub fn resume(&mut self) -> Option<&Exo> {
+        if self.state.current_skill_idx < self.skills.len()
+            && self.state.current_exo_idx < self.skills[self.state.current_skill_idx].exos.len()
+        {
+            return Some(
+                &self.skills[self.state.current_skill_idx].exos[self.state.current_exo_idx],
+            );
+        }
+        for (idx, skill) in self.skills.iter().enumerate() {
+            if let Some((exo_idx, exo)) = skill.get_next_todo_exo() {
+                self.state.current_skill_idx = idx;
+                self.state.current_exo_idx = exo_idx;
+                return Some(exo);
+            }
+        }
+        None
+    }
 }
 
 impl FromDir for Project {
@@ -32,8 +61,11 @@ impl FromDir for Project {
         // Get course info by searching for the course.toml file
         // TODO magic value maybe change this
         let course_info_file = dir.join(COURSE_INFO_FILE);
+        let course_state_file = dir.join(COURSE_STATE_FILE);
         let course_info = object_creator::create_from_file::<ProjectInfo>(&course_info_file)
             .map_err(|err| (err, vec![]))?;
+        let project_state = object_creator::create_from_file::<ProjectState>(&course_state_file)
+            .unwrap_or_default();
 
         // Using the skill folders found in the course.toml file, parse every skill
         // /!\ Folders not found in the course.toml file are ignored /!\
@@ -72,6 +104,7 @@ impl FromDir for Project {
                 Self {
                     name: course_info.name,
                     skills,
+                    state: project_state,
                 },
                 warnings,
             ))
@@ -173,6 +206,7 @@ mod tests {
                     ],
                 },
             ],
+            state:ProjectState{current_exo_idx: 0, current_skill_idx:0}
         };
         let (actual, warnings) = project.unwrap();
         assert_eq!(expected, actual);
