@@ -18,12 +18,11 @@ use ratatui::{
 use std::io::{self, stdout};
 
 pub struct Ui {
-    tx: Sender<Event>,
     rx: Receiver<UiState>,
 }
 impl Ui {
-    pub fn new(tx: Sender<Event>, rx: Receiver<UiState>) -> Ui {
-        Ui { tx, rx }
+    pub fn new(rx: Receiver<UiState>) -> Ui {
+        Ui { rx }
     }
     fn setup(&mut self) -> io::Result<()> {
         enable_raw_mode()?;
