@@ -1,4 +1,4 @@
-use notify::{RecursiveMode, Watcher };
+use notify::{RecursiveMode, Watcher};
 use notify_debouncer_mini::{new_debouncer, DebounceEventResult, DebouncedEventKind};
 use std::path::PathBuf;
 use std::sync::{atomic::AtomicBool, mpsc::Sender, Arc};
