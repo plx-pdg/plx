@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use serde::{Deserialize, Serialize};
 
 use crate::core::{
@@ -13,9 +15,9 @@ use super::{
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Project {
-    name: String,
-    skills: Vec<Skill>,
-    state: ProjectState,
+    pub(crate) name: String,
+    pub(crate) skills: Arc<Vec<Skill>>,
+    pub(crate) state: ProjectState,
 }
 
 #[derive(Serialize, Deserialize, Default, PartialEq, Eq, Debug)]
@@ -103,7 +105,7 @@ impl FromDir for Project {
             Ok((
                 Self {
                     name: course_info.name,
-                    skills,
+                    skills: Arc::new(skills),
                     state: project_state,
                 },
                 warnings,
@@ -115,7 +117,7 @@ impl FromDir for Project {
 #[cfg(test)]
 mod tests {
 
-    use std::str::FromStr;
+    use std::{str::FromStr, sync::Arc};
 
     use crate::models::{
         check::{Check, CheckTest},
@@ -141,11 +143,11 @@ mod tests {
         let project = Project::from_dir(&project_path);
         let expected  = Project {
             name: String::from("Full fictive course"),
-            skills: vec![
+            skills: Arc::new(vec![
                 Skill {
                     name: String::from("Introduction"),
                     path: project_path.join("intro"),
-                    exos: vec![
+                    exos: Arc::new(vec![
                         Exo {
                             name: String::from("Basic arguments usage"),
                             instruction: Some(
@@ -203,9 +205,9 @@ mod tests {
                             ],
                             favorite: false,
                         },
-                    ],
+                    ]),
                 },
-            ],
+            ]),
             state:ProjectState{current_exo_idx: 0, current_skill_idx:0}
         };
         let (actual, warnings) = project.unwrap();
