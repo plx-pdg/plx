@@ -6,3 +6,6 @@ These are exos in various languages to run tests suites on. We can make sure the
 1. `basics`: only code files in 3 languages, first simple and edge cases
 1. `full` (TODO in another PR): a full course structure with several exos in multiple languages, including non trivial build situations
 
+### Testing
+
+Folder `mock-plx-project` is used for testing. **Do not modify**

@@ -1,0 +1,5 @@
+name = 'Basic output printing'
+instruction = 'Just print 2 lines'
+[[checks]]
+name = 'Lines are correct'
+test = {type = "output", expected =  "PLX is amazing !\nThis is a neutral opinion...\n"}
