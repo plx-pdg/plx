@@ -37,9 +37,9 @@ impl Worker {
                     self.work_tx.send(WorkEvent::Done(self.id));
                 });
             }
-            Work::DirectoryWatcher(watcher) =>{
+            Work::DirectoryWatcher(watcher) => {
                 return thread::spawn(move || {
-                    watcher.run(self.tx, self.should_stop );
+                    watcher.run(self.tx, self.should_stop);
                     self.work_tx.send(WorkEvent::Done(self.id));
                 })
             }

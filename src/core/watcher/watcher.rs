@@ -21,37 +21,48 @@ impl FileWatcher {
         FileWatcher { path }
     }
 
-    pub fn run(self, tx: Sender<Event>, should_stop: Arc<AtomicBool>) {
-        let mut debouncer = new_debouncer(
-            Duration::from_secs(2),
-            move |res: DebounceEventResult| match res {
-                Ok(events) => {
-                    for event in events {
-                        println!("{:?}", event);
-                        if let DebouncedEventKind::Any = event.kind {
-                            tx.send(Event::FileSaved).unwrap();
-                            break;
+    /// Runs a directory watcher
+    /// This functions blocks and should be called from a different thread
+    /// Returns false if init failed else true
+    /// TODO standardize worker interface
+    pub fn run(self, tx: Sender<Event>, should_stop: Arc<AtomicBool>) -> bool {
+        let debouncer =
+            new_debouncer(
+                Duration::from_secs(2),
+                move |res: DebounceEventResult| match res {
+                    Ok(events) => {
+                        for event in events {
+                            println!("{:?}", event);
+                            if let DebouncedEventKind::Any = event.kind {
+                                tx.send(Event::FileSaved).unwrap();
+                                break;
+                            }
                         }
                     }
-                }
-                Err(_) => {}
-            },
-        )
-        .unwrap();
+                    Err(_) => {}
+                },
+            );
 
-        // If the path is a directory, recursive_mode will be evaluated.
-        // If recursive_mode is RecursiveMode::Recursive events will be delivered for all files in that tree.
-        // If the path is a file, recursive_mode will be ignored and events will be delivered only for the file.
-        let watcher = debouncer
-            .watcher()
-            .watch(&self.path, RecursiveMode::Recursive);
-        if watcher.is_err() {
-            //TODO handler err
-            eprintln!("Couldn't start watcher");
-        } else {
-            while !should_stop.load(std::sync::atomic::Ordering::Relaxed) {
-                sleep(Duration::from_millis(10));
+        if let Ok(mut debouncer) = debouncer {
+            // If the path is a directory, recursive_mode will be evaluated.
+            // If recursive_mode is RecursiveMode::Recursive events will be delivered for all files in that tree.
+            // If the path is a file, recursive_mode will be ignored and events will be delivered only for the file.
+            let watcher = debouncer
+                .watcher()
+                .watch(&self.path, RecursiveMode::Recursive);
+            if watcher.is_err() {
+                //TODO handler err
+                eprintln!("Couldn't start watcher");
+                return false;
+            } else {
+                while !should_stop.load(std::sync::atomic::Ordering::Relaxed) {
+                    sleep(Duration::from_millis(10));
+                }
+                return true;
             }
+        } else {
+            eprintln!("Couldn't setup watcher");
+            return false;
         }
     }
 }
