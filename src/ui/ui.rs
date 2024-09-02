@@ -24,12 +24,12 @@ impl Ui {
     pub fn new(rx: Receiver<UiState>) -> Ui {
         Ui { rx }
     }
-    fn setup(&mut self) -> io::Result<()> {
+    fn setup(&self) -> io::Result<()> {
         enable_raw_mode()?;
         stdout().execute(EnterAlternateScreen)?;
         Ok(())
     }
-    fn teardown(&mut self) -> io::Result<()> {
+    fn teardown(&self) -> io::Result<()> {
         disable_raw_mode()?;
         stdout().execute(LeaveAlternateScreen)?;
         Ok(())
