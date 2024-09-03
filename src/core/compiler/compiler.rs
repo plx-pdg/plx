@@ -1,4 +1,4 @@
-use crate::{core::file_utils::file_utils::get_full_path, models::exo::Exo};
+use crate::core::file_utils::file_utils::get_full_path;
 
 pub enum Compiler {
     Gcc,
