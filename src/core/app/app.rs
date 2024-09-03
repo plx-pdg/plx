@@ -21,6 +21,7 @@ use crate::{
     models::{
         check::Check,
         check_state::{CheckState, CheckStatus},
+        constants::TARGET_FILE_BASE_NAME,
         event::Event,
         exo::Exo,
         project::Project,
@@ -177,9 +178,9 @@ impl App {
         let compiler = exo.compiler()?;
         let folder = generate_build_folder(exo).ok()?;
         let output_path = if cfg!(windows) {
-            folder.join("exo.exe")
+            folder.join(format!("{}.exe", TARGET_FILE_BASE_NAME))
         } else {
-            folder.join("exo")
+            folder.join(TARGET_FILE_BASE_NAME)
         };
         let runner = CompileRunner::new(&compiler, exo, &output_path)?;
         App::start_work(wh, Box::new(runner))?;
