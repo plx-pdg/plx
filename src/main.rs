@@ -1,4 +1,4 @@
-use core::app::App;
+use crate::core::app::app::App;
 
 pub mod core;
 pub mod models;
