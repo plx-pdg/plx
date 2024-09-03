@@ -20,8 +20,12 @@ impl App {
             Key::Esc => self.on_esc(),
         }
     }
-    pub(super) fn on_process_creation_fail(&mut self) {
-        //TODO warn user
+    pub(super) fn on_process_creation_fail(&mut self, run_id: usize, err: String) {
+        if let Some(ref mut cr) = self.current_run {
+            if run_id < cr.checkers.len() {
+                cr.checkers[run_id].state.status = CheckStatus::RunFail(err);
+            }
+        }
     }
     pub(super) fn on_process_output_line(&mut self, run_idx: usize, line: String) {
         if let Some(ref mut cr) = self.current_run {
