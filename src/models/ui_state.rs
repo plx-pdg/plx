@@ -8,6 +8,7 @@ pub enum UiState {
     Home, // Home page with ASCII art
     Quit, // Exit in progress
     Help {
+        scroll_offset: usize,
         last_state: Box<UiState>,
     }, // Help page with shortcuts documentation
     // List page
@@ -42,10 +43,6 @@ pub enum UiState {
         scroll_offset: usize,
         exo: Arc<Exo>,
         checks: Vec<CheckState>,
-    },
-    ExoDone {
-        scroll_offset: usize,
-        exo: Arc<Exo>,
     },
     ShowSolution {
         scroll_offset: usize,

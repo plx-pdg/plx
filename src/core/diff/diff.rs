@@ -2,7 +2,7 @@ use similar::{ChangeTag, TextDiff};
 
 use super::{diff_type::DiffType, hunk::Hunk, line::Line, line_chunk::LineChunk};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Diff {
     differences: Vec<Hunk>,
 }

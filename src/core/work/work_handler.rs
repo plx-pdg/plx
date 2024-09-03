@@ -126,6 +126,22 @@ impl WorkHandler {
     fn remove_worker(&mut self, id: usize) {
         self.workers.remove(&id);
     }
+    pub fn clean_non_ui_workers(&mut self) {
+        let ids_to_remove: Vec<usize> = self
+            .workers
+            .iter()
+            .filter_map(|(id, info)| {
+                if info.work == WorkType::Ui {
+                    return None;
+                } else {
+                    return Some(*id);
+                }
+            })
+            .collect();
+        for id in ids_to_remove {
+            self.stop_worker(id);
+        }
+    }
 }
 #[cfg(test)]
 mod tests {

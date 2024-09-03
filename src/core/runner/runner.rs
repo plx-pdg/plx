@@ -58,6 +58,7 @@ impl Runner {
                 let _ = tx.send(RunEvent::ProcessCreationFailed(format!("{:?}", err)));
             })?;
 
+        let _ = tx.send(RunEvent::ProcessCreated);
         let mut stdout_thread = {
             if let Some(stdout) = process.stdout.take() {
                 Some(Runner::launch_stream_reader(tx.clone(), stdout))
@@ -215,6 +216,11 @@ mod test {
 
         //give the program some time to start
         sleep(Duration::from_millis(1000));
+
+        assert_eq!(
+            rx.recv().expect("Didn't receive data from process"),
+            RunEvent::ProcessCreated
+        );
         for i in 1..=4 {
             assert_eq!(
                 rx.recv().expect("Didn't receive data from process"),
