@@ -27,10 +27,10 @@ impl App {
             }
         }
     }
-    pub(super) fn on_process_output_line(&mut self, run_idx: usize, line: String) {
+    pub(super) fn on_process_output_line(&mut self, run_id: usize, line: String) {
         if let Some(ref mut cr) = self.current_run {
-            if run_idx < cr.checkers.len() {
-                cr.checkers[run_idx].output.push(line)
+            if run_id < cr.checkers.len() {
+                cr.checkers[run_id].output.push(line)
             }
         }
     }
