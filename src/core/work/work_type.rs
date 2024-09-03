@@ -6,4 +6,5 @@ pub enum WorkType {
     DirectoryWatcher,
     OutputChecker,
     Launcher,
+    Checker,
 }

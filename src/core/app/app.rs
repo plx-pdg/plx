@@ -8,7 +8,10 @@ use std::{
 
 use crate::{
     core::{
-        check::output_checker::{self, OutputChecker},
+        check::{
+            checker::Checker,
+            output_checker::{self, OutputChecker},
+        },
         compiler::compile_runner::CompileRunner,
         core_error::CoreInitError,
         editor::opener::EditorOpener,
@@ -209,12 +212,12 @@ impl App {
     pub(super) fn start_check(&mut self, id: usize) {
         if let Some(ref mut cr) = self.current_run {
             if id < cr.checkers.len() {
-                let output_checker = OutputChecker::new(
+                let checker = Checker::new(
                     id,
-                    &cr.checkers[id].state.check,
+                    Arc::clone(&cr.checkers[id].state.check),
                     cr.checkers[id].output.join("\n"),
                 );
-                App::start_work(&self.work_handler, Box::new(output_checker));
+                App::start_work(&self.work_handler, Box::new(checker));
             }
         }
     }
