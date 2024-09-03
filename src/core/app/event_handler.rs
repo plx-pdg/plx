@@ -1,4 +1,7 @@
-use crate::models::key::Key;
+use crate::{
+    core::{check::output_checker::OutputChecker, diff::diff::Diff},
+    models::{check::CheckTest, check_state::CheckStatus, key::Key},
+};
 
 use super::app::App;
 
@@ -22,13 +25,15 @@ impl App {
     }
     pub(super) fn on_process_output_line(&mut self, run_idx: usize, line: String) {
         if let Some(ref mut cr) = self.current_run {
-            // cr.output_lines[run_idx].push(line);
+            if run_idx < cr.checkers.len() {
+                cr.checkers[run_idx].output.push(line)
+            }
         }
     }
-    fn on_check_status(&mut self, check_idx: usize, passed: bool) {
+    fn on_check_status(&mut self, check_idx: usize, check_status: CheckStatus) {
         if let Some(ref mut cr) = self.current_run {
-            if check_idx < cr.checks.len() {
-                cr.checks[check_idx].passed = passed;
+            if check_idx < cr.checkers.len() {
+                cr.checkers[check_idx].state.status = check_status;
             }
         }
     }

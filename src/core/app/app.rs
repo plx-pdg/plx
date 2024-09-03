@@ -1,24 +1,62 @@
-use std::sync::{
-    mpsc::{self, Receiver, Sender},
-    Arc, Mutex,
+use std::{
+    path::PathBuf,
+    sync::{
+        mpsc::{self, Receiver, Sender},
+        Arc, Mutex,
+    },
 };
 
 use crate::{
     core::{
+        check::output_checker::{self, OutputChecker},
+        compiler::compile_runner::CompileRunner,
         core_error::CoreInitError,
         editor::opener::EditorOpener,
         file_utils::file_handler::current_folder,
+        launcher::launcher::Launcher,
         parser::from_dir::FromDir,
+        runner::runner::Runner,
         work::{work::Work, work_handler::WorkHandler, work_type::WorkType},
     },
     models::{
-        check_state::CheckState, event::Event, exo::Exo, project::Project, ui_state::UiState,
+        check::Check, check_state::CheckState, event::Event, exo::Exo, project::Project,
+        ui_state::UiState,
     },
     ui::ui::Ui,
 };
 
-pub(super) struct CurrentRun {
-    pub(super) checks: Vec<CheckState>,
+pub(super) struct ExoCheckResult {
+    pub(super) state: CheckState,
+    pub(super) output: Vec<String>,
+}
+pub(super) struct ExoStatusReport {
+    pub(super) checkers: Vec<ExoCheckResult>,
+    pub(super) compilation_output: Vec<String>,
+    pub(super) elf_path: PathBuf,
+}
+
+impl ExoCheckResult {
+    pub(super) fn new(check: &Check) -> Self {
+        Self {
+            state: CheckState::new(check),
+            output: Vec::new(),
+        }
+    }
+}
+impl ExoStatusReport {
+    pub(super) fn new(exo: &Exo, target_path: PathBuf) -> Self {
+        let checkers: Vec<ExoCheckResult> = exo
+            .checks
+            .iter()
+            .map(|check| ExoCheckResult::new(check))
+            .collect();
+
+        Self {
+            checkers,
+            compilation_output: Vec::new(),
+            elf_path: target_path,
+        }
+    }
 }
 
 pub struct App {
@@ -29,7 +67,7 @@ pub struct App {
     pub(super) event_rx: Receiver<Event>,
     pub(super) ui_state_tx: Sender<UiState>,
     pub(super) run: bool,
-    pub(super) current_run: Option<CurrentRun>,
+    pub(super) current_run: Option<ExoStatusReport>,
 }
 
 impl App {
