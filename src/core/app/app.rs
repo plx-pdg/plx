@@ -177,9 +177,9 @@ impl App {
         let compiler = exo.compiler()?;
         let folder = generate_build_folder(exo).ok()?;
         let output_path = if cfg!(windows) {
-            folder.join(format!("{}.exe", exo.name))
+            folder.join("exo.exe")
         } else {
-            folder.join(exo.name.clone())
+            folder.join("exo")
         };
         let runner = CompileRunner::new(&compiler, exo, &output_path)?;
         App::start_work(wh, Box::new(runner))?;
