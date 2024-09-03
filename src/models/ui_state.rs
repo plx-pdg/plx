@@ -7,7 +7,9 @@ use super::{check_state::CheckState, exo::Exo, skill::Skill};
 pub enum UiState {
     Home, // Home page with ASCII art
     Quit, // Exit in progress
-    Help, // Help page with shortcuts documentation
+    Help {
+        last_state: Box<UiState>,
+    }, // Help page with shortcuts documentation
     // List page
     SkillSelection {
         skill_index: usize,
