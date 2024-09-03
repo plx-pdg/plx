@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crate::models::ui_state::UiState;
 
 use super::app::App;
@@ -40,8 +38,7 @@ impl App {
 impl App {
     pub(super) fn scroll_up(&mut self, scroll_offset: usize) {
         if scroll_offset > 0 {
-            let scroll_offset = scroll_offset - 1;
-            self.set_scroll_offset(scroll_offset);
+            self.set_scroll_offset(scroll_offset - 1);
         };
     }
     pub(super) fn scroll_down(&mut self, scroll_offset: usize) {
