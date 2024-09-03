@@ -85,7 +85,8 @@ impl App {
     /// Sets a new UiState
     /// It's important to set the ui_state using this functions as it will also notify the UI of the change
     pub(super) fn set_ui_state(&mut self, new_state: UiState) {
-        self.ui_state_tx.send(new_state.clone());
+        //TODO maybe restart the ui if the channel is closed ?
+        let _ = self.ui_state_tx.send(new_state.clone());
         self.ui_state = new_state;
     }
 
