@@ -90,9 +90,7 @@ impl App {
             UiState::ExoDone { .. } => self.go_to_solution(0),
             UiState::ShowSolution { .. } => {
                 self.next_exo(true);
-                let exo = &self.project.skills[self.project.state.curr_skill_idx].exos
-                    [self.project.state.curr_exo_idx];
-                App::start_exo(&self.work_handler, exo);
+                App::start_exo(&self.work_handler, self.current_exo());
             }
             _ => {}
         }
