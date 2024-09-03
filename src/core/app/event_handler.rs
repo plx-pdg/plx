@@ -90,6 +90,15 @@ impl App {
     pub(super) fn on_compilation_end(&mut self, success: bool) {
         if success {
             self.start_runners();
+            if let Some(ref cr) = self.current_run {
+                self.go_to_check_results(
+                    0,
+                    cr.check_results
+                        .iter()
+                        .map(|result| result.state.clone())
+                        .collect(),
+                );
+            }
         } else {
             let output = if let Some(ref cr) = self.current_run {
                 cr.compilation_output.join("\n")
