@@ -111,15 +111,12 @@ impl App {
         self.ui_state = new_state;
     }
     pub(super) fn resume_last_exo(&mut self) {
-        //TODO we need to handle project state so we know where to resume the project from
         if let Some(exo) = &self.project.resume() {
-            App::open_editor(&self.work_handler, exo);
-            //TODO
-            // self.state.ui_state = UiState::Compiling {
-            //     exo: Arc::new((*exo).clone()),
-            // }
+            //TODO think of a cleaner way to start an exo
+            App::cleanup_previous_run(&self.work_handler, &self.current_run);
+            self.current_run = App::start_exo(&self.work_handler, exo).ok();
         } else {
-            //TODO tell the user we couldn't resume last exo
+            self.go_to_skill_selection();
         }
     }
     pub fn run_forever(mut self) {
