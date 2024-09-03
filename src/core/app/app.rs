@@ -113,4 +113,11 @@ impl App {
             }
         }
     }
+    fn compile(_wh: &Arc<Mutex<WorkHandler>>, _exo: &Exo) {
+        //TODO
+    }
+    pub(super) fn start_exo(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) {
+        App::open_editor(wh, exo);
+        App::compile(wh, exo);
+    }
 }
