@@ -54,6 +54,17 @@ impl Ui {
     fn render_frame(&self, frame: &mut Frame, state: &UiState) {
         match state {
             UiState::Home => home::render_home(frame),
+            UiState::SkillSelection {
+                skill_index,
+                skills,
+                exos,
+            } => list::render_skills_selection(skills, exos, skill_index),
+            UiState::ExoSelection {
+                skill_index,
+                skills,
+                exos,
+                exo_index,
+            } => list::render_exos_selection(skills, exos, skill_index, exo_index),
             UiState::Quit => return,
             //TODO all other pages
             _ => {}

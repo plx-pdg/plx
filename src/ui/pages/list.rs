@@ -17,8 +17,9 @@ pub fn render_list(frame: &mut Frame, ui_state: &UiState) {
     let mut local_skills: Vec<Skill> = vec![];
     match ui_state {
         UiState::SkillSelection {
-            skills,
             skill_index,
+            skills,
+            exos,
         } => {
             lines.push(
                 Line::from(format!(
