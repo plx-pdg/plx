@@ -1,8 +1,8 @@
 use ratatui::{
     layout::{Constraint, Direction, Layout},
-    style::{Color, Style, Stylize},
-    text::{Line, Span, Text},
-    widgets::{Block, Borders, Paragraph},
+    style::{Color, Style},
+    text::Text,
+    widgets::{Block, Borders, List, ListState, Table},
     Frame,
 };
 use strum::IntoEnumIterator;
