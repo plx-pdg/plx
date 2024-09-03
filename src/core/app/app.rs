@@ -8,17 +8,14 @@ use std::{
 
 use crate::{
     core::{
-        check::{
-            checker::Checker,
-            output_checker::{self, OutputChecker},
-        },
+        check::checker::Checker,
         compiler::compile_runner::CompileRunner,
         core_error::CoreInitError,
         editor::opener::EditorOpener,
         file_utils::file_handler::current_folder,
         launcher::launcher::Launcher,
         parser::from_dir::FromDir,
-        runner::runner::Runner,
+        watcher::watcher::FileWatcher,
         work::{work::Work, work_handler::WorkHandler, work_type::WorkType},
     },
     models::{
@@ -36,6 +33,8 @@ pub(super) struct ExoStatusReport {
     pub(super) checkers: Vec<ExoCheckResult>,
     pub(super) compilation_output: Vec<String>,
     pub(super) elf_path: PathBuf,
+    pub(super) workers: Vec<usize>,
+    pub(super) exo: Arc<Exo>,
 }
 
 impl ExoCheckResult {
@@ -47,7 +46,7 @@ impl ExoCheckResult {
     }
 }
 impl ExoStatusReport {
-    pub(super) fn new(exo: &Exo, target_path: PathBuf) -> Self {
+    pub(super) fn new(exo: &Exo, elf_path: PathBuf, workers: Vec<usize>) -> Self {
         let checkers: Vec<ExoCheckResult> = exo
             .checks
             .iter()
@@ -57,8 +56,13 @@ impl ExoStatusReport {
         Self {
             checkers,
             compilation_output: Vec::new(),
-            elf_path: target_path,
+            elf_path,
+            workers,
+            exo: Arc::new(exo.clone()),
         }
+    }
+    pub(super) fn push_worker(&mut self, id: usize) {
+        self.workers.push(id);
     }
 }
 
