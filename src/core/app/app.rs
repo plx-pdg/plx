@@ -88,9 +88,13 @@ impl App {
                     Event::KeyPressed(key) => self.on_key_press(key),
                     Event::EditorOpened => todo!(),
                     Event::CouldNotOpenEditor => todo!(),
-                    // Event::ProcessCreationFailed => todo!(),
-                    // Event::ProcessOutputLine(_) => todo!(),
-                    Event::OutputCheckPassed(_) => todo!(),
+                    Event::EditorOpened => {}
+                    Event::CouldNotOpenEditor => {} //TODO warn the user ?
+                    Event::ProcessCreationFailed => self.on_process_creation_fail(),
+                    Event::ProcessOutputLine(run_id, line) => {
+                        self.on_process_output_line(run_id, line)
+                    }
+                    Event::OutputCheckPassed(check_index) => self.on_check_passed(check_index),
                     Event::OutputCheckFailed(_, _) => todo!(),
                     Event::FileSaved => todo!(),
                     _ => todo!(),
