@@ -12,14 +12,18 @@ use crate::{
         compiler::compile_runner::CompileRunner,
         core_error::CoreInitError,
         editor::opener::EditorOpener,
-        file_utils::file_handler::current_folder,
+        file_utils::{build_folder::generate_build_folder, file_handler::current_folder},
         launcher::launcher::Launcher,
         parser::from_dir::FromDir,
         watcher::watcher::FileWatcher,
         work::{work::Work, work_handler::WorkHandler, work_type::WorkType},
     },
     models::{
-        check::Check, check_state::CheckState, event::Event, exo::Exo, project::Project,
+        check::Check,
+        check_state::{CheckState, CheckStatus},
+        event::Event,
+        exo::Exo,
+        project::Project,
         ui_state::UiState,
     },
     ui::ui::Ui,
@@ -30,10 +34,9 @@ pub(super) struct ExoCheckResult {
     pub(super) output: Vec<String>,
 }
 pub(super) struct ExoStatusReport {
-    pub(super) checkers: Vec<ExoCheckResult>,
+    pub(super) check_results: Vec<ExoCheckResult>,
     pub(super) compilation_output: Vec<String>,
     pub(super) elf_path: PathBuf,
-    pub(super) workers: Vec<usize>,
     pub(super) exo: Arc<Exo>,
 }
 
@@ -46,7 +49,7 @@ impl ExoCheckResult {
     }
 }
 impl ExoStatusReport {
-    pub(super) fn new(exo: &Exo, elf_path: PathBuf, workers: Vec<usize>) -> Self {
+    pub(super) fn new(exo: &Exo, elf_path: PathBuf) -> Self {
         let checkers: Vec<ExoCheckResult> = exo
             .checks
             .iter()
@@ -54,15 +57,11 @@ impl ExoStatusReport {
             .collect();
 
         Self {
-            checkers,
+            check_results: checkers,
             compilation_output: Vec::new(),
             elf_path,
-            workers,
             exo: Arc::new(exo.clone()),
         }
-    }
-    pub(super) fn push_worker(&mut self, id: usize) {
-        self.workers.push(id);
     }
 }
 
