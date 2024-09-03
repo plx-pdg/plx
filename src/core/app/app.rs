@@ -164,11 +164,51 @@ impl App {
             }
         }
     }
-    fn compile(_wh: &Arc<Mutex<WorkHandler>>, _exo: &Exo) {
-        //TODO
+    fn compile(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) -> Option<PathBuf> {
+        if let Some(compiler) = exo.compiler() {
+            //TODO handle output folder
+            let output_path = if cfg!(windows) {
+                PathBuf::from("target").join(format!("{}.exe", exo.name))
+            } else {
+                PathBuf::from("target").join(exo.name.clone())
+            };
+
+            if let Some(runner) = CompileRunner::new(&compiler, exo, &output_path) {
+                App::start_work(wh, Box::new(runner));
+            }
+            return Some(output_path);
+        }
+        None
     }
-    pub(super) fn start_exo(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) {
+    pub(super) fn start_exo(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) -> Option<ExoStatusReport> {
         App::open_editor(wh, exo);
-        App::compile(wh, exo);
+        if let Some(output_path) = App::compile(wh, exo) {
+            return Some(ExoStatusReport::new(exo, output_path));
+        }
+        None
+    }
+    pub(super) fn start_runners(&mut self) {
+        if let Some(cr) = &self.current_run {
+            for (id, checker) in cr.checkers.iter().enumerate() {
+                if let Some(worker) =
+                    Launcher::new(id, cr.elf_path.clone(), checker.state.check.args.clone())
+                {
+                    App::start_work(&self.work_handler, Box::new(worker));
+                }
+            }
+        }
+    }
+
+    pub(super) fn start_check(&mut self, id: usize) {
+        if let Some(ref mut cr) = self.current_run {
+            if id < cr.checkers.len() {
+                let output_checker = OutputChecker::new(
+                    id,
+                    &cr.checkers[id].state.check,
+                    cr.checkers[id].output.join("\n"),
+                );
+                App::start_work(&self.work_handler, Box::new(output_checker));
+            }
+        }
     }
 }
