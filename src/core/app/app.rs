@@ -268,7 +268,6 @@ impl App {
     pub(super) fn start_check(&mut self, id: usize) -> Option<usize> {
         if let Some(ref mut cr) = self.current_run {
             if id < cr.check_results.len() {
-                // println!("Check: {}", cr.check_results[id].output.join("\n"));
                 let checker = Checker::new(
                     id,
                     Arc::clone(&cr.check_results[id].state.check),
