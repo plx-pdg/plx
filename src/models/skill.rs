@@ -1,16 +1,18 @@
+use std::sync::Arc;
+
 use crate::core::{
     file_utils::file_parser::{ParseError, ParseWarning},
     parser::{self, from_dir::FromDir},
 };
 
-use super::{constants::SKILL_INFO_FILE, exo::Exo};
+use super::{constants::SKILL_INFO_FILE, exo::Exo, exo_state::ExoState};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Skill {
     pub name: String,
     pub path: std::path::PathBuf,
-    pub exos: Vec<Exo>,
+    pub exos: Arc<Vec<Exo>>,
 }
 #[derive(Deserialize, Serialize)]
 struct SkillInfo {
@@ -19,8 +21,11 @@ struct SkillInfo {
     exo_folders: Vec<std::path::PathBuf>,
 }
 impl Skill {
-    pub fn new(name: String, path: std::path::PathBuf, exos: Vec<Exo>) -> Self {
-        Self { name, path, exos }
+    pub fn get_next_todo_exo(&self) -> Option<(usize, &Exo)> {
+        self.exos
+            .iter()
+            .enumerate()
+            .find(|(_, exo)| exo.state == ExoState::Todo)
     }
 }
 impl FromDir for Skill {
@@ -69,7 +74,7 @@ impl FromDir for Skill {
                 Self {
                     name: info.name,
                     path: dir.to_path_buf(),
-                    exos,
+                    exos: Arc::new(exos),
                 },
                 warnings,
             ))

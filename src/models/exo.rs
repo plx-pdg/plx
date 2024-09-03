@@ -27,15 +27,15 @@ struct ExoStateInfo {
     favorite: bool,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Exo {
-    pub name: String,
-    pub instruction: Option<String>,
-    pub state: ExoState,
-    pub files: Vec<std::path::PathBuf>,
-    pub solutions: Vec<std::path::PathBuf>,
-    pub checks: Vec<Check>,
-    pub favorite: bool,
+    pub(crate) name: String,
+    pub(crate) instruction: Option<String>,
+    pub(crate) state: ExoState,
+    pub(crate) files: Vec<std::path::PathBuf>,
+    pub(crate) solutions: Vec<std::path::PathBuf>,
+    pub(crate) checks: Vec<Check>,
+    pub(crate) favorite: bool,
 }
 impl FromDir for Exo {
     ///
