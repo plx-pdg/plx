@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crate::models::ui_state::UiState;
 
 use super::app::App;
@@ -15,6 +13,14 @@ impl App {
         self.set_ui_state(UiState::Quit);
         if let Ok(mut wh) = self.work_handler.lock() {
             wh.stop_all_workers_and_wait();
+        }
+    }
+
+    pub(super) fn on_esc(&mut self) {
+        match &self.ui_state {
+            UiState::Help { last_state } => self.set_ui_state(*last_state.clone()),
+            UiState::ExoPreview { .. } => self.go_to_exo_selection(),
+            _ => {}
         }
     }
 

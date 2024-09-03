@@ -14,7 +14,7 @@ impl App {
             Key::N => todo!(),
             Key::P => todo!(),
             Key::E => todo!(),
-            Key::Esc => todo!(),
+            Key::Esc => self.on_esc(),
         }
     }
     pub(super) fn on_process_creation_fail(&mut self) {
