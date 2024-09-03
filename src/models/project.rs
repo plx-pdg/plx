@@ -22,32 +22,88 @@ pub struct Project {
 
 #[derive(Serialize, Deserialize, Default, PartialEq, Eq, Debug)]
 struct ProjectState {
-    current_skill_idx: usize,
-    current_exo_idx: usize,
+    curr_skill_idx: usize,
+    curr_exo_idx: usize,
 }
 #[derive(Deserialize)]
-struct ProjectInfo {
+pub(crate) struct ProjectInfo {
     name: String,
     #[serde(rename = "skills")]
     skill_folders: Vec<std::path::PathBuf>,
 }
 impl Project {
     pub fn resume(&mut self) -> Option<&Exo> {
-        if self.state.current_skill_idx < self.skills.len()
-            && self.state.current_exo_idx < self.skills[self.state.current_skill_idx].exos.len()
+        if self.state.curr_skill_idx < self.skills.len()
+            && self.state.curr_exo_idx < self.skills[self.state.curr_skill_idx].exos.len()
         {
-            return Some(
-                &self.skills[self.state.current_skill_idx].exos[self.state.current_exo_idx],
-            );
+            return Some(&self.skills[self.state.curr_skill_idx].exos[self.state.curr_exo_idx]);
         }
         for (idx, skill) in self.skills.iter().enumerate() {
             if let Some((exo_idx, exo)) = skill.get_next_todo_exo() {
-                self.state.current_skill_idx = idx;
-                self.state.current_exo_idx = exo_idx;
+                self.state.curr_skill_idx = idx;
+                self.state.curr_exo_idx = exo_idx;
                 return Some(exo);
             }
         }
         None
+    }
+    fn is_first_skill(&self) -> bool {
+        self.state.curr_skill_idx == 0
+    }
+    fn is_first_exo(&self) -> bool {
+        self.state.curr_exo_idx == 0
+    }
+
+    fn is_last_skill(&self) -> bool {
+        self.state.curr_skill_idx == self.skills.len() - 1
+    }
+    fn is_last_exo(&self) -> bool {
+        self.state.curr_exo_idx == self.skills[self.state.curr_skill_idx].exos.len() - 1
+    }
+
+    pub fn prev_exo(&mut self, wrap: bool) {
+        if !self.is_first_exo() {
+            self.state.curr_exo_idx -= 1
+        } else if wrap {
+            if !self.is_first_skill() {
+                self.state.curr_skill_idx -= 1
+            } else {
+                self.state.curr_skill_idx = self.skills.len() - 1;
+            }
+            self.state.curr_exo_idx = self.skills[self.state.curr_skill_idx].exos.len() - 1;
+        }
+    }
+
+    pub fn prev_skill(&mut self, wrap: bool) {
+        if self.is_first_skill() {
+            self.state.curr_skill_idx = self.skills.len() - 1;
+            self.state.curr_exo_idx = 0;
+        } else if wrap {
+            self.state.curr_skill_idx -= 1;
+            self.state.curr_exo_idx = 0;
+        }
+    }
+
+    pub fn next_exo(&mut self, wrap: bool) {
+        if !self.is_last_exo() {
+            self.state.curr_exo_idx += 1
+        } else if wrap {
+            self.state.curr_exo_idx = 0;
+            if !self.is_last_skill() {
+                self.state.curr_skill_idx += 1
+            } else {
+                self.state.curr_skill_idx = 0;
+            }
+        }
+    }
+    pub fn next_skill(&mut self, wrap: bool) {
+        if !self.is_last_skill() {
+            self.state.curr_skill_idx += 1;
+            self.state.curr_exo_idx = 0;
+        } else if wrap {
+            self.state.curr_skill_idx = 0;
+            self.state.curr_exo_idx = 0;
+        }
     }
 }
 
@@ -208,7 +264,7 @@ mod tests {
                     ]),
                 },
             ]),
-            state:ProjectState{current_exo_idx: 0, current_skill_idx:0}
+            state:ProjectState{curr_exo_idx: 0, curr_skill_idx:0}
         };
         let (actual, warnings) = project.unwrap();
         assert_eq!(expected, actual);
