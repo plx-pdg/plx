@@ -1,6 +1,6 @@
 use crate::{
-    core::{check::output_checker::OutputChecker, diff::diff::Diff},
-    models::{check::CheckTest, check_state::CheckStatus, key::Key},
+    core::diff::diff::Diff,
+    models::{check::CheckTest, check_state::CheckStatus, key::Key, ui_state::UiState},
 };
 
 use super::app::App;
@@ -22,22 +22,46 @@ impl App {
     }
     pub(super) fn on_process_creation_fail(&mut self, run_id: usize, err: String) {
         if let Some(ref mut cr) = self.current_run {
-            if run_id < cr.checkers.len() {
-                cr.checkers[run_id].state.status = CheckStatus::RunFail(err);
+            if run_id < cr.check_results.len() {
+                cr.check_results[run_id].state.status = CheckStatus::RunFail(err);
             }
         }
     }
     pub(super) fn on_process_output_line(&mut self, run_id: usize, line: String) {
         if let Some(ref mut cr) = self.current_run {
-            if run_id < cr.checkers.len() {
-                cr.checkers[run_id].output.push(line)
+            if run_id < cr.check_results.len() {
+                cr.check_results[run_id].output.push(line)
             }
         }
     }
     fn on_check_status(&mut self, check_idx: usize, check_status: CheckStatus) {
         if let Some(ref mut cr) = self.current_run {
-            if check_idx < cr.checkers.len() {
-                cr.checkers[check_idx].state.status = check_status;
+            if check_idx < cr.check_results.len() {
+                cr.check_results[check_idx].state.status = check_status;
+            }
+        }
+        self.push_new_state();
+    }
+    fn push_new_state(&mut self) {
+        if let Some(ref mut cr) = self.current_run {
+            let all_passed = cr
+                .check_results
+                .iter()
+                .all(|res| res.state.status == CheckStatus::Passed);
+            if all_passed {
+                self.go_to_exo_done(0);
+            } else {
+                let scroll_offset = match self.ui_state {
+                    UiState::CheckResults { scroll_offset, .. } => scroll_offset,
+                    _ => 0,
+                };
+
+                let checks = cr
+                    .check_results
+                    .iter()
+                    .map(|result| result.state.clone())
+                    .collect();
+                self.go_to_check_results(scroll_offset, checks);
             }
         }
     }
