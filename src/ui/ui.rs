@@ -22,6 +22,7 @@ use ratatui::{
     Frame, Terminal,
 };
 use std::io::{self, stdout};
+use crate::ui::pages::list;
 
 pub struct Ui {
     rx: Receiver<UiState>,
@@ -58,13 +59,13 @@ impl Ui {
                 skill_index,
                 skills,
                 exos,
-            } => list::render_skills_selection(skills, exos, skill_index),
+            } => list::render_skills_selection(frame, skills, exos, skill_index),
             UiState::ExoSelection {
                 skill_index,
                 skills,
                 exos,
                 exo_index,
-            } => list::render_exos_selection(skills, exos, skill_index, exo_index),
+            } => list::render_exos_selection(frame, skills, exos, skill_index, exo_index),
             UiState::Quit => return,
             //TODO all other pages
             _ => {}
