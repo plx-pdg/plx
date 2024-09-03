@@ -4,7 +4,7 @@ use std::sync::{
 };
 
 use crate::{
-    models::{event::Event, exo::Exo, project::Project, ui_state::UiState},
+    models::{event::Event, exo::Exo, key::Key, project::Project, ui_state::UiState},
     ui::ui::Ui,
 };
 
@@ -23,6 +23,7 @@ pub struct App {
     event_tx: Sender<Event>,
     event_rx: Receiver<Event>,
     ui_state_tx: Sender<UiState>,
+    run: bool,
 }
 
 impl App {
@@ -51,11 +52,33 @@ impl App {
             event_tx,
             event_rx,
             ui_state_tx,
+            run: true,
         };
         app.start_ui(ui_state_rx);
         Ok(app)
     }
-
+    pub fn run_forever(mut self) {
+        while self.run {
+            if let Ok(event) = self.event_rx.recv() {
+                match event {
+                    Event::KeyPressed(Key::Q) => {
+                        self.run = false;
+                        if let Ok(mut wh) = self.work_handler.lock() {
+                            wh.stop_all_workers_and_wait();
+                        }
+                    }
+                    Event::KeyPressed(_) => todo!(),
+                    Event::EditorOpened => todo!(),
+                    Event::CouldNotOpenEditor => todo!(),
+                    Event::ProcessCreationFailed => todo!(),
+                    Event::ProcessOutputLine(_) => todo!(),
+                    Event::OutputCheckPassed(_) => todo!(),
+                    Event::OutputCheckFailed(_, _) => todo!(),
+                    Event::FileSaved => todo!(),
+                }
+            }
+        }
+    }
     fn start_work(&mut self, work: Box<dyn Work + Send>) {
         if let Ok(mut work_handler) = self.work_handler.lock() {
             work_handler.spawn_worker(work);
