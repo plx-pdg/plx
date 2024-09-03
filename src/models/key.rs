@@ -21,15 +21,15 @@ impl Key {
         match self {
             Key::Q => "Quit the TUI",
             Key::R => "Resume progress to latest or next exo",
-            Key::H => "", //TODO: fill those
-            Key::J => "",
-            Key::K => "",
-            Key::L => "",
-            Key::N => "",
-            Key::P => "",
-            Key::E => "",
-            Key::Enter => "",
-            Key::Esc => "",
+            Key::H => "Move left", 
+            Key::J => "Move down",
+            Key::K => "Move up",
+            Key::L => "Move right",
+            Key::N => "Next test",
+            Key::P => "Previous test",
+            Key::E => "Edit exercise",
+            Key::Enter => "Enter to continue",
+            Key::Esc => "Go back",
         }
     }
     /// An alternative key, can be empty
