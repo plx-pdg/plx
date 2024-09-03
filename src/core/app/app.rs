@@ -124,8 +124,6 @@ impl App {
             if let Ok(event) = self.event_rx.recv() {
                 match event {
                     Event::KeyPressed(key) => self.on_key_press(key),
-                    Event::EditorOpened => todo!(),
-                    Event::CouldNotOpenEditor => todo!(),
                     Event::EditorOpened => {}
                     Event::CouldNotOpenEditor => {} //TODO warn the user ?
                     Event::ProcessCreationFailed => self.on_process_creation_fail(),
@@ -133,9 +131,18 @@ impl App {
                         self.on_process_output_line(run_id, line)
                     }
                     Event::OutputCheckPassed(check_index) => self.on_check_passed(check_index),
-                    Event::OutputCheckFailed(_, _) => todo!(),
-                    Event::FileSaved => todo!(),
-                    _ => todo!(),
+                    Event::OutputCheckFailed(check_index, diff) => {
+                        self.on_check_failed(check_index, diff)
+                    }
+                    Event::FileSaved => {
+                        self.current_run = App::start_exo(&self.work_handler, self.current_exo())
+                    }
+                    Event::CompilationStart => self.go_to_compiling(),
+                    Event::CompilationEnd(success) => self.on_compilation_end(success),
+                    Event::CompilationOutputLine(line) => self.on_compilation_output(line),
+                    Event::RunStart(id) => self.on_run_start(id),
+                    Event::RunEnd(id) => self.on_run_end(id),
+                    Event::RunOutputLine(id, line) => self.on_run_output(id, line),
                 }
             }
         }
