@@ -48,32 +48,16 @@ impl App {
         self.set_scroll_offset(scroll_offset + 1);
     }
     pub(super) fn set_scroll_offset(&mut self, scroll_offset: usize) {
-        let state = match &self.state.ui_state {
-            UiState::CompileError { exo, error, .. } => UiState::CompileError {
-                scroll_offset,
-                exo: exo.clone(),
-                error: error.clone(),
-            },
-            UiState::CheckResults { exo, checks, .. } => UiState::CheckResults {
-                scroll_offset,
-                exo: exo.clone(),
-                checks: checks.clone(),
-            },
-            UiState::ExoDone { exo, .. } => UiState::ExoDone {
-                scroll_offset,
-                exo: exo.clone(),
-            },
-            UiState::ShowSolution { exo, .. } => UiState::ShowSolution {
-                scroll_offset,
-                exo: exo.clone(),
-            },
-            _ => return,
-        };
-        self.set_ui_state(state);
+        match &self.ui_state {
+            UiState::CompileError { error, .. } => {
+                self.go_to_compilation_error(scroll_offset, error.to_string())
+            }
+            UiState::CheckResults { checks, .. } => {
+                self.go_to_check_results(scroll_offset, checks.clone())
+            }
+            UiState::ExoDone { .. } => self.go_to_exo_done(scroll_offset),
+            UiState::ShowSolution { .. } => self.go_to_solution(scroll_offset),
+            _ => {}
+        }
     }
-}
-
-//Left
-impl App {
-    pub(super) fn last_page(&mut self) {}
 }
