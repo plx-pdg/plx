@@ -5,6 +5,8 @@ use std::sync::{atomic::AtomicBool, mpsc::Sender, Arc};
 use std::thread::sleep;
 use std::time::Duration;
 
+use crate::core::work::work::Work;
+use crate::core::work::work_type::WorkType;
 use crate::models::event::Event;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -27,7 +29,9 @@ impl FileWatcher {
     pub fn new(path: PathBuf) -> Self {
         FileWatcher { path }
     }
+}
 
+impl Work for FileWatcher {
     /// Runs a file or directory watcher.
     ///
     /// This function blocks and should be called from a separate thread. It watches for changes in
@@ -41,7 +45,7 @@ impl FileWatcher {
     /// # Returns
     ///
     /// Returns `true` if the watcher was initialized and ran successfully, otherwise returns `false`.
-    pub fn run(self, tx: Sender<Event>, should_stop: Arc<AtomicBool>) -> bool {
+    fn run(&self, tx: Sender<Event>, should_stop: Arc<AtomicBool>) -> bool {
         // Create a new debouncer with a delay of 1 second.
         let debouncer =
             new_debouncer(
@@ -81,6 +85,9 @@ impl FileWatcher {
         } else {
             false
         }
+    }
+    fn work_type(&self) -> WorkType {
+        WorkType::Watcher
     }
 }
 

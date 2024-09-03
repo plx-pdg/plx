@@ -46,13 +46,13 @@ impl App {
     }
     pub(super) fn set_scroll_offset(&mut self, scroll_offset: usize) {
         match &self.ui_state {
+            UiState::Help { last_state, .. } => self.go_to_help(last_state.clone(), scroll_offset),
             UiState::CompileError { error, .. } => {
                 self.go_to_compilation_error(scroll_offset, error.to_string())
             }
             UiState::CheckResults { checks, .. } => {
                 self.go_to_check_results(scroll_offset, checks.clone())
             }
-            UiState::ExoDone { .. } => self.go_to_exo_done(scroll_offset),
             UiState::ShowSolution { .. } => self.go_to_solution(scroll_offset),
             _ => {}
         }

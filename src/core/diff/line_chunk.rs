@@ -1,6 +1,6 @@
 use console::Style;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub(super) struct LineChunk {
     is_different: bool,
     value: String,

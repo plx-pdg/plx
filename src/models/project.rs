@@ -209,6 +209,7 @@ mod tests {
                             instruction: Some(
                                 String::from("The 2 first program arguments are the firstname and number of legs of a dog. Print a full sentence about the dog. Make sure there is at least 2 arguments, print an error if not."),
                             ),
+                            folder: "examples/mock-plx-project/intro/basic-args".into(),
                             state: ExoState::Todo,
                             files: vec![
                                project_path.join("intro").join("basic-args").join("main.c"),
@@ -242,6 +243,7 @@ mod tests {
                         },
                         Exo {
                             name: String::from("Basic output printing"),
+                            folder: "examples/mock-plx-project/intro/basic-output".into(),
                             instruction: Some(
                                 String::from("Just print 2 lines"),
                             ),
