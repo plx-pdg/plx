@@ -173,63 +173,67 @@ impl App {
         }
         None
     }
-    pub(super) fn compile(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) -> Option<(usize, PathBuf)> {
+    pub(super) fn compile(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) -> Option<PathBuf> {
         let compiler = exo.compiler()?;
-        //TODO handle output folder
+        let folder = generate_build_folder(exo).ok()?;
         let output_path = if cfg!(windows) {
-            PathBuf::from("target").join(format!("{}.exe", exo.name))
+            folder.join(format!("{}.exe", exo.name))
         } else {
-            PathBuf::from("target").join(exo.name.clone())
+            folder.join(exo.name.clone())
         };
         let runner = CompileRunner::new(&compiler, exo, &output_path)?;
-        let id = App::start_work(wh, Box::new(runner))?;
-        return Some((id, output_path));
+        App::start_work(wh, Box::new(runner))?;
+        return Some(output_path);
     }
-    pub(super) fn cleanup_previous_run(
-        wh: &Arc<Mutex<WorkHandler>>,
-        run: &Option<ExoStatusReport>,
-    ) {
+    pub(super) fn cleanup_previous_run(wh: &Arc<Mutex<WorkHandler>>) {
         //Clean up previous exo workers
-        match (run, wh.lock()) {
-            (Some(run), Ok(mut wh)) => run.workers.iter().for_each(|id| wh.stop_worker(*id)),
-            _ => {}
+        if let Ok(mut wh) = wh.lock() {
+            wh.clean_non_ui_workers()
         }
     }
     pub(super) fn start_exo(
         wh: &Arc<Mutex<WorkHandler>>,
         exo: &Exo,
     ) -> Result<ExoStatusReport, ()> {
+        App::cleanup_previous_run(wh);
         // Open editor, Compile exo and start watchers
-        let editor_id = App::open_editor(wh, exo).ok_or(())?;
-        let (compiler_id, output_path) = App::compile(wh, exo).ok_or(())?;
-        let mut watcher_ids = App::start_watcher(wh, exo);
-        watcher_ids.append(&mut vec![editor_id, compiler_id]);
+        App::open_editor(wh, exo).ok_or(())?;
+        let output_path = App::compile(wh, exo).ok_or(())?;
+        App::start_watcher(wh, exo);
 
-        Ok(ExoStatusReport::new(exo, output_path, watcher_ids))
+        Ok(ExoStatusReport::new(exo, output_path))
     }
     pub(super) fn start_runners(&mut self) {
-        if let Some(cr) = &self.current_run {
-            for (id, checker) in cr.checkers.iter().enumerate() {
-                if let Some(worker) =
-                    Launcher::new(id, cr.elf_path.clone(), checker.state.check.args.clone())
-                {
-                    App::start_work(&self.work_handler, Box::new(worker));
-                }
-            }
+        if let Some(ref mut cr) = self.current_run {
+            cr.check_results
+                .iter_mut()
+                .enumerate()
+                .for_each(|(id, result)| {
+                    if let Some(worker) =
+                        Launcher::new(id, cr.elf_path.clone(), result.state.check.args.clone())
+                    {
+                        if App::start_work(&self.work_handler, Box::new(worker)).is_some() {
+                            result.state.status = CheckStatus::Running;
+                            result.output.clear();
+                        }
+                    }
+                });
         }
     }
 
-    pub(super) fn start_check(&mut self, id: usize) {
+    pub(super) fn start_check(&mut self, id: usize) -> Option<usize> {
         if let Some(ref mut cr) = self.current_run {
-            if id < cr.checkers.len() {
+            if id < cr.check_results.len() {
+                // println!("Check: {}", cr.check_results[id].output.join("\n"));
                 let checker = Checker::new(
                     id,
-                    Arc::clone(&cr.checkers[id].state.check),
-                    cr.checkers[id].output.join("\n"),
+                    Arc::clone(&cr.check_results[id].state.check),
+                    cr.check_results[id].output.join("\n"),
                 );
-                App::start_work(&self.work_handler, Box::new(checker));
+                return Some(App::start_work(&self.work_handler, Box::new(checker))?);
             }
         }
+        None
     }
     pub(super) fn start_watcher(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) -> Vec<usize> {
         exo.files
