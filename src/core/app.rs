@@ -70,11 +70,12 @@ impl App {
                     Event::KeyPressed(_) => todo!(),
                     Event::EditorOpened => todo!(),
                     Event::CouldNotOpenEditor => todo!(),
-                    Event::ProcessCreationFailed => todo!(),
-                    Event::ProcessOutputLine(_) => todo!(),
                     Event::OutputCheckPassed(_) => todo!(),
                     Event::OutputCheckFailed(_, _) => todo!(),
                     Event::FileSaved => todo!(),
+                    Event::CompilationStart => todo!(),
+                    Event::CompilationEnd(_) => todo!(),
+                    Event::CompilationOutputLine(_) => todo!(),
                 }
             }
         }

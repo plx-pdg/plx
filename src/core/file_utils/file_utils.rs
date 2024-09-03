@@ -1,4 +1,7 @@
-use std::{fs::ReadDir, io};
+use std::{
+    fs::{self, ReadDir},
+    io,
+};
 
 pub fn read_file(file_path: &std::path::PathBuf) -> Result<String, io::Error> {
     std::fs::read_to_string(file_path)
@@ -25,4 +28,9 @@ pub fn list_dir_files(dir: &std::path::PathBuf) -> Result<Vec<std::path::PathBuf
         .map(|r| r.unwrap().path()) // This is safe, since we only have the Ok variants
         .filter(|r| r.is_file()) // Filter out folders
         .collect())
+}
+
+// From https://stackoverflow.com/a/38384901
+pub fn get_full_path(path: &std::path::PathBuf) -> Result<std::path::PathBuf, io::Error> {
+    dunce::canonicalize(path)
 }
