@@ -26,19 +26,13 @@ pub fn render_help(frame: &mut Frame) {
     // USING TABLE
     let mut rows = Vec::new();
     for k in Key::iter() {
-        let key = Text::from(format!("{:?}", k))
-            .style(Style::default().fg(Color::Green))
-            .alignment(ratatui::layout::Alignment::Left);
 
         let description = Text::from(format!("{}", k.describe()))
-            .style(Style::default().fg(Color::White))
-            .centered();
+            .style(Style::default().fg(Color::White)).dim();
 
-        let alt = Text::from(format!("{}", k.alt()))
-            .style(Style::default().fg(Color::Blue))
-            .alignment(ratatui::layout::Alignment::Right);
+        let key_and_alt = Text::from(format!("{:?}, {}", k, k.alt()).to_lowercase()).style(Style::default().fg(Color::Green));
 
-        let row = Row::new(vec![key, description, alt]);
+        let row = Row::new(vec![key_and_alt, description]);
         rows.push(row);
 
     }
