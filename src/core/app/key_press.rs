@@ -6,7 +6,7 @@ use super::app::App;
 
 impl App {
     pub(super) fn on_r(&mut self) {
-        match &self.state.ui_state {
+        match &self.ui_state {
             UiState::Home => self.resume_last_exo(),
             _ => (),
         }
@@ -19,21 +19,9 @@ impl App {
     }
 
     pub(super) fn on_j(&mut self) {
-        match &self.state.ui_state {
-            UiState::Home => todo!(),
-            UiState::Quit => todo!(),
-            UiState::Help => todo!(),
-            UiState::SkillSelection { skill_index, .. } => self.next_skill(*skill_index),
-            UiState::ExoSelection {
-                skill_index,
-                exo_index,
-                ..
-            }
-            | UiState::ExoPreview {
-                skill_index,
-                exo_index,
-                ..
-            } => self.next_exo(*skill_index, *exo_index),
+        match &self.ui_state {
+            UiState::SkillSelection { .. } => self.next_skill(),
+            UiState::ExoSelection { .. } | UiState::ExoPreview { .. } => self.next_exo(false),
 
             UiState::CompileError { scroll_offset, .. }
             | UiState::CheckResults { scroll_offset, .. }
@@ -42,8 +30,20 @@ impl App {
             _ => (),
         };
     }
+    pub(super) fn on_k(&mut self) {
+        match &self.ui_state {
+            UiState::SkillSelection { .. } => self.prev_skill(),
+            UiState::ExoSelection { .. } | UiState::ExoPreview { .. } => self.prev_exo(),
+
+            UiState::CompileError { scroll_offset, .. }
+            | UiState::CheckResults { scroll_offset, .. }
+            | UiState::ExoDone { scroll_offset, .. }
+            | UiState::ShowSolution { scroll_offset, .. } => self.scroll_up(*scroll_offset),
+            _ => (),
+        };
+    }
     pub(super) fn on_h(&mut self) {
-        match &self.state.ui_state {
+        match &self.ui_state {
             UiState::SkillSelection { .. } => self.set_ui_state(UiState::Home),
             UiState::ExoSelection {
                 skill_index,
@@ -67,81 +67,27 @@ impl App {
                 exos: exos.clone(),
                 skills: skills.clone(),
             }),
-            UiState::CompileError { .. } | UiState::CheckResults { .. } => {
-                self.set_ui_state(UiState::ExoPreview {
-                    skill_index: self.state.last_skill_index,
-                    exo_index: self.state.last_exo_index,
-                    skills: Arc::clone(&self.project.skills),
-                    exo: Arc::clone(&self.state.last_exo),
-                    exos: Arc::clone(&self.project.skills[self.state.last_skill_index].exos),
-                })
-            }
-            UiState::ExoDone { .. } | UiState::ShowSolution { .. } => {
-                self.set_ui_state(UiState::Compiling {
-                    exo: Arc::clone(&self.state.last_exo),
-                });
-            }
+            UiState::CompileError { .. } | UiState::CheckResults { .. } => self.go_to_exo_preview(),
+            UiState::ShowSolution { .. } => self.go_to_exo_done(0),
             _ => {}
         }
     }
     pub(super) fn on_l(&mut self) {
-        match &self.state.ui_state {
-            UiState::SkillSelection { skill_index, .. } => {
-                let exo_index =
-                    if let Some((idx, _)) = self.project.skills[*skill_index].get_next_todo_exo() {
-                        idx
-                    } else {
-                        0
-                    };
-
-                self.set_ui_state(UiState::ExoSelection {
-                    skill_index: *skill_index,
-                    skills: Arc::clone(&self.project.skills),
-                    exos: Arc::clone(&self.project.skills[*skill_index].exos),
-                    exo_index,
-                })
+        match &self.ui_state {
+            UiState::Home { .. } => self.go_to_skill_selection(),
+            UiState::SkillSelection { .. } => self.go_to_exo_selection(),
+            UiState::ExoSelection { .. } => self.go_to_exo_preview(),
+            UiState::ExoPreview { exo, .. } => {
+                App::start_exo(&self.work_handler, &exo);
+                self.go_to_compiling();
             }
-            UiState::ExoSelection {
-                skill_index,
-                exo_index,
-                ..
-            } => self.set_ui_state(UiState::ExoPreview {
-                skill_index: *skill_index,
-                skills: Arc::clone(&self.project.skills),
-                exos: Arc::clone(&self.project.skills[*skill_index].exos),
-                exo_index: *exo_index,
-                exo: Arc::new(self.project.skills[*skill_index].exos[*exo_index].clone()),
-            }),
-            // UiState::ExoPreview {
-            //     skill_index,
-            //     exo_index,
-            //     exos,
-            //     skills,
-            //     ..
-            // } =>
-
-            //     self.open_editor()
-            //     self.start_compiling();
-            // self.set_ui_state(UiState::ExoSelection {
-            //         skill_index: *skill_index,
-            //         exo_index: *exo_index,
-            //         exos: exos.clone(),
-            //         skills: skills.clone(),
-            //     }),
-            //     UiState::CompileError { .. } | UiState::CheckResults { .. } => {
-            //         self.set_ui_state(UiState::ExoPreview {
-            //             skill_index: self.state.last_skill_index,
-            //             exo_index: self.state.last_exo_index,
-            //             skills: Arc::clone(&self.project.skills),
-            //             exo: Arc::clone(&self.state.last_exo),
-            //             exos: Arc::clone(&self.project.skills[self.state.last_skill_index].exos),
-            //         })
-            //     }
-            //     UiState::ExoDone { .. } | UiState::ShowSolution { .. } => {
-            //         self.set_ui_state(UiState::Compiling {
-            //             exo: Arc::clone(&self.state.last_exo),
-            //         });
-            //     }
+            UiState::ExoDone { .. } => self.go_to_solution(0),
+            UiState::ShowSolution { .. } => {
+                self.next_exo(true);
+                let exo = &self.project.skills[self.project.state.curr_skill_idx].exos
+                    [self.project.state.curr_exo_idx];
+                App::start_exo(&self.work_handler, exo);
+            }
             _ => {}
         }
     }
