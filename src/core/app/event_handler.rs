@@ -71,11 +71,11 @@ impl App {
 
     pub(super) fn on_check_failed(&mut self, check_idx: usize, diff: Diff) {
         if let Some(ref mut cr) = self.current_run {
-            if check_idx < cr.checkers.len() {
-                match &cr.checkers[check_idx].state.check.test {
+            if check_idx < cr.check_results.len() {
+                match &cr.check_results[check_idx].state.check.test {
                     CheckTest::Output { expected } => CheckStatus::Failed(
                         expected.clone(),
-                        cr.checkers[check_idx].output.join("\n"),
+                        cr.check_results[check_idx].output.join("\n"),
                         diff,
                     ),
                 };
