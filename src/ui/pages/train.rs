@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::models::{check::CheckTest, check_state::CheckState, exo::Exo};
 use ratatui::{
     style::{Color, Stylize},
-    text::{Line, Text},
+    text::{Line, Span, Text},
     widgets::{Paragraph, Wrap},
     Frame,
 };
@@ -23,10 +23,18 @@ pub fn render_compilation_error(
     error: &String,
 ) {
     let mut bottom: Vec<Line> = vec![];
-    bottom.push(Line::from("Compilation errors").bold().red());
-    let output: String = error.lines().skip(*scroll_offset).collect();
-    bottom.push(Line::from(output));
-    // bottom.push(Line::from(error.lines().skip(scroll_offset).collect())); //TODO fix this
+    let mut compilation_title_with_offset =
+        Line::from(Span::from("Compilation errors").bold().red());
+    //TODO: is it useful and intuitive this offset show format ?
+    if *scroll_offset > 0 as usize {
+        compilation_title_with_offset.push_span(Span::from(format!(" (>>{})", scroll_offset)));
+    }
+
+    bottom.push(compilation_title_with_offset);
+    error
+        .lines()
+        .skip(*scroll_offset)
+        .for_each(|l| bottom.push(Line::from(l.to_string())));
 
     render_train(frame, exo, bottom);
 }
@@ -83,8 +91,12 @@ pub fn render_check_results(
 // The common top part with exo name and instruction
 fn render_common_top(lines: &mut Vec<Line>, exo: &Arc<Exo>) {
     lines.push(Line::from(exo.name.clone()).cyan().bold());
-    if let Some(instr) = exo.instruction.clone() {
-        lines.push(Line::from(instr).magenta());
+    if let Some(instr) = &exo.instruction {
+        // Make sure each line has a real Line because newlines are dropped otherwise
+        instr
+            .clone()
+            .lines()
+            .for_each(|l| lines.push(Line::from(l.to_string()).magenta()));
     }
 }
 
