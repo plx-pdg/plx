@@ -15,28 +15,8 @@ use crate::{
     ui::ui::Ui,
 };
 
-pub(super) struct State {
-    pub(super) ui_state: UiState,
-    pub(super) last_skill_index: usize,
-    pub(super) last_exo_index: usize,
-    pub(super) last_exo: Arc<Exo>,
-    pub(super) last_skill_list: Arc<Vec<String>>,
-    pub(super) last_exo_list: Arc<Vec<Exo>>,
-}
-impl State {
-    pub fn new(first_exo: Arc<Exo>) -> Self {
-        Self {
-            ui_state: UiState::Home,
-            last_skill_index: 0,
-            last_exo_index: 0,
-            last_skill_list: Arc::new(Vec::new()),
-            last_exo_list: Arc::new(Vec::new()),
-            last_exo: first_exo,
-        }
-    }
-}
 pub struct App {
-    pub(super) state: State,
+    pub(super) ui_state: UiState,
     pub(super) project: Project,
     pub(super) work_handler: Arc<Mutex<WorkHandler>>,
     pub(super) event_tx: Sender<Event>,
@@ -65,7 +45,7 @@ impl App {
         let work_handler = WorkHandler::new(event_tx.clone());
 
         let mut app = App {
-            state: State::new(Arc::new(project.skills[0].exos[0].clone())),
+            ui_state: UiState::Home,
             project,
             work_handler,
             event_tx,
@@ -79,7 +59,7 @@ impl App {
 
     pub(super) fn set_ui_state(&mut self, new_state: UiState) {
         self.ui_state_tx.send(new_state.clone());
-        self.state.ui_state = new_state;
+        self.ui_state = new_state;
     }
     pub(super) fn resume_last_exo(&mut self) {
         //TODO we need to handle project state so we know where to resume the project from
