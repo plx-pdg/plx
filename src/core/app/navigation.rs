@@ -6,62 +6,31 @@ use super::app::App;
 
 //Skills
 impl App {
-    pub(super) fn prev_skill(&mut self, skill_index: usize) {
-        if skill_index > 0 {
-            let skill_index = skill_index - 1;
-            self.set_skill_selection(skill_index);
-        };
+    pub(super) fn prev_skill(&mut self) {
+        self.project.prev_skill(false);
+        self.go_to_skill_selection();
     }
-    pub(super) fn next_skill(&mut self, skill_index: usize) {
-        if skill_index < self.project.skills.len() {
-            let skill_index = skill_index + 1;
-            self.set_skill_selection(skill_index);
-        };
-    }
-    pub(super) fn set_skill_selection(&mut self, skill_index: usize) {
-        self.state.last_skill_index = skill_index;
-        self.set_ui_state(UiState::SkillSelection {
-            skill_index,
-            skills: self.project.skills.clone(),
-            exos: self.project.skills[skill_index].exos.clone(),
-        });
+    pub(super) fn next_skill(&mut self) {
+        self.project.next_skill(false);
+        self.go_to_skill_selection();
     }
 }
 
 //Exos
 impl App {
-    pub(super) fn prev_exo(&mut self, skill_index: usize, exo_index: usize) {
-        if exo_index > 0 {
-            let exo_index = exo_index - 1;
-            self.set_exo_selection(skill_index, exo_index);
-        };
+    pub(super) fn prev_exo(&mut self) {
+        self.project.prev_exo(false);
+        self.change_exo();
     }
-    pub(super) fn next_exo(&mut self, skill_index: usize, exo_index: usize) {
-        if exo_index < self.project.skills[skill_index].exos.len() {
-            let exo_index = exo_index + 1;
-            self.set_exo_selection(skill_index, exo_index);
-        };
+    pub(super) fn next_exo(&mut self, wrap: bool) {
+        self.project.next_exo(wrap);
+        self.change_exo();
     }
-    pub(super) fn set_exo_selection(&mut self, skill_index: usize, exo_index: usize) {
-        self.state.last_exo_index = exo_index;
-        match self.state.ui_state {
-            UiState::ExoSelection { .. } => {
-                self.set_ui_state(UiState::ExoSelection {
-                    skill_index,
-                    exo_index,
-                    skills: self.project.skills.clone(),
-                    exos: self.project.skills[skill_index].exos.clone(),
-                });
-            }
-            UiState::ExoPreview { .. } => {
-                self.set_ui_state(UiState::ExoPreview {
-                    skill_index,
-                    exo_index,
-                    skills: self.project.skills.clone(),
-                    exos: self.project.skills[skill_index].exos.clone(),
-                    exo: Arc::new(self.project.skills[skill_index].exos[exo_index].clone()),
-                });
-            }
+    pub(super) fn change_exo(&mut self) {
+        match self.ui_state {
+            UiState::ExoSelection { .. } => self.go_to_exo_selection(),
+            UiState::ExoPreview { .. } => self.go_to_exo_preview(),
+            UiState::ShowSolution { .. } => self.go_to_compiling(),
             _ => {}
         };
     }
