@@ -120,7 +120,7 @@ mod test {
 
         let command = compiler.get_full_command();
 
-        assert!(command.contains("gcc"));
+        assert!(command.starts_with("gcc"));
         assert!(command.contains("main.c"));
         assert!(command.contains(&format!("-o {}", output_path.to_str().unwrap())));
 
@@ -144,7 +144,7 @@ mod test {
         let command = compiler.get_full_command();
 
         println!("Command: {}", command);
-        assert!(command.contains("gcc"));
+        assert!(command.starts_with("gcc"));
         assert!(command.contains("main.c"));
         assert!(command.contains("queue.c"));
         assert!(command.contains(&format!("-o {}", output_path.to_str().unwrap())));
@@ -167,7 +167,7 @@ mod test {
         let command = compiler.get_full_command();
 
         println!("Command: {}", command);
-        assert!(command.contains("gcc"));
+        assert!(command.starts_with("gcc"));
         assert!(command.contains("main.c"));
         assert!(command.contains(&format!("-o {}", output_path.to_str().unwrap())));
 
