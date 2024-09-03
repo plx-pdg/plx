@@ -26,15 +26,15 @@ pub fn render_help(frame: &mut Frame) {
     // USING TABLE
     let mut rows = Vec::new();
     for k in Key::iter() {
-        let key = Text::from(format!("{:#?}", k))
+        let key = Text::from(format!("{:?}", k))
             .style(Style::default().fg(Color::Green))
             .alignment(ratatui::layout::Alignment::Left);
 
-        let description = Text::from(format!("{:?}", k.describe()))
+        let description = Text::from(format!("{}", k.describe()))
             .style(Style::default().fg(Color::White))
             .centered();
 
-        let alt = Text::from(format!("{:?}", k.alt()))
+        let alt = Text::from(format!("{}", k.alt()))
             .style(Style::default().fg(Color::Blue))
             .alignment(ratatui::layout::Alignment::Right);
 
