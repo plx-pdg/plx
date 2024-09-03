@@ -16,7 +16,7 @@ impl Compiler {
     pub fn args(&self, files: &Vec<std::path::PathBuf>) -> Vec<String> {
         match self {
             Compiler::Gcc => Compiler::collect_files_with_extension(files, &["c"]),
-            Compiler::Gxx => Compiler::collect_files_with_extension(files, &["c", "cpp"]),
+            Compiler::Gxx => Compiler::collect_files_with_extension(files, &["c", "cpp", "cc"]),
         }
     }
 
