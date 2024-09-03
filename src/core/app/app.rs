@@ -166,35 +166,47 @@ impl App {
         }
     }
 
-    fn open_editor(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) {
+    fn open_editor(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) -> Option<usize> {
         if let Some(file) = exo.get_main_file() {
             if let Some(opener) = EditorOpener::new_default_editor(file.to_path_buf()) {
-                App::start_work(wh, Box::new(opener));
+                return App::start_work(wh, Box::new(opener));
             }
         }
+        None
     }
-    fn compile(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) -> Option<PathBuf> {
-        if let Some(compiler) = exo.compiler() {
-            //TODO handle output folder
-            let output_path = if cfg!(windows) {
-                PathBuf::from("target").join(format!("{}.exe", exo.name))
-            } else {
-                PathBuf::from("target").join(exo.name.clone())
-            };
+    pub(super) fn compile(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) -> Option<(usize, PathBuf)> {
+        let compiler = exo.compiler()?;
+        //TODO handle output folder
+        let output_path = if cfg!(windows) {
+            PathBuf::from("target").join(format!("{}.exe", exo.name))
+        } else {
+            PathBuf::from("target").join(exo.name.clone())
+        };
+        let runner = CompileRunner::new(&compiler, exo, &output_path)?;
+        let id = App::start_work(wh, Box::new(runner))?;
+        return Some((id, output_path));
+    }
+    pub(super) fn cleanup_previous_run(
+        wh: &Arc<Mutex<WorkHandler>>,
+        run: &Option<ExoStatusReport>,
+    ) {
+        //Clean up previous exo workers
+        match (run, wh.lock()) {
+            (Some(run), Ok(mut wh)) => run.workers.iter().for_each(|id| wh.stop_worker(*id)),
+            _ => {}
+        }
+    }
+    pub(super) fn start_exo(
+        wh: &Arc<Mutex<WorkHandler>>,
+        exo: &Exo,
+    ) -> Result<ExoStatusReport, ()> {
+        // Open editor, Compile exo and start watchers
+        let editor_id = App::open_editor(wh, exo).ok_or(())?;
+        let (compiler_id, output_path) = App::compile(wh, exo).ok_or(())?;
+        let mut watcher_ids = App::start_watcher(wh, exo);
+        watcher_ids.append(&mut vec![editor_id, compiler_id]);
 
-            if let Some(runner) = CompileRunner::new(&compiler, exo, &output_path) {
-                App::start_work(wh, Box::new(runner));
-            }
-            return Some(output_path);
-        }
-        None
-    }
-    pub(super) fn start_exo(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) -> Option<ExoStatusReport> {
-        App::open_editor(wh, exo);
-        if let Some(output_path) = App::compile(wh, exo) {
-            return Some(ExoStatusReport::new(exo, output_path));
-        }
-        None
+        Ok(ExoStatusReport::new(exo, output_path, watcher_ids))
     }
     pub(super) fn start_runners(&mut self) {
         if let Some(cr) = &self.current_run {
@@ -219,5 +231,17 @@ impl App {
                 App::start_work(&self.work_handler, Box::new(checker));
             }
         }
+    }
+    pub(super) fn start_watcher(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) -> Vec<usize> {
+        exo.files
+            .iter()
+            .filter_map(|file| {
+                let watcher = FileWatcher::new(file.clone());
+                if let Some(id) = App::start_work(wh, Box::new(watcher)) {
+                    return Some(id);
+                }
+                None
+            })
+            .collect()
     }
 }
