@@ -93,4 +93,11 @@ impl App {
             }
         }
     }
+    pub(super) fn on_file_save(&mut self) {
+        if let Some(ref mut cr) = self.current_run {
+            if let Some((id, _)) = App::compile(&self.work_handler, &cr.exo) {
+                cr.push_worker(id);
+            }
+        }
+    }
 }
