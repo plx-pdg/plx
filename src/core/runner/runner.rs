@@ -216,6 +216,11 @@ mod test {
 
         //give the program some time to start
         sleep(Duration::from_millis(1000));
+
+        assert_eq!(
+            rx.recv().expect("Didn't receive data from process"),
+            RunEvent::ProcessCreated
+        );
         for i in 1..=4 {
             assert_eq!(
                 rx.recv().expect("Didn't receive data from process"),
