@@ -40,7 +40,8 @@ impl Work for Launcher {
         let _ = self.runner.run(runner_tx, stop);
         while let Ok(msg) = runner_rx.recv() {
             let send = match msg {
-                RunEvent::ProcessCreationFailed(_) => {
+                RunEvent::ProcessCreationFailed(err) => {
+                    tx.send(Event::RunFail(self.id, err));
                     return false;
                 }
                 RunEvent::ProcessCreated => tx.send(Event::RunStart(self.id)),

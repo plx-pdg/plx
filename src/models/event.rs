@@ -11,11 +11,11 @@ pub enum Event {
     CompilationEnd(bool),
     CompilationOutputLine(String),
     FileSaved,
-    ProcessCreationFailed,
     ProcessOutputLine(usize, String),
     OutputCheckPassed(usize),
     OutputCheckFailed(usize, Diff),
     RunStart(usize),
     RunEnd(usize),
     RunOutputLine(usize, String),
+    RunFail(usize, String),
 }
