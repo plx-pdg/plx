@@ -80,11 +80,12 @@ impl App {
                     Event::KeyPressed(key) => self.on_key_press(key),
                     Event::EditorOpened => todo!(),
                     Event::CouldNotOpenEditor => todo!(),
-                    Event::ProcessCreationFailed => todo!(),
-                    Event::ProcessOutputLine(_) => todo!(),
+                    // Event::ProcessCreationFailed => todo!(),
+                    // Event::ProcessOutputLine(_) => todo!(),
                     Event::OutputCheckPassed(_) => todo!(),
                     Event::OutputCheckFailed(_, _) => todo!(),
                     Event::FileSaved => todo!(),
+                    _ => todo!(),
                 }
             }
         }
