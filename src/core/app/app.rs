@@ -123,6 +123,7 @@ impl App {
     pub fn run_forever(mut self) {
         while self.run {
             if let Ok(event) = self.event_rx.recv() {
+                println!("{:?}", event);
                 match event {
                     Event::KeyPressed(key) => self.on_key_press(key),
                     Event::EditorOpened => {}
