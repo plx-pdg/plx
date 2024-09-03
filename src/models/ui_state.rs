@@ -1,7 +1,8 @@
 use super::{check_state::CheckState, exo::Exo, skill::Skill};
+use std::sync::Arc;
 
 // The list of states and associated values for the UI to represent
-pub enum UiState<'a> {
+pub enum UiState {
     Home, // Home page with ASCII art
     Quit, // Exit in progress
     Help, // Help page with shortcuts documentation
@@ -19,24 +20,24 @@ pub enum UiState<'a> {
     ExoPreview {
         skill_index: usize,
         exo_index: usize,
-        exo: &'a Exo,
+        exo: Arc<Exo>,
     },
     // Train page in various steps
     Compiling {
-        exo: &'a Exo,
+        exo: Arc<Exo>,
     },
     CompileError {
-        exo: &'a Exo,
+        exo: Arc<Exo>,
         error: String,
     },
     CheckResults {
-        exo: &'a Exo,
-        checks: Vec<CheckState<'a>>,
+        exo: Arc<Exo>,
+        checks: Vec<CheckState>,
     },
     ExoDone {
-        exo: &'a Exo,
+        exo: Arc<Exo>,
     },
     ShowSolution {
-        exo: &'a Exo,
+        exo: Arc<Exo>,
     },
 }

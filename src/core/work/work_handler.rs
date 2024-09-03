@@ -10,7 +10,11 @@ use std::{
 
 use crate::models::event::Event;
 
-use super::{work::Work, work_type::WorkType, worker::Worker};
+use super::{
+    work::Work,
+    work_type::WorkType,
+    worker::{self, Worker},
+};
 
 pub(crate) enum WorkEvent {
     Done(usize),
@@ -26,6 +30,7 @@ pub struct WorkHandler {
     workers: HashMap<usize, WorkInfo>,
     tx: Sender<Event>,
     work_tx: Sender<WorkEvent>,
+    work_id: usize,
 }
 impl WorkInfo {
     fn new(work: WorkType, should_stop: Arc<AtomicBool>, join_handle: JoinHandle<()>) -> Self {
@@ -53,21 +58,15 @@ impl WorkHandler {
             workers: HashMap::new(),
             tx,
             work_tx,
+            work_id: 0,
         }));
         WorkHandler::run(ret.clone(), rx);
         ret
     }
 
-    fn spawn_id(&self) -> usize {
-        loop {
-            let id = rand::random::<usize>();
-            if !self.workers.contains_key(&id) {
-                return id;
-            }
-        }
-    }
     pub fn spawn_worker(&mut self, work: Box<dyn Work + Send>) -> usize {
-        let id = self.spawn_id();
+        let id = self.work_id;
+        self.work_id += 1;
         let stop = Arc::new(AtomicBool::new(false));
         let work_type = work.work_type();
         let worker = Worker::new(
@@ -109,12 +108,21 @@ impl WorkHandler {
             .for_each(|(_, worker)| worker.stop());
         self.workers.retain(|_, worker| worker.work != work_type);
     }
-    pub fn stop_all_workers(&mut self) {
+    fn stop_all_workers(&mut self) {
         self.workers
             .iter_mut()
             .for_each(|(_, worker)| worker.stop());
-        self.workers.clear();
     }
+
+    pub fn stop_all_workers_and_wait(&mut self) {
+        self.stop_all_workers(); // Signal every worker to stop
+        let workers: Vec<_> = self.workers.drain().map(|(_, worker)| worker).collect();
+
+        for worker in workers {
+            worker.join(); // join here
+        }
+    }
+
     fn remove_worker(&mut self, id: usize) {
         self.workers.remove(&id);
     }
@@ -206,6 +214,34 @@ mod tests {
                 .collect();
             assert_eq!(handler.workers.len(), range);
             handler.stop_all_workers();
+            for flag in stop_flags {
+                assert!(flag.load(Ordering::Relaxed));
+            }
+            assert_eq!(handler.workers.len(), 10);
+        };
+    }
+
+    #[test]
+    fn test_stop_all_workers_wait() {
+        let (tx, _) = channel();
+        let handler = WorkHandler::new(tx.clone());
+
+        if let Ok(mut handler) = handler.lock() {
+            let range = 10;
+            for _ in 0..range {
+                let _ = handler.spawn_worker(Box::new(EditorOpener::new(
+                    "echo".to_string(),
+                    "null".into(),
+                )));
+            }
+            let stop_flags: Vec<Arc<AtomicBool>> = handler
+                .workers
+                .values()
+                .into_iter()
+                .map(|work_info| work_info.should_stop.clone())
+                .collect();
+            assert_eq!(handler.workers.len(), range);
+            handler.stop_all_workers_and_wait();
             for flag in stop_flags {
                 assert!(flag.load(Ordering::Relaxed));
             }

@@ -3,14 +3,11 @@ instruction = 'The 2 first program arguments are the firstname and number of leg
 [[checks]]
 name = 'Joe + 5 legs'
 args = ["Joe", "5"]
-type = "output"
-output = 'The dog is Joe and has 5 legs'
+test = {type= "output", expected = "The dog is Joe and has 5 legs" }
 [[checks]]
 name = 'No arg -> error'
-type = "output"
-output = "Error: missing argument firstname and legs number"
+test = {type= "output", expected = "Error: missing argument firstname and legs number"}
 [[checks]]
 name = 'One arg -> error'
 args = ["Joe"]
-type = "output"
-output = "Error: missing argument firstname and legs number"
+test = {type = "output", expected = "Error: missing argument firstname and legs number"}
