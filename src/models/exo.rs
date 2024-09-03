@@ -37,6 +37,7 @@ pub struct Exo {
     pub(crate) solutions: Vec<std::path::PathBuf>,
     pub(crate) checks: Vec<Check>,
     pub(crate) favorite: bool,
+    pub(crate) folder: std::path::PathBuf,
 }
 impl FromDir for Exo {
     ///
@@ -83,6 +84,7 @@ impl FromDir for Exo {
                 files: exo_files,
                 favorite: exo_state.favorite,
                 solutions: solution_files,
+                folder: dir.to_path_buf(),
             },
             warnings,
         ))
@@ -216,6 +218,7 @@ mod test {
                     "The 2 first program arguments are the firstname and number of legs of a dog. Print a full sentence about the dog. Make sure there is at least 2 arguments, print an error if not.")
             ),
         state: ExoState::Todo,
+        folder: file_path.into(),
         files: vec![
             std::path::PathBuf::from_str(file_path)
                 .unwrap()
@@ -263,6 +266,7 @@ mod test {
         let expected = Exo {
             name: String::from("Exo Done"),
             instruction: None,
+            folder: file_path.into(),
             checks: vec![],
             files: vec![std::path::PathBuf::from_str(file_path)
                 .unwrap()
@@ -282,6 +286,7 @@ mod test {
             name: String::from("Favorite Exercise"),
             instruction: None,
             checks: vec![],
+            folder: file_path.into(),
             files: vec![std::path::PathBuf::from_str(file_path)
                 .unwrap()
                 .join("main.c")],
@@ -301,6 +306,7 @@ mod test {
             name: String::from("In Progress"),
             instruction: None,
             checks: vec![],
+            folder: file_path.into(),
             files: vec![std::path::PathBuf::from_str(file_path)
                 .unwrap()
                 .join("main.c")],
@@ -327,6 +333,7 @@ mod test {
         let expected = Exo {
             name: String::from("Multiple Sols"),
             instruction: None,
+            folder: file_path.into(),
             checks: vec![],
             files: vec![std::path::PathBuf::from_str(file_path)
                 .unwrap()
@@ -369,6 +376,7 @@ mod test {
         let (exo, warnings) = Exo::from_dir(&(file_path.into())).unwrap();
         let expected = Exo {
             name: String::from("No Sol"),
+            folder: file_path.into(),
             instruction: None,
             checks: vec![],
             files: vec![std::path::PathBuf::from_str(file_path)
