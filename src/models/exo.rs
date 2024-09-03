@@ -6,6 +6,7 @@ use super::{
 use serde::{Deserialize, Serialize};
 
 use crate::core::{
+    compiler::compiler::Compiler,
     file_utils::{
         file_parser::{ParseError, ParseWarning},
         file_utils::list_dir_files,
@@ -176,6 +177,23 @@ impl Exo {
             Some(file) => Some(file),
             None => self.files.first(),
         }
+    }
+    pub fn compiler(&self) -> Option<Compiler> {
+        let mut compiler = None;
+        for file in &self.files {
+            let extension = file
+                .extension()
+                .unwrap_or_default()
+                .to_str()
+                .unwrap_or_default();
+            if extension == "cpp" || extension == "cc" {
+                compiler = Some(Compiler::Gxx);
+                break;
+            } else if extension == "c" {
+                compiler = Some(Compiler::Gcc);
+            }
+        }
+        compiler
     }
 }
 
