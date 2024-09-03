@@ -7,4 +7,5 @@ pub enum WorkType {
     OutputChecker,
     Launcher,
     Checker,
+    Watcher,
 }
