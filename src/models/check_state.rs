@@ -10,6 +10,7 @@ pub enum CheckStatus {
     Failed(String, String, Diff),
     Checking,
     Running,
+    RunFail(String),
     Pending,
 }
 #[derive(Debug, Clone)]
