@@ -1,3 +1,6 @@
+/// Train page rendering functions
+/// Each UiState related to this page has its own function and reuse render_train()
+/// that generate the render_common_top() to show exo metadata that should be always visible
 use std::sync::Arc;
 
 use crate::models::{check::CheckTest, check_state::CheckState, exo::Exo};
@@ -8,20 +11,21 @@ use ratatui::{
     Frame,
 };
 
-// Show the "Compiling" message
+// Show the "Compiling" message without the checks
 pub fn render_compilation(frame: &mut Frame, exo: &Arc<Exo>) {
     let mut bottom: Vec<Line> = vec![];
     bottom.push(Line::from("Compiling...").bold().yellow());
     render_train(frame, exo, bottom);
 }
 
-// Show the compilation errors, basic support of offset to scroll in long output
+// Show the compilation errors, basic support of scroll_offset
 pub fn render_compilation_error(
     frame: &mut Frame,
     exo: &Arc<Exo>,
     scroll_offset: &usize,
     error: &String,
 ) {
+    // Compilation title with offset if > 0
     let mut bottom: Vec<Line> = vec![];
     let mut compilation_title_with_offset =
         Line::from(Span::from("Compilation errors").bold().red());
@@ -29,8 +33,9 @@ pub fn render_compilation_error(
     if *scroll_offset > 0 as usize {
         compilation_title_with_offset.push_span(Span::from(format!(" (>>{})", scroll_offset)));
     }
-
     bottom.push(compilation_title_with_offset);
+
+    // Show lines of compilation output, each is its own Line
     error
         .lines()
         .skip(*scroll_offset)
@@ -43,9 +48,10 @@ pub fn render_compilation_error(
 pub fn render_check_results(
     frame: &mut Frame,
     exo: &Arc<Exo>,
-    scroll_offset: &usize,
+    _scroll_offset: &usize, //TODO: support scroll_offset
     checks: &Vec<CheckState>,
 ) {
+    // Show the Check results title
     let mut bottom: Vec<Line> = vec![];
     let passed_checks_count = checks.iter().filter(|c| c.passed).count();
     bottom.push(
@@ -57,9 +63,9 @@ pub fn render_check_results(
         .bold()
         .green(),
     );
-    // bottom.push(Line::from(error.lines().skip(scroll_offset).collect())); //TODO fix this
 
-    for (i, check_state) in checks.clone().iter().enumerate() {
+    // Show each check name + details
+    for (i, check_state) in checks.iter().enumerate() {
         let color = if check_state.passed {
             Color::Green
         } else {
@@ -80,6 +86,7 @@ pub fn render_check_results(
             CheckTest::Output { expected } => {
                 bottom.push(Line::from("Expected:"));
                 bottom.push(Line::from(format!("{}", expected)).blue());
+                //TODO: show in addition or instead the diff
             }
         }
         bottom.push(Line::default());
