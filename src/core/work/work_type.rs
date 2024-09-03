@@ -5,4 +5,5 @@ pub enum WorkType {
     Ui,
     DirectoryWatcher,
     OutputChecker,
+    Launcher,
 }
