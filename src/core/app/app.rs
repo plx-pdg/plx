@@ -19,59 +19,12 @@ use crate::{
         work::{work::Work, work_handler::WorkHandler, work_type::WorkType},
     },
     models::{
-        check::Check,
-        check_state::{CheckState, CheckStatus},
-        constants::TARGET_FILE_BASE_NAME,
-        event::Event,
-        exo::Exo,
-        project::Project,
-        ui_state::UiState,
+        check_state::CheckStatus, constants::TARGET_FILE_BASE_NAME, event::Event, exo::Exo,
+        project::Project, ui_state::UiState,
     },
     ui::ui::Ui,
 };
 
-pub(super) struct ExoCheckResult {
-    pub(super) state: CheckState,
-    pub(super) output: Vec<String>,
-}
-pub(super) struct ExoStatusReport {
-    pub(super) check_results: Vec<ExoCheckResult>,
-    pub(super) compilation_output: Vec<String>,
-    pub(super) elf_path: PathBuf,
-    pub(super) exo: Arc<Exo>,
-}
-
-impl ExoCheckResult {
-    pub(super) fn new(check: &Check) -> Self {
-        Self {
-            state: CheckState::new(check),
-            output: Vec::new(),
-        }
-    }
-}
-impl ExoStatusReport {
-    pub(super) fn new(exo: &Exo, elf_path: PathBuf) -> Self {
-        let checkers: Vec<ExoCheckResult> = exo
-            .checks
-            .iter()
-            .map(|check| ExoCheckResult::new(check))
-            .collect();
-
-        Self {
-            check_results: checkers,
-            compilation_output: Vec::new(),
-            elf_path,
-            exo: Arc::new(exo.clone()),
-        }
-    }
-
-    pub(super) fn to_vec_check_state(&self) -> Vec<CheckState> {
-        self.check_results
-            .iter()
-            .map(|result| result.state.clone())
-            .collect()
-    }
-}
 use super::exo_status_report::ExoStatusReport;
 
 /// App struct
