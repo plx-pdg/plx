@@ -60,6 +60,11 @@ impl Ui {
                 exo,
                 error,
             } => train::render_compilation_error(frame, exo, scroll_offset, error),
+            UiState::CheckResults {
+                scroll_offset,
+                exo,
+                checks,
+            } => train::render_check_results(frame, exo, scroll_offset, checks),
             UiState::Quit => return,
             //TODO all other pages
             _ => {}
