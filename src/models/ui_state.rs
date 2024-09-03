@@ -44,10 +44,6 @@ pub enum UiState {
         exo: Arc<Exo>,
         checks: Vec<CheckState>,
     },
-    ExoDone {
-        scroll_offset: usize,
-        exo: Arc<Exo>,
-    },
     ShowSolution {
         scroll_offset: usize,
         exo: Arc<Exo>,

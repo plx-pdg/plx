@@ -67,16 +67,6 @@ impl App {
             checks,
         })
     }
-    pub(super) fn go_to_exo_done(&mut self, scroll_offset: usize) {
-        self.set_ui_state(UiState::ExoDone {
-            exo: Arc::new(
-                self.project.skills[self.project.state.curr_skill_idx].exos
-                    [self.project.state.curr_exo_idx]
-                    .clone(),
-            ),
-            scroll_offset,
-        })
-    }
     pub(super) fn go_to_solution(&mut self, scroll_offset: usize) {
         self.set_ui_state(UiState::ShowSolution {
             exo: Arc::new(
