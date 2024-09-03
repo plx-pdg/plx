@@ -21,9 +21,9 @@ pub struct Project {
 }
 
 #[derive(Serialize, Deserialize, Default, PartialEq, Eq, Debug)]
-struct ProjectState {
-    curr_skill_idx: usize,
-    curr_exo_idx: usize,
+pub(crate) struct ProjectState {
+    pub(crate) curr_skill_idx: usize,
+    pub(crate) curr_exo_idx: usize,
 }
 #[derive(Deserialize)]
 pub(crate) struct ProjectInfo {
