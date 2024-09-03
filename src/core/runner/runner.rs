@@ -58,6 +58,7 @@ impl Runner {
                 let _ = tx.send(RunEvent::ProcessCreationFailed(format!("{:?}", err)));
             })?;
 
+        let _ = tx.send(RunEvent::ProcessCreated);
         let mut stdout_thread = {
             if let Some(stdout) = process.stdout.take() {
                 Some(Runner::launch_stream_reader(tx.clone(), stdout))
