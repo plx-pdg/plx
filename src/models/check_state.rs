@@ -4,7 +4,7 @@ use crate::core::diff::diff::Diff;
 
 use super::check::Check;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum CheckStatus {
     Passed,
     Failed(String, String, Diff),
