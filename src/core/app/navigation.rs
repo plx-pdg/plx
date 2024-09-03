@@ -46,6 +46,7 @@ impl App {
     }
     pub(super) fn set_scroll_offset(&mut self, scroll_offset: usize) {
         match &self.ui_state {
+            UiState::Help { last_state, .. } => self.go_to_help(last_state.clone(), scroll_offset),
             UiState::CompileError { error, .. } => {
                 self.go_to_compilation_error(scroll_offset, error.to_string())
             }

@@ -18,7 +18,7 @@ impl App {
 
     pub(super) fn on_esc(&mut self) {
         match &self.ui_state {
-            UiState::Help { last_state } => self.set_ui_state(*last_state.clone()),
+            UiState::Help { last_state, .. } => self.set_ui_state(*last_state.clone()),
             UiState::ExoPreview { .. } => self.go_to_exo_selection(),
             _ => {}
         }
@@ -32,7 +32,8 @@ impl App {
             UiState::CompileError { scroll_offset, .. }
             | UiState::CheckResults { scroll_offset, .. }
             | UiState::ExoDone { scroll_offset, .. }
-            | UiState::ShowSolution { scroll_offset, .. } => self.scroll_down(*scroll_offset),
+            | UiState::ShowSolution { scroll_offset, .. }
+            | UiState::Help { scroll_offset, .. } => self.scroll_down(*scroll_offset),
             _ => (),
         };
     }
@@ -44,7 +45,8 @@ impl App {
             UiState::CompileError { scroll_offset, .. }
             | UiState::CheckResults { scroll_offset, .. }
             | UiState::ExoDone { scroll_offset, .. }
-            | UiState::ShowSolution { scroll_offset, .. } => self.scroll_up(*scroll_offset),
+            | UiState::ShowSolution { scroll_offset, .. }
+            | UiState::Help { scroll_offset, .. } => self.scroll_up(*scroll_offset),
             _ => (),
         };
     }

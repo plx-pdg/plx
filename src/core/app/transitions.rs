@@ -87,4 +87,10 @@ impl App {
             scroll_offset,
         })
     }
+    pub(super) fn go_to_help(&mut self, last_state: Box<UiState>, scroll_offset: usize) {
+        self.set_ui_state(UiState::Help {
+            last_state,
+            scroll_offset,
+        })
+    }
 }
