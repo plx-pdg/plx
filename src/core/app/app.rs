@@ -64,6 +64,13 @@ impl ExoStatusReport {
             exo: Arc::new(exo.clone()),
         }
     }
+
+    pub(super) fn to_vec_check_state(&self) -> Vec<CheckState> {
+        self.check_results
+            .iter()
+            .map(|result| result.state.clone())
+            .collect()
+    }
 }
 
 pub struct App {
