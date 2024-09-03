@@ -11,9 +11,15 @@ use crate::{
         parser::from_dir::FromDir,
         work::{work::Work, work_handler::WorkHandler, work_type::WorkType},
     },
-    models::{event::Event, exo::Exo, project::Project, ui_state::UiState},
+    models::{
+        check_state::CheckState, event::Event, exo::Exo, project::Project, ui_state::UiState,
+    },
     ui::ui::Ui,
 };
+
+pub(super) struct CurrentRun {
+    pub(super) checks: Vec<CheckState>,
+}
 
 pub struct App {
     pub(super) ui_state: UiState,
@@ -23,6 +29,7 @@ pub struct App {
     pub(super) event_rx: Receiver<Event>,
     pub(super) ui_state_tx: Sender<UiState>,
     pub(super) run: bool,
+    pub(super) current_run: Option<CurrentRun>,
 }
 
 impl App {
@@ -52,6 +59,7 @@ impl App {
             event_rx,
             ui_state_tx,
             run: true,
+            current_run: None,
         };
         app.start_ui(ui_state_rx);
         Ok(app)
