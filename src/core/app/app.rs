@@ -164,7 +164,7 @@ impl App {
     }
     fn start_ui(&mut self, ui_state_rx: Receiver<UiState>) {
         let ui = Ui::new(ui_state_rx);
-        let _ = self.ui_state_tx.send(UiState::Home);
+        self.go_to_home();
         App::start_work(&self.work_handler, Box::new(ui));
     }
     fn stop_ui(&mut self) {
