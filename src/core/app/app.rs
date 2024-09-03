@@ -133,6 +133,7 @@ impl App {
                     }
                     Event::OutputCheckPassed(check_index) => self.on_check_passed(check_index),
                     Event::OutputCheckFailed(check_index, diff) => {
+                        println!("{}", diff.to_ansi_colors());
                         self.on_check_failed(check_index, diff)
                     }
                     Event::FileSaved => self.on_file_save(),
