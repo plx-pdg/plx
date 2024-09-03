@@ -42,8 +42,9 @@ pub fn render_help(frame: &mut Frame) {
         rows.push(row);
 
     }
-
-    // Create a table with 3 columns
+        
+    // 2 columns table | shortcut, alt | description |
+    // Create a table with 2 columns
     let table = Table::new(rows, vec![Constraint::Percentage(100)])
         .block(
             Block::default()
@@ -51,9 +52,8 @@ pub fn render_help(frame: &mut Frame) {
                 .title("Key Descriptions"),
         )
         .widths(&[
-            Constraint::Percentage(33),
-            Constraint::Percentage(34),
-            Constraint::Percentage(33),
+            Constraint::Percentage(10),
+            Constraint::Percentage(90),
         ]);
 
     frame.render_widget(table, layout[0]);
