@@ -110,31 +110,29 @@ impl App {
     }
     pub(super) fn on_run_start(&mut self, id: usize) {
         if let Some(ref mut cr) = self.current_run {
-            if id < cr.checkers.len() {
-                cr.checkers[id].state.status = CheckStatus::Running;
+            if id < cr.check_results.len() {
+                cr.check_results[id].state.status = CheckStatus::Running;
             }
         }
     }
     pub(super) fn on_run_end(&mut self, id: usize) {
         if let Some(ref mut cr) = self.current_run {
-            if id < cr.checkers.len() {
-                cr.checkers[id].state.status = CheckStatus::Checking;
+            if id < cr.check_results.len() {
+                cr.check_results[id].state.status = CheckStatus::Checking;
                 self.start_check(id);
             }
         }
     }
     pub(super) fn on_run_output(&mut self, id: usize, line: String) {
         if let Some(ref mut cr) = self.current_run {
-            if id < cr.checkers.len() {
-                cr.checkers[id].output.push(line);
+            if id < cr.check_results.len() {
+                cr.check_results[id].output.push(line);
             }
         }
     }
     pub(super) fn on_file_save(&mut self) {
         if let Some(ref mut cr) = self.current_run {
-            if let Some((id, _)) = App::compile(&self.work_handler, &cr.exo) {
-                cr.push_worker(id);
-            }
+            App::compile(&self.work_handler, &cr.exo);
         }
     }
 }
