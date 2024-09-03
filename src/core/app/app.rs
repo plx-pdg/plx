@@ -130,7 +130,6 @@ impl App {
                     Event::KeyPressed(key) => self.on_key_press(key),
                     Event::EditorOpened => {}
                     Event::CouldNotOpenEditor => {} //TODO warn the user ?
-                    Event::ProcessCreationFailed => self.on_process_creation_fail(),
                     Event::ProcessOutputLine(run_id, line) => {
                         self.on_process_output_line(run_id, line)
                     }
@@ -138,24 +137,23 @@ impl App {
                     Event::OutputCheckFailed(check_index, diff) => {
                         self.on_check_failed(check_index, diff)
                     }
-                    Event::FileSaved => {
-                        self.current_run = App::start_exo(&self.work_handler, self.current_exo())
-                    }
+                    Event::FileSaved => self.on_file_save(),
                     Event::CompilationStart => self.go_to_compiling(),
                     Event::CompilationEnd(success) => self.on_compilation_end(success),
                     Event::CompilationOutputLine(line) => self.on_compilation_output(line),
                     Event::RunStart(id) => self.on_run_start(id),
                     Event::RunEnd(id) => self.on_run_end(id),
                     Event::RunOutputLine(id, line) => self.on_run_output(id, line),
+                    Event::RunFail(run_id, err) => self.on_process_creation_fail(run_id, err),
                 }
             }
         }
     }
-    // fn start_work(wh: &Arc<Mutex<WorkHandler>>, work: Box<dyn Work + Send>) {
-    fn start_work(wh: &Arc<Mutex<WorkHandler>>, work: Box<dyn Work + Send>) {
+    fn start_work(wh: &Arc<Mutex<WorkHandler>>, work: Box<dyn Work + Send>) -> Option<usize> {
         if let Ok(mut wh) = wh.lock() {
-            wh.spawn_worker(work);
+            return Some(wh.spawn_worker(work));
         }
+        None
     }
     fn start_ui(&mut self, ui_state_rx: Receiver<UiState>) {
         let ui = Ui::new(ui_state_rx);
