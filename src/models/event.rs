@@ -15,4 +15,7 @@ pub enum Event {
     ProcessOutputLine(usize, String),
     OutputCheckPassed(usize),
     OutputCheckFailed(usize, Diff),
+    RunStart(usize),
+    RunEnd(usize),
+    RunOutputLine(usize, String),
 }
