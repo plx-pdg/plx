@@ -115,8 +115,6 @@ impl App {
     }
     pub(super) fn resume_last_exo(&mut self) {
         if let Some(exo) = &self.project.resume() {
-            //TODO think of a cleaner way to start an exo
-            App::cleanup_previous_run(&self.work_handler, &self.current_run);
             self.current_run = App::start_exo(&self.work_handler, exo).ok();
         } else {
             self.go_to_skill_selection();
