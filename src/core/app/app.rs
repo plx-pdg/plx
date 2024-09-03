@@ -72,7 +72,11 @@ impl ExoStatusReport {
             .collect()
     }
 }
+use super::exo_status_report::ExoStatusReport;
 
+/// App struct
+/// This holds the state of the application
+///
 pub struct App {
     pub(super) ui_state: UiState,
     pub(super) project: Project,
@@ -85,6 +89,16 @@ pub struct App {
 }
 
 impl App {
+    ///
+    ///  Create a new App instance
+    ///
+    /// This function will create a new App instance and initialize the project
+    /// It will succeed if the project is found in the current folder
+    ///
+    /// # Returns
+    /// A Result containing the App instance if the project is found or an   
+    /// error if the project is not found
+    ///
     pub fn new() -> Result<Self, CoreInitError> {
         let current_folder = match current_folder() {
             Ok(folder) => folder,
@@ -117,10 +131,18 @@ impl App {
         Ok(app)
     }
 
+    /// Sets a new UiState
+    /// It's important to set the ui_state using this functions as it will also notify the UI of the change
     pub(super) fn set_ui_state(&mut self, new_state: UiState) {
         self.ui_state_tx.send(new_state.clone());
         self.ui_state = new_state;
     }
+
+    /// Tries to resume the last exo that was being worked on the last time the app was closed  
+    ///  
+    /// If the last exo is found, it will try to resume it, otherwise it will go to the skill selection screen
+    ///
+    ///
     pub(super) fn resume_last_exo(&mut self) {
         if let Some(exo) = &self.project.resume() {
             self.current_run = App::start_exo(&self.work_handler, exo).ok();
@@ -128,6 +150,10 @@ impl App {
             self.go_to_skill_selection();
         }
     }
+    /// Main thread
+    ///
+    /// Main application loop
+    ///
     pub fn run_forever(mut self) {
         while self.run {
             if let Ok(event) = self.event_rx.recv() {
@@ -156,23 +182,47 @@ impl App {
             }
         }
     }
+    ///
+    /// Starts a new worker using the work_handler
+    ///
+    /// Returns the id of the worker if it was successfully started
+    /// else it returns None
+    ///
     fn start_work(wh: &Arc<Mutex<WorkHandler>>, work: Box<dyn Work + Send>) -> Option<usize> {
         if let Ok(mut wh) = wh.lock() {
             return Some(wh.spawn_worker(work));
         }
         None
     }
+    ///
+    /// Starts the UI
+    ///
+    /// The UI will be launched as a separate worker so this function will not block
+    ///
     fn start_ui(&mut self, ui_state_rx: Receiver<UiState>) {
         let ui = Ui::new(ui_state_rx);
         self.go_to_home();
         App::start_work(&self.work_handler, Box::new(ui));
     }
+    ///
+    /// Stops the UI
+    /// Useful if we want to restart the UI
+    ///
     fn stop_ui(&mut self) {
         if let Ok(mut work_handler) = self.work_handler.lock() {
             work_handler.stop_workers(WorkType::Ui);
         }
     }
 
+    ///
+    /// Opens a new editor using a worker
+    /// This function will try to open the main file of the exo using the default system editor
+    /// See `EditorOpener` for more details
+    ///
+    /// This function doesn't block, the editor will be opened using a new worker
+    ///
+    /// Returns the id of the worker if it was successfully started
+    /// else it returns None
     fn open_editor(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) -> Option<usize> {
         if let Some(file) = exo.get_main_file() {
             if let Some(opener) = EditorOpener::new_default_editor(file.to_path_buf()) {
@@ -181,6 +231,13 @@ impl App {
         }
         None
     }
+    ///
+    /// Compiles the exo using a worker
+    ///
+    /// This function doesn't block, the compilation will be done using a new worker
+    ///
+    /// Returns the path to the compiled file if the compilation was successful
+    /// else it returns None
     pub(super) fn compile(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) -> Option<PathBuf> {
         let compiler = exo.compiler()?;
         let folder = generate_build_folder(exo).ok()?;
@@ -193,12 +250,31 @@ impl App {
         App::start_work(wh, Box::new(runner))?;
         return Some(output_path);
     }
+
+    ///
+    /// Cleans the previous run by stopping and waiting for every non UI worker to finish
+    ///
+    /// This function may block if a worker takes too long to finish
+    ///
     pub(super) fn cleanup_previous_run(wh: &Arc<Mutex<WorkHandler>>) {
         //Clean up previous exo workers
         if let Ok(mut wh) = wh.lock() {
             wh.clean_non_ui_workers()
         }
     }
+
+    ///
+    /// Starts a new exo
+    ///
+    /// Starting an exercise essentially means doing 3 things:
+    /// - Cleanup the previous run so data from the previous run doesn't interfere with the new one
+    /// - Open the editor. See `open_editor` for more details
+    /// - Compile. See `compile` for more details
+    /// - Setup this exercise file watchers. See `start_watcher` for more details
+    /// Every step but the first is done using a separate worker
+    /// so this function doesn't block
+    /// Returns a `ExoStatusReport` if the exo was successfully started
+    /// else it returns an error
     pub(super) fn start_exo(
         wh: &Arc<Mutex<WorkHandler>>,
         exo: &Exo,
@@ -211,6 +287,11 @@ impl App {
 
         Ok(ExoStatusReport::new(exo, output_path))
     }
+    ///
+    /// Runs the target file generated at the compilation step
+    /// Here we launch multiple instances of the target file, one for each exo check
+    ///
+    /// This function doesn't block each instance of the target file will be launched using a separate worker
     pub(super) fn start_runners(&mut self) {
         if let Some(ref mut cr) = self.current_run {
             cr.check_results
@@ -229,6 +310,10 @@ impl App {
         }
     }
 
+    /// Launches the specified check
+    /// Warning: This function should only be called once the run is over
+    /// else the check will probably fail
+    ///
     pub(super) fn start_check(&mut self, id: usize) -> Option<usize> {
         if let Some(ref mut cr) = self.current_run {
             if id < cr.check_results.len() {
@@ -243,6 +328,11 @@ impl App {
         }
         None
     }
+
+    ///
+    /// Launches a file watcher for the current exo
+    /// This function doesn't block
+    /// Returns a vector containing the id of the workers that were successfully started
     pub(super) fn start_watcher(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) -> Vec<usize> {
         exo.files
             .iter()
