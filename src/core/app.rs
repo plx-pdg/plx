@@ -1,4 +1,4 @@
 pub mod app;
 mod event_handler;
-mod key_pressed;
+mod key_press;
 mod navigation;
