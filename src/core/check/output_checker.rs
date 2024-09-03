@@ -1,7 +1,10 @@
 use std::sync::{atomic::AtomicBool, mpsc::Sender, Arc};
 
 use crate::{
-    core::diff::diff::Diff,
+    core::{
+        diff::diff::Diff,
+        work::{work::Work, work_type::WorkType},
+    },
     models::{
         check::{Check, CheckTest},
         event::Event,
@@ -33,7 +36,9 @@ impl<'a> OutputChecker<'a> {
             // _ => Err(OutputCheckerCreationError::InvalidCheck),
         }
     }
-    pub fn run(&self, tx: Sender<Event>, _should_stop: Arc<AtomicBool>) {
+}
+impl Work for OutputChecker<'_> {
+    fn run(&self, tx: Sender<Event>, _stop: Arc<AtomicBool>) -> bool {
         let expected = match &self.check.test {
             CheckTest::Output { expected } => expected,
             //_ => return, // Will never get here
@@ -48,6 +53,11 @@ impl<'a> OutputChecker<'a> {
         };
 
         let _ = tx.send(event);
+        return true;
+    }
+
+    fn work_type(&self) -> WorkType {
+        WorkType::OutputChecker
     }
 }
 

@@ -4,4 +4,5 @@ pub enum WorkType {
     Compilation,
     Ui,
     DirectoryWatcher,
+    OutputChecker,
 }
