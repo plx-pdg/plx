@@ -84,16 +84,12 @@ impl App {
             UiState::SkillSelection { .. } => self.go_to_exo_selection(),
             UiState::ExoSelection { .. } => self.go_to_exo_preview(),
             UiState::ExoPreview { exo, .. } => {
-                //TODO think of a cleaner way to start an exo
-                App::cleanup_previous_run(&self.work_handler, &self.current_run);
                 self.current_run = App::start_exo(&self.work_handler, exo).ok();
                 self.go_to_compiling();
             }
             UiState::ExoDone { .. } => self.go_to_solution(0),
             UiState::ShowSolution { .. } => {
-                //TODO think of a cleaner way to start an exo
                 self.next_exo(true);
-                App::cleanup_previous_run(&self.work_handler, &self.current_run);
                 self.current_run = App::start_exo(&self.work_handler, self.current_exo()).ok();
             }
             _ => {}
