@@ -40,29 +40,15 @@ impl App {
                 cr.check_results[check_idx].state.status = check_status;
             }
         }
-        self.push_new_state();
+        self.on_new_check_update();
     }
-    fn push_new_state(&mut self) {
-        if let Some(ref mut cr) = self.current_run {
-            let all_passed = cr
-                .check_results
-                .iter()
-                .all(|res| res.state.status == CheckStatus::Passed);
-            if all_passed {
-                self.go_to_exo_done(0);
-            } else {
-                let scroll_offset = match self.ui_state {
-                    UiState::CheckResults { scroll_offset, .. } => scroll_offset,
-                    _ => 0,
-                };
-
-                let checks = cr
-                    .check_results
-                    .iter()
-                    .map(|result| result.state.clone())
-                    .collect();
-                self.go_to_check_results(scroll_offset, checks);
-            }
+    fn on_new_check_update(&mut self) {
+        if let Some(ref cr) = self.current_run {
+            let scroll_offset = match self.ui_state {
+                UiState::CheckResults { scroll_offset, .. } => scroll_offset,
+                _ => 0,
+            };
+            self.go_to_check_results(scroll_offset, cr.to_vec_check_state());
         }
     }
     pub(super) fn on_check_passed(&mut self, check_idx: usize) {
