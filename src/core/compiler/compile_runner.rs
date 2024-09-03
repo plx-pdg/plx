@@ -147,6 +147,7 @@ mod test {
         assert!(command.starts_with("gcc"));
         assert!(command.contains("main.c"));
         assert!(command.contains("queue.c"));
+        assert!(!command.contains("queue.h"));
         assert!(command.contains(&format!("-o {}", output_path.to_str().unwrap())));
         compile_and_assert_ok(compiler, &output_path);
     }
