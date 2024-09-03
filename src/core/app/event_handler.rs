@@ -9,12 +9,11 @@ impl App {
             Key::R => self.on_r(),
             Key::H => self.on_h(),
             Key::J => self.on_j(),
-            Key::K => todo!(),
-            Key::L => self.on_l(),
+            Key::K => self.on_k(),
+            Key::L | Key::Enter => self.on_l(),
             Key::N => todo!(),
             Key::P => todo!(),
             Key::E => todo!(),
-            Key::Enter => todo!(),
             Key::Esc => todo!(),
         }
     }
