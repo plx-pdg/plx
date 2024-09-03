@@ -8,13 +8,13 @@ pub enum UiState {
     Help, // Help page with shortcuts documentation
     // List page
     SkillSelection {
-        skills: &'a Vec<Skill>,
+        skills: Arc<Vec<Skill>>,
         skill_index: usize,
     },
     ExoSelection {
-        skills: &'a Vec<Skill>,
+        skills: Arc<Vec<Skill>>,
         skill_index: usize,
-        exos: &'a Vec<Exo>,
+        exos: Arc<Vec<Exo>>,
         exo_index: usize,
     },
     ExoPreview {
