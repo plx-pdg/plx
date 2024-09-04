@@ -14,6 +14,7 @@ impl App {
         if let Ok(mut wh) = self.work_handler.lock() {
             wh.stop_all_workers_and_wait();
         }
+        self.run = false;
     }
 
     pub(super) fn on_esc(&mut self) {
