@@ -29,12 +29,11 @@ pub fn render_preview(
     let mut lines: Vec<Line> = Vec::new();
     render_exo(&mut lines, &Arc::new(exos[exo_index].clone()), true);
 
-    // let block = Block::bordered().title("Popup");
     let area = popup_area(frame.area(), 80, 60);
     frame.render_widget(Clear, area); //this clears out the background
     frame.render_widget(
         Paragraph::new(Text::from(lines))
-            .block(Block::bordered())
+            .block(Block::bordered().title("Exo preview"))
             .wrap(Wrap { trim: true }),
         area,
     );
