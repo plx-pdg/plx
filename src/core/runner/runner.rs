@@ -1,3 +1,5 @@
+use crate::core::process::process_handler::{self, ProcessStatus};
+use log::error;
 use std::{
     io::{BufRead, BufReader, Read},
     process::ExitStatus,
@@ -9,8 +11,6 @@ use std::{
     thread::{self, sleep, JoinHandle},
     time::Duration,
 };
-use log::error;
-use crate::core::process::process_handler::{self, ProcessStatus};
 
 #[derive(Debug, PartialEq)]
 pub enum RunEvent {

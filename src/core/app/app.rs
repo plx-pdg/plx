@@ -1,11 +1,3 @@
-use std::{
-    path::PathBuf,
-    sync::{
-        mpsc::{self, Receiver, Sender},
-        Arc, Mutex,
-    },
-};
-use log::info;
 use crate::{
     core::{
         check::checker::Checker,
@@ -23,6 +15,14 @@ use crate::{
         project::Project, ui_state::UiState,
     },
     ui::ui::Ui,
+};
+use log::info;
+use std::{
+    path::PathBuf,
+    sync::{
+        mpsc::{self, Receiver, Sender},
+        Arc, Mutex,
+    },
 };
 
 use super::exo_status_report::ExoStatusReport;
