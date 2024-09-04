@@ -18,7 +18,7 @@ impl App {
 
     pub(super) fn on_esc(&mut self) {
         match &self.ui_state {
-            UiState::Help { last_state } => self.set_ui_state(*last_state.clone()),
+            UiState::Help { last_state, .. } => self.set_ui_state(*last_state.clone()),
             UiState::ExoPreview { .. } => self.go_to_exo_selection(),
             _ => {}
         }
@@ -31,8 +31,8 @@ impl App {
 
             UiState::CompileError { scroll_offset, .. }
             | UiState::CheckResults { scroll_offset, .. }
-            | UiState::ExoDone { scroll_offset, .. }
-            | UiState::ShowSolution { scroll_offset, .. } => self.scroll_down(*scroll_offset),
+            | UiState::ShowSolution { scroll_offset, .. }
+            | UiState::Help { scroll_offset, .. } => self.scroll_down(*scroll_offset),
             _ => (),
         };
     }
@@ -43,8 +43,8 @@ impl App {
 
             UiState::CompileError { scroll_offset, .. }
             | UiState::CheckResults { scroll_offset, .. }
-            | UiState::ExoDone { scroll_offset, .. }
-            | UiState::ShowSolution { scroll_offset, .. } => self.scroll_up(*scroll_offset),
+            | UiState::ShowSolution { scroll_offset, .. }
+            | UiState::Help { scroll_offset, .. } => self.scroll_up(*scroll_offset),
             _ => (),
         };
     }
@@ -74,7 +74,11 @@ impl App {
                 skills: skills.clone(),
             }),
             UiState::CompileError { .. } | UiState::CheckResults { .. } => self.go_to_exo_preview(),
-            UiState::ShowSolution { .. } => self.go_to_exo_done(0),
+            UiState::ShowSolution { .. } => {
+                if let Some(cr) = &self.current_run {
+                    self.go_to_check_results(0, cr.to_vec_check_state())
+                }
+            }
             _ => {}
         }
     }
@@ -84,15 +88,17 @@ impl App {
             UiState::SkillSelection { .. } => self.go_to_exo_selection(),
             UiState::ExoSelection { .. } => self.go_to_exo_preview(),
             UiState::ExoPreview { exo, .. } => {
-                App::start_exo(&self.work_handler, &exo);
+                self.current_run = App::start_exo(&self.work_handler, exo).ok();
                 self.go_to_compiling();
             }
-            UiState::ExoDone { .. } => self.go_to_solution(0),
+            UiState::CheckResults { checks, .. } => {
+                if App::all_checks_passed(checks) {
+                    self.go_to_solution(0);
+                }
+            }
             UiState::ShowSolution { .. } => {
                 self.next_exo(true);
-                let exo = &self.project.skills[self.project.state.curr_skill_idx].exos
-                    [self.project.state.curr_exo_idx];
-                App::start_exo(&self.work_handler, exo);
+                self.current_run = App::start_exo(&self.work_handler, self.current_exo()).ok();
             }
             _ => {}
         }

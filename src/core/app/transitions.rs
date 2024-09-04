@@ -67,8 +67,8 @@ impl App {
             checks,
         })
     }
-    pub(super) fn go_to_exo_done(&mut self, scroll_offset: usize) {
-        self.set_ui_state(UiState::ExoDone {
+    pub(super) fn go_to_solution(&mut self, scroll_offset: usize) {
+        self.set_ui_state(UiState::ShowSolution {
             exo: Arc::new(
                 self.project.skills[self.project.state.curr_skill_idx].exos
                     [self.project.state.curr_exo_idx]
@@ -77,13 +77,9 @@ impl App {
             scroll_offset,
         })
     }
-    pub(super) fn go_to_solution(&mut self, scroll_offset: usize) {
-        self.set_ui_state(UiState::ShowSolution {
-            exo: Arc::new(
-                self.project.skills[self.project.state.curr_skill_idx].exos
-                    [self.project.state.curr_exo_idx]
-                    .clone(),
-            ),
+    pub(super) fn go_to_help(&mut self, last_state: Box<UiState>, scroll_offset: usize) {
+        self.set_ui_state(UiState::Help {
+            last_state,
             scroll_offset,
         })
     }

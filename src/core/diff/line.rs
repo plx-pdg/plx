@@ -2,7 +2,7 @@ use console::Style;
 
 use super::{diff_type::DiffType, line_chunk::LineChunk};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub(super) struct Line {
     // old_line_index: Option<usize>, // Where this line was before
     // new_line_index: Option<usize>, // Where this line is now
