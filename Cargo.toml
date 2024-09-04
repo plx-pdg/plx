@@ -22,6 +22,6 @@ notify = "6.1.1"
 notify-debouncer-mini = "0.4.0"
 tempfile = "3.12.0"
 log = "0.4.22"
-
+simplelog = "0.12.2"
 [dev-dependencies]
 ntest = "0.9.3"
