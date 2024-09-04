@@ -1,7 +1,7 @@
 use super::line::Line;
 
 ///Represents a local group of differences
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub(super) struct Hunk {
     lines: Vec<Line>,
 }

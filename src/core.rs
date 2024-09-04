@@ -1,6 +1,13 @@
 pub mod app;
+pub mod check;
+pub mod compiler;
+pub mod core_error;
 pub mod diff;
 pub mod editor;
 pub mod file_utils;
+pub mod launcher;
+pub mod parser;
 pub mod process;
+pub mod runner;
+mod watcher;
 pub mod work;

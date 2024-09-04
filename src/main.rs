@@ -1,7 +1,14 @@
+use crate::core::app::app::App;
+
 pub mod core;
 pub mod models;
 pub mod ui;
 
 fn main() {
-    println!("Waiting on core and UI init");
+    match App::new() {
+        Ok(app) => app.run_forever(),
+        Err(err) => {
+            eprintln!("Error starting plx {err}");
+        }
+    }
 }

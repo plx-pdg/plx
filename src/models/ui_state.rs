@@ -1,39 +1,51 @@
-use super::{check_state::CheckState, exo::Exo};
+use std::sync::Arc;
+
+use super::{check_state::CheckState, exo::Exo, skill::Skill};
 
 // The list of states and associated values for the UI to represent
-pub enum UiState<'a> {
+#[derive(Debug, Clone)]
+pub enum UiState {
     Home, // Home page with ASCII art
     Quit, // Exit in progress
-    Help, // Help page with shortcuts documentation
+    Help {
+        scroll_offset: usize,
+        last_state: Box<UiState>,
+    }, // Help page with shortcuts documentation
     // List page
     SkillSelection {
         skill_index: usize,
+        skills: Arc<Vec<Skill>>,
+        exos: Arc<Vec<Exo>>,
     },
     ExoSelection {
         skill_index: usize,
         exo_index: usize,
+        skills: Arc<Vec<Skill>>,
+        exos: Arc<Vec<Exo>>,
     },
     ExoPreview {
         skill_index: usize,
         exo_index: usize,
-        exo: &'a Exo,
+        skills: Arc<Vec<Skill>>,
+        exos: Arc<Vec<Exo>>,
+        exo: Arc<Exo>,
     },
     // Train page in various steps
     Compiling {
-        exo: &'a Exo,
+        exo: Arc<Exo>,
     },
     CompileError {
-        exo: &'a Exo,
+        scroll_offset: usize,
+        exo: Arc<Exo>,
         error: String,
     },
     CheckResults {
-        exo: &'a Exo,
-        checks: Vec<CheckState<'a>>,
-    },
-    ExoDone {
-        exo: &'a Exo,
+        scroll_offset: usize,
+        exo: Arc<Exo>,
+        checks: Vec<CheckState>,
     },
     ShowSolution {
-        exo: &'a Exo,
+        scroll_offset: usize,
+        exo: Arc<Exo>,
     },
 }

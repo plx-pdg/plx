@@ -4,7 +4,10 @@ use std::{
 };
 
 use crate::{
-    core::process::process_handler::{self, wait_child},
+    core::{
+        process::process_handler::{self, wait_child},
+        work::{work::Work, work_type::WorkType},
+    },
     models::event::Event,
 };
 
@@ -28,19 +31,26 @@ impl EditorOpener {
         }
     }
 }
-impl EditorOpener {
-    pub fn run(&self, tx: Sender<Event>, should_stop: Arc<AtomicBool>) {
+impl Work for EditorOpener {
+    fn work_type(&self) -> WorkType {
+        WorkType::EditorOpen
+    }
+    fn run(&self, tx: Sender<Event>, should_stop: Arc<AtomicBool>) -> bool {
         let child = process_handler::spawn_process(
             &self.editor,
             vec![self.file_path.display().to_string()],
         );
         let _ = match child {
+            Err(_) => {
+                let _ = tx.send(Event::CouldNotOpenEditor);
+                return false;
+            }
             Ok(mut child) => match wait_child(&mut child, should_stop.clone()) {
                 Ok(_) => tx.send(Event::EditorOpened),
                 Err(_) => tx.send(Event::CouldNotOpenEditor),
             },
-            Err(_) => tx.send(Event::CouldNotOpenEditor),
         };
+        return true;
     }
 }
 
