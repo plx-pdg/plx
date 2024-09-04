@@ -13,7 +13,7 @@ pub enum CheckStatus {
     RunFail(String),
     Pending,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CheckState {
     pub(crate) check: Arc<Check>,
     pub(crate) status: CheckStatus,
