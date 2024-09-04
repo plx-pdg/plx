@@ -42,6 +42,29 @@ pub fn push_each_line_or_empty_info(lines: &mut Vec<Line>, prefix: String, text:
         }
     }
 }
+
+/// Basic cleanup of absolute path in compilation outputs
+fn cleanup_compilation_output(exo: &Arc<Exo>, error: &String) -> String {
+    let mut exo_folder_path = exo
+        .folder
+        .clone()
+        .into_os_string()
+        .into_string()
+        .unwrap_or_default();
+    exo_folder_path.push_str("/");
+    error.replace(&exo_folder_path, "")
+}
+
+/// Use ansi_to_tui to generate Text and push its Line to given lines vector
+fn push_ansi_content(lines: &mut Vec<Line>, ansi_string: String, offset: usize) {
+    if let Ok(text) = ansi_string.into_text() {
+        text.lines
+            .iter()
+            .skip(offset)
+            .for_each(|l| lines.push(l.clone()));
+    }
+}
+
 // Show the compilation errors, basic support of scroll_offset
 pub fn render_compilation_error(
     frame: &mut Frame,
@@ -60,10 +83,11 @@ pub fn render_compilation_error(
     bottom.push(compilation_title_with_offset);
 
     // Show lines of compilation output, each is its own Line
-    error
-        .lines()
-        .skip(*scroll_offset)
-        .for_each(|l| bottom.push(Line::from(l.to_string())));
+    push_ansi_content(
+        &mut bottom,
+        cleanup_compilation_output(exo, error),
+        *scroll_offset,
+    );
 
     render_train(frame, exo, bottom);
 }
@@ -72,7 +96,7 @@ pub fn render_compilation_error(
 pub fn render_check_results(
     frame: &mut Frame,
     exo: &Arc<Exo>,
-    _scroll_offset: &usize, //TODO: support scroll_offset
+    scroll_offset: &usize, //TODO: support scroll_offset
     checks: &Vec<CheckState>,
 ) {
     // Show the Check results title
@@ -105,7 +129,7 @@ pub fn render_check_results(
         match check_state.check.test.clone() {
             CheckTest::Output { .. } => match check_state.status.clone() {
                 CheckStatus::Passed => {}
-                CheckStatus::Failed(expected, given, diff) => {
+                CheckStatus::Failed(expected, output, diff) => {
                     if !check_state.check.args.is_empty() {
                         let mut l = Line::from("Args: ");
                         l.push_span(
@@ -114,16 +138,13 @@ pub fn render_check_results(
                         bottom.push(l);
                     }
                     // If one value is empty, maybe showing a diff is not useful
-                    if given.trim().is_empty() || expected.trim().is_empty() {
-                        push_each_line_or_empty_info(&mut bottom, "Given".to_string(), given);
+                    if output.trim().is_empty() || expected.trim().is_empty() {
+                        push_each_line_or_empty_info(&mut bottom, "Output".to_string(), output);
                         push_each_line_or_empty_info(&mut bottom, "Expected".to_string(), expected);
                     } else {
                         // otherwise, the diff is better
                         bottom.push(Line::from("Diff:"));
-                        // Use ansi_to_tui to generate a Text, read back lines to push them
-                        if let Ok(text) = diff.to_ansi_colors().into_text() {
-                            text.lines.iter().for_each(|l| bottom.push(l.clone()));
-                        }
+                        push_ansi_content(&mut bottom, diff.to_ansi_colors(), 0);
                     }
                 }
                 CheckStatus::Pending | CheckStatus::Checking => {}
