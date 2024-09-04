@@ -68,11 +68,15 @@ impl App {
         if let Some(ref mut cr) = self.current_run {
             if check_idx < cr.check_results.len() {
                 match &cr.check_results[check_idx].state.check.test {
-                    CheckTest::Output { expected } => CheckStatus::Failed(
-                        expected.clone(),
-                        cr.check_results[check_idx].output.join("\n"),
-                        diff,
-                    ),
+                    CheckTest::Output { expected } => {
+                        let output = cr.check_results[check_idx].output.join("\n").clone();
+                        let expected = expected.clone();
+
+                        self.on_check_status(
+                            check_idx,
+                            CheckStatus::Failed(expected, output, diff),
+                        );
+                    }
                 };
             }
         }
