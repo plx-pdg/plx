@@ -1,7 +1,7 @@
 /// Train page rendering functions
 /// Each UiState related to this page has its own function and reuse render_train()
 /// that generate the render_common_top() to show exo metadata that should be always visible
-use std::{borrow::BorrowMut, sync::Arc};
+use std::sync::Arc;
 
 use crate::models::{
     check::CheckTest,
@@ -9,14 +9,12 @@ use crate::models::{
     exo::Exo,
 };
 use ansi_to_tui::IntoText;
-use log::info;
 use ratatui::{
     style::{Color, Stylize},
-    text::{Line, Span, Text, ToLine, ToText},
+    text::{Line, Span, Text},
     widgets::{Paragraph, Wrap},
     Frame,
 };
-use similar::DiffableStr;
 
 // Show the "Compiling" message without the checks
 pub fn render_compilation(frame: &mut Frame, exo: &Arc<Exo>) {
@@ -25,6 +23,25 @@ pub fn render_compilation(frame: &mut Frame, exo: &Arc<Exo>) {
     render_train(frame, exo, bottom);
 }
 
+/// Push lines with the given string taking \n as splitter, or push a "<empty>" dim line when empty
+/// We can define a prefix in front of the line
+pub fn push_each_line_or_empty_info(lines: &mut Vec<Line>, prefix: String, text: String) {
+    let mut prefix = Line::from(prefix);
+    prefix.push_span(": ");
+    if text.is_empty() {
+        prefix.push_span(Span::from("<empty>").dim());
+        lines.push(prefix);
+    } else {
+        if text.find("\n").is_some() {
+            lines.push(prefix);
+            text.lines()
+                .for_each(|l| lines.push(Line::from(l.to_string()).cyan()));
+        } else {
+            prefix.push_span(Span::from(text).light_blue());
+            lines.push(prefix);
+        }
+    }
+}
 // Show the compilation errors, basic support of scroll_offset
 pub fn render_compilation_error(
     frame: &mut Frame,
@@ -86,41 +103,41 @@ pub fn render_check_results(
                 .bold(),
         ));
         match check_state.check.test.clone() {
-            CheckTest::Output { .. } => {
-                bottom.push(Line::from(format!(
-                    "check_state.status: {:?}",
-                    check_state.status
-                )));
-                match check_state.status.clone() {
-                    CheckStatus::Passed => {}
-                    CheckStatus::Failed(output, expected, diff) => {
-                        if !check_state.check.args.is_empty() {
-                            bottom.push(
-                                Line::from(format!("Args: {:?}", check_state.check.args)).magenta(),
-                            );
-                        }
-                        bottom.push(Line::from("Expected:"));
-                        bottom.push(Line::from(expected).blue());
-                        bottom.push(Line::from("Diff:"));
-                        // TODO we can get the ansi colors as a text
-                        // using ansi_to_tui::IntoText;
-                        // but bottom is a list of lines so we need to figure out a way to make it
-                        // work together
-                        // if let Ok(_text) = diff.to_ansi_colors().into_text() {}
-                    }
-                    CheckStatus::Pending | CheckStatus::Checking => {}
-                    CheckStatus::Running => {
-                        bottom.push(Line::from("Running check...").dim());
-                    }
-                    CheckStatus::RunFail(err) => {
-                        bottom.push(
-                            Line::from(format!("Running the check has failed: {}", err)).dim(),
+            CheckTest::Output { .. } => match check_state.status.clone() {
+                CheckStatus::Passed => {}
+                CheckStatus::Failed(expected, given, diff) => {
+                    if !check_state.check.args.is_empty() {
+                        let mut l = Line::from("Args: ");
+                        l.push_span(
+                            Span::from(format!("{:?}", check_state.check.args)).light_blue(),
                         );
+                        bottom.push(l);
+                    }
+                    // If one value is empty, maybe showing a diff is not useful
+                    if given.trim().is_empty() || expected.trim().is_empty() {
+                        push_each_line_or_empty_info(&mut bottom, "Given".to_string(), given);
+                        push_each_line_or_empty_info(&mut bottom, "Expected".to_string(), expected);
+                    } else {
+                        // otherwise, the diff is better
+                        bottom.push(Line::from("Diff:"));
+                        // Use ansi_to_tui to generate a Text, read back lines to push them
+                        if let Ok(text) = diff.to_ansi_colors().into_text() {
+                            text.lines.iter().for_each(|l| bottom.push(l.clone()));
+                        }
                     }
                 }
-            }
+                CheckStatus::Pending | CheckStatus::Checking => {}
+                CheckStatus::Running => {
+                    bottom.push(Line::from("Running check...").dim());
+                }
+                CheckStatus::RunFail(err) => {
+                    bottom.push(Line::from(format!("Running the check has failed: {}", err)).dim());
+                }
+            },
         }
+        bottom.push(Line::default());
     }
+
     render_train(frame, exo, bottom);
 }
 
