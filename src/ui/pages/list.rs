@@ -114,4 +114,3 @@ fn setup_layout(frame: &mut Frame) -> (Rect, Rect) {
 
     (horizontal[0].clone(), horizontal[1].clone())
 }
-
