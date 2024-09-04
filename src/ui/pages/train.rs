@@ -8,6 +8,7 @@ use crate::models::{
     check_state::{CheckState, CheckStatus},
     exo::Exo,
 };
+use log::info;
 use ratatui::{
     style::{Color, Stylize},
     text::{Line, Span, Text},
@@ -83,17 +84,35 @@ pub fn render_check_results(
                 .fg(color)
                 .bold(),
         ));
-        if check_state.status == CheckStatus::Passed {
-            continue;
-        }
-        if !check_state.check.args.is_empty() {
-            bottom.push(Line::from(format!("Args: {:?}", check_state.check.args)).magenta());
-        }
         match check_state.check.test.clone() {
             CheckTest::Output { expected } => {
-                bottom.push(Line::from("Expected:"));
-                bottom.push(Line::from(format!("{}", expected)).blue());
-                //TODO: show in addition or instead the diff
+                bottom.push(Line::from(format!(
+                    "check_state.status: {:?}",
+                    check_state.status
+                )));
+                match check_state.status.clone() {
+                    CheckStatus::Passed => {}
+                    CheckStatus::Failed(expected, given, diff) => {
+                        if !check_state.check.args.is_empty() {
+                            bottom.push(
+                                Line::from(format!("Args: {:?}", check_state.check.args)).magenta(),
+                            );
+                        }
+                        bottom.push(Line::from("Expected:"));
+                        bottom.push(Line::from(expected).blue());
+                        bottom.push(Line::from("Diff:"));
+                        bottom.push(Line::from(diff.to_ansi_colors()));
+                    }
+                    CheckStatus::Pending | CheckStatus::Checking => {}
+                    CheckStatus::Running => {
+                        bottom.push(Line::from("Running check...").dim());
+                    }
+                    CheckStatus::RunFail(err) => {
+                        bottom.push(
+                            Line::from(format!("Running the check has failed: {}", err)).dim(),
+                        );
+                    }
+                }
             }
         }
         bottom.push(Line::default());
