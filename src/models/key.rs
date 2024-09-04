@@ -47,7 +47,7 @@ impl Key {
     /// An alternative key, can be empty
     pub fn alt(&self) -> &str {
         match self {
-            Key::Q => "ctrl+c",
+            // Key::Q => "ctrl+c", TODO: use sigint / sigterm signals to handle shortcut
             Key::H => "left",
             Key::J => "down",
             Key::K => "up",
