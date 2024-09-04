@@ -54,7 +54,7 @@ impl Ui {
     fn render_frame(&self, frame: &mut Frame, state: &UiState) {
         match state {
             UiState::Home => home::render_home(frame),
-            UiState::Help => help::render_help(frame),
+            UiState::Help { scroll_offset, .. } => help::render_help(frame, *scroll_offset),
             UiState::Quit => return,
             //TODO all other pages
             _ => {}

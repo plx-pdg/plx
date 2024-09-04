@@ -13,6 +13,7 @@ pub enum Key {
     E,
     Enter,
     Esc,
+    Interrogation,
 }
 
 impl Key {
@@ -30,8 +31,19 @@ impl Key {
             Key::E => "Edit exercise",
             Key::Enter => "Enter to continue",
             Key::Esc => "Go back",
+            Key::Interrogation => "View help",
         }
     }
+
+    /// Define a key name, by default the lowercase version of the enum case
+    /// but it can also be used to rename special keys like Interrogation -> ?
+    pub fn name(&self) -> String {
+        match self {
+            Key::Interrogation => "?".to_string(),
+            _ => format!("{:?}", self).to_lowercase(),
+        }
+    }
+
     /// An alternative key, can be empty
     pub fn alt(&self) -> &str {
         match self {

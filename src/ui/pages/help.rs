@@ -9,7 +9,7 @@ use strum::IntoEnumIterator;
 
 use crate::models::key::Key;
 
-pub fn render_help(frame: &mut Frame) {
+pub fn render_help(frame: &mut Frame, _scroll_offset: usize) {
     // USING TABLE
     let mut rows = Vec::new();
     let mut max_shortcut_text_length: u16 = 0;
@@ -19,12 +19,13 @@ pub fn render_help(frame: &mut Frame) {
             .dim();
 
         let mut shortcut_text = Line::default();
-        let shortcut_name = format!("{:?}", k);
-        shortcut_text.push_span(Span::from(shortcut_name.to_lowercase()).green());
+        let shortcut_name = &k.name();
+        shortcut_text.push_span(Span::from(shortcut_name.clone()).green());
         let mut length_count: u16 = shortcut_name.len() as u16;
-        if !k.alt().is_empty() {
+        let alt = k.alt().to_string();
+        if !alt.is_empty() {
             shortcut_text.push_span(Span::from(", ").dim());
-            shortcut_text.push_span(Span::from(k.alt().to_lowercase()).green());
+            shortcut_text.push_span(Span::from(alt).green());
             length_count += k.alt().len() as u16 + 2;
         }
 
