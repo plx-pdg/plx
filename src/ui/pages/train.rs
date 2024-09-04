@@ -1,20 +1,22 @@
 /// Train page rendering functions
 /// Each UiState related to this page has its own function and reuse render_train()
 /// that generate the render_common_top() to show exo metadata that should be always visible
-use std::sync::Arc;
+use std::{borrow::BorrowMut, sync::Arc};
 
 use crate::models::{
     check::CheckTest,
     check_state::{CheckState, CheckStatus},
     exo::Exo,
 };
+use ansi_to_tui::IntoText;
 use log::info;
 use ratatui::{
     style::{Color, Stylize},
-    text::{Line, Span, Text},
+    text::{Line, Span, Text, ToLine, ToText},
     widgets::{Paragraph, Wrap},
     Frame,
 };
+use similar::DiffableStr;
 
 // Show the "Compiling" message without the checks
 pub fn render_compilation(frame: &mut Frame, exo: &Arc<Exo>) {
@@ -71,7 +73,6 @@ pub fn render_check_results(
         .bold()
         .green(),
     );
-
     // Show each check name + details
     for (i, check_state) in checks.iter().enumerate() {
         let color = if check_state.status == CheckStatus::Passed {
@@ -85,14 +86,14 @@ pub fn render_check_results(
                 .bold(),
         ));
         match check_state.check.test.clone() {
-            CheckTest::Output { expected } => {
+            CheckTest::Output { .. } => {
                 bottom.push(Line::from(format!(
                     "check_state.status: {:?}",
                     check_state.status
                 )));
                 match check_state.status.clone() {
                     CheckStatus::Passed => {}
-                    CheckStatus::Failed(expected, given, diff) => {
+                    CheckStatus::Failed(output, expected, diff) => {
                         if !check_state.check.args.is_empty() {
                             bottom.push(
                                 Line::from(format!("Args: {:?}", check_state.check.args)).magenta(),
@@ -101,7 +102,11 @@ pub fn render_check_results(
                         bottom.push(Line::from("Expected:"));
                         bottom.push(Line::from(expected).blue());
                         bottom.push(Line::from("Diff:"));
-                        bottom.push(Line::from(diff.to_ansi_colors()));
+                        // TODO we can get the ansi colors as a text
+                        // using ansi_to_tui::IntoText;
+                        // but bottom is a list of lines so we need to figure out a way to make it
+                        // work together
+                        // if let Ok(_text) = diff.to_ansi_colors().into_text() {}
                     }
                     CheckStatus::Pending | CheckStatus::Checking => {}
                     CheckStatus::Running => {
@@ -115,9 +120,7 @@ pub fn render_check_results(
                 }
             }
         }
-        bottom.push(Line::default());
     }
-
     render_train(frame, exo, bottom);
 }
 
