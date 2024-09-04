@@ -1,11 +1,3 @@
-use std::{
-    path::PathBuf,
-    sync::{
-        mpsc::{self, Receiver, Sender},
-        Arc, Mutex,
-    },
-};
-
 use crate::{
     core::{
         check::checker::Checker,
@@ -23,6 +15,14 @@ use crate::{
         project::Project, ui_state::UiState,
     },
     ui::ui::Ui,
+};
+use log::info;
+use std::{
+    path::PathBuf,
+    sync::{
+        mpsc::{self, Receiver, Sender},
+        Arc, Mutex,
+    },
 };
 
 use super::exo_status_report::ExoStatusReport;
@@ -109,7 +109,7 @@ impl App {
     pub fn run_forever(mut self) {
         while self.run {
             if let Ok(event) = self.event_rx.recv() {
-                println!("{:?}", event);
+                info!("{:?}", event);
                 match event {
                     Event::KeyPressed(key) => self.on_key_press(key),
                     Event::EditorOpened => {}
@@ -119,7 +119,7 @@ impl App {
                     }
                     Event::OutputCheckPassed(check_index) => self.on_check_passed(check_index),
                     Event::OutputCheckFailed(check_index, diff) => {
-                        println!("{}", diff.to_ansi_colors());
+                        info!("{}", diff.to_ansi_colors());
                         self.on_check_failed(check_index, diff)
                     }
                     Event::FileSaved => self.on_file_save(),
