@@ -6,7 +6,7 @@ use std::{
     },
 };
 
-use super::{pages::help, pages::train, utils::ui_key_to_core_key};
+use super::{pages::help, pages::list, pages::train, utils::ui_key_to_core_key};
 use crate::{
     core::work::{work::Work, work_type::WorkType},
     models::ui_state::UiState,
@@ -54,6 +54,17 @@ impl Ui {
     fn render_frame(&self, frame: &mut Frame, state: &UiState) {
         match state {
             UiState::Home => home::render_home(frame),
+            UiState::SkillSelection {
+                skill_index,
+                skills,
+                exos,
+            } => list::render_lists(frame, skills, exos, skill_index, None, true),
+            UiState::ExoSelection {
+                skill_index,
+                skills,
+                exos,
+                exo_index,
+            } => list::render_lists(frame, skills, exos, skill_index, Some(*exo_index), false),
             UiState::Help { scroll_offset, .. } => help::render_help(frame, *scroll_offset),
             UiState::Compiling { exo } => train::render_compilation(frame, &exo),
             UiState::CompileError {
