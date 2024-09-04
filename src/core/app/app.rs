@@ -123,7 +123,7 @@ impl App {
                         self.on_check_failed(check_index, diff)
                     }
                     Event::FileSaved => self.on_file_save(),
-                    Event::CompilationStart => self.go_to_compiling(),
+                    Event::CompilationStart => self.on_compilation_start(),
                     Event::CompilationEnd(success) => self.on_compilation_end(success),
                     Event::CompilationOutputLine(line) => self.on_compilation_output(line),
                     Event::RunStart(id) => self.on_run_start(id),
