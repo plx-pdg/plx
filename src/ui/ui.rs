@@ -6,7 +6,7 @@ use std::{
     },
 };
 
-use super::utils::ui_key_to_core_key;
+use super::{pages::train, utils::ui_key_to_core_key};
 use crate::{
     core::work::{work::Work, work_type::WorkType},
     models::ui_state::UiState,
@@ -54,6 +54,17 @@ impl Ui {
     fn render_frame(&self, frame: &mut Frame, state: &UiState) {
         match state {
             UiState::Home => home::render_home(frame),
+            UiState::Compiling { exo } => train::render_compilation(frame, &exo),
+            UiState::CompileError {
+                scroll_offset,
+                exo,
+                error,
+            } => train::render_compilation_error(frame, exo, scroll_offset, error),
+            UiState::CheckResults {
+                scroll_offset,
+                exo,
+                checks,
+            } => train::render_check_results(frame, exo, scroll_offset, checks),
             UiState::Quit => return,
             //TODO all other pages
             _ => {}
