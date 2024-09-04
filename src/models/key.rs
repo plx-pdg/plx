@@ -22,7 +22,7 @@ impl Key {
         match self {
             Key::Q => "Quit the TUI",
             Key::R => "Resume progress to latest or next exo",
-            Key::H => "Move left", 
+            Key::H => "Move left",
             Key::J => "Move down",
             Key::K => "Move up",
             Key::L => "Move right",
