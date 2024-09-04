@@ -21,6 +21,7 @@ dunce = "1.0.5"
 notify = "6.1.1"
 notify-debouncer-mini = "0.4.0"
 tempfile = "3.12.0"
+log = "0.4.22"
 
 [dev-dependencies]
 ntest = "0.9.3"

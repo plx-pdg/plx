@@ -474,6 +474,7 @@ dependencies = [
  "console",
  "crossterm",
  "dunce",
+ "log",
  "notify",
  "notify-debouncer-mini",
  "ntest",
