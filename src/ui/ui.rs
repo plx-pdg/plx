@@ -7,6 +7,7 @@ use std::{
 };
 
 use super::utils::ui_key_to_core_key;
+use crate::ui::pages::list;
 use crate::{
     core::work::{work::Work, work_type::WorkType},
     models::ui_state::UiState,
@@ -22,7 +23,6 @@ use ratatui::{
     Frame, Terminal,
 };
 use std::io::{self, stdout};
-use crate::ui::pages::list;
 
 pub struct Ui {
     rx: Receiver<UiState>,
@@ -59,13 +59,13 @@ impl Ui {
                 skill_index,
                 skills,
                 exos,
-            } => list::render_skills_selection(frame, skills, exos, skill_index),
+            } => list::render_lists(frame, skills, exos, skill_index, None, true),
             UiState::ExoSelection {
                 skill_index,
                 skills,
                 exos,
                 exo_index,
-            } => list::render_exos_selection(frame, skills, exos, skill_index, exo_index),
+            } => list::render_lists(frame, skills, exos, skill_index, Some(*exo_index), false),
             UiState::Quit => return,
             //TODO all other pages
             _ => {}

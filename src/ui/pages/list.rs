@@ -7,100 +7,84 @@ use ratatui::{
     text::{Line, Text},
     widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
     Frame,
-    prelude::Stylize,
 };
 use std::sync::Arc;
 
-static vertical_areas: Vec<Rect> = vec![];
-static horizontal_areas: Vec<Rect> = vec![];
+/// Define the default, selected border and selected item styles
+const DEFAULT_STYLE: Style = Style::new();
+const SELECTED_BORDER: Style = Style::new().fg(Color::Blue);
+const SELECTED_STYLE: Style = Style::new().fg(Color::Blue).add_modifier(Modifier::BOLD);
 
-
-// Define styles using functions instead of constants
-fn selected_style() -> Style {
-    Style::default().bg(Color::Blue).add_modifier(Modifier::BOLD)
-}
-
-fn normal_style() -> Style {
-    Style::default().bg(Color::Black)
-}
-
-// Main render function for skills and exos selection
-pub fn render_skills_selection(
+/// Main render function for skills and exos, can be used for SkillSelection and ExoSelection !
+pub fn render_lists(
     frame: &mut Frame,
     skills: &Arc<Vec<Skill>>,
     exos: &Arc<Vec<Exo>>,
     skill_index: &usize,
+    exo_index: Option<usize>,
+    is_skill_selection: bool,
 ) {
-    let (vertical_areas, horizontal_areas) = setup_layout(frame);
-
-    render_header(frame, *vertical_areas[0]);
+    let (skills_area, exos_area) = setup_layout(frame);
 
     render_list(
         frame,
-        *horizontal_areas[0],
+        skills_area,
         "Skills",
-        &skills.iter().map(|skill| skill.name.clone()).collect::<Vec<_>>(),
+        &skills
+            .iter()
+            .map(|skill| skill.name.clone())
+            .collect::<Vec<_>>(),
         Some(*skill_index),
+        is_skill_selection,
     );
 
     render_list(
         frame,
-        *horizontal_areas[1],
+        exos_area,
         "Exos",
         &exos.iter().map(|exo| exo.name.clone()).collect::<Vec<_>>(),
-        None,
+        exo_index,
+        !is_skill_selection,
     );
 }
 
-// Main render function for skills and exos selection with exo highlighting
-pub fn render_exos_selection(
-    frame: &mut Frame,
-    skills: &Arc<Vec<Skill>>,
-    exos: &Arc<Vec<Exo>>,
-    skill_index: &usize,
-    exo_index: &usize,
-) {
-    setup_layout(frame);
-
-    render_header(frame, *vertical_areas[0]);
-
-    render_list(
-        frame,
-        horizontal_areas[0],
-        "Skills",
-        &skills.iter().map(|skill| skill.name.clone()).collect::<Vec<_>>(),
-        None,
-    );
-
-    render_list(
-        frame,
-        horizontal_areas[1],
-        "Exos",
-        &exos.iter().map(|exo| exo.name.clone()).collect::<Vec<_>>(),
-        Some(*exo_index),
-    );
-}
-
-// Renders the header with ASCII art
+/// Renders the header with ASCII art
 fn render_header(frame: &mut Frame, area: Rect) {
     let header_text = get_gradient_line("PLX", LOGO_LEFT, LOGO_RIGHT, 3.0);
     let header = Paragraph::new(Text::from(header_text)).left_aligned();
     frame.render_widget(header, area);
 }
 
-// Renders a list of items with optional selection highlighting
-fn render_list(frame: &mut Frame, area: Rect, title: &str, items: &[String], selected_index: Option<usize>) {
+/// Renders a list of items with optional selection highlighting
+fn render_list(
+    frame: &mut Frame,
+    area: Rect,
+    title: &str,
+    items: &[String],
+    selected_index: Option<usize>,
+    active_list: bool, // change the border style when the list is active
+) {
     let list_items: Vec<ListItem> = items
         .iter()
-        .map(|item| ListItem::new(Line::from(item.clone())).style(normal_style()))
+        .map(|item| ListItem::new(Line::from(item.clone())).style(DEFAULT_STYLE))
         .collect();
 
     let mut state = ListState::default();
     state.select(selected_index);
 
     let list = List::new(list_items)
-        .block(Block::default().borders(Borders::ALL).title(title).style(normal_style()))
-        .highlight_style(selected_style())
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .border_style(if active_list {
+                    SELECTED_BORDER
+                } else {
+                    DEFAULT_STYLE
+                })
+                .title(title)
+                .style(DEFAULT_STYLE),
+        )
+        .highlight_style(SELECTED_STYLE)
         .highlight_symbol("> ");
 
     if selected_index.is_some() {
@@ -110,23 +94,24 @@ fn render_list(frame: &mut Frame, area: Rect, title: &str, items: &[String], sel
     }
 }
 
-// Sets up the layout for the frame
-fn setup_layout(frame: &mut Frame) ->  {
+/// Set up the layout for the frame, render the header, return 2 areas for the 2 list
+fn setup_layout(frame: &mut Frame) -> (Rect, Rect) {
     // Define the vertical layout of the screen
-    static vertical_areas: Vec<&Rect> = Layout::default()
+    let binding = Layout::default()
         .direction(Direction::Vertical)
-        .margin(1)
         .constraints([Constraint::Length(2), Constraint::Min(0)].as_ref())
-        .split(frame.area())
-        .into_iter()
-        .collect::<Vec<_>>();  // Explicitly specify Vec<Rect>
+        .split(frame.area());
+    let vertical = binding.into_iter().collect::<Vec<_>>(); // Explicitly specify Vec<Rect>
+
+    render_header(frame, vertical[0].clone());
 
     // Define the horizontal layout for the main content area
-    static horizontal_areas: Vec<&Rect> = Layout::default()
+    let binding = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-        .split(*vertical_areas[1])
-        .into_iter()
-        .collect::<Vec<_>>();  // Explicitly specify Vec<Rect>
+        .constraints([Constraint::Percentage(25), Constraint::Percentage(75)].as_ref())
+        .split(*vertical[1]);
+    let horizontal = binding.into_iter().collect::<Vec<_>>(); // Explicitly specify Vec<Rect>
 
+    (horizontal[0].clone(), horizontal[1].clone())
 }
+
