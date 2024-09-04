@@ -12,6 +12,7 @@ use crate::{
     models::ui_state::UiState,
 };
 use crate::{models::event::Event, ui::pages::home};
+use crossterm::event::KeyEventKind;
 use ratatui::{
     backend::CrosstermBackend,
     crossterm::{
@@ -93,8 +94,10 @@ impl Ui {
     fn handle_events(tx: &Sender<Event>) -> io::Result<()> {
         if event::poll(std::time::Duration::from_millis(50))? {
             if let CrosstermEvent::Key(key) = event::read()? {
-                if let Some(k) = ui_key_to_core_key(&key.code) {
-                    let _ = tx.send(Event::KeyPressed(k));
+                if key.kind == KeyEventKind::Press {
+                    if let Some(k) = ui_key_to_core_key(&key.code) {
+                        let _ = tx.send(Event::KeyPressed(k));
+                    }
                 }
             }
         }
