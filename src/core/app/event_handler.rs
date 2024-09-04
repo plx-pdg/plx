@@ -18,19 +18,15 @@ impl App {
             Key::P => todo!(),
             Key::E => todo!(),
             Key::Esc => self.on_esc(),
-            Key::Interrogation => self.is_on_help(Box::new(self.ui_state.clone()), 0),
+            Key::Interrogation => self.on_interrogation(Box::new(self.ui_state.clone()), 0),
         }
     }
 
     // Function to check if we're not already on the help page else we won't be able to exit.
-    pub(super) fn is_on_help(&mut self, last_state: Box<UiState>, scroll_offset: usize) {
-        if self.ui_state
-            != (UiState::Help {
-                last_state,
-                scroll_offset,
-            })
-        {
-            self.go_to_help(Box::new(self.ui_state.clone()), 0);
+    pub(super) fn on_interrogation(&mut self, last_state: Box<UiState>, scroll_offset: usize) {
+        // assert!(matches!(&self.ui_state, UiState::Help { last_state, scroll_offset}));
+        if matches!(&self.ui_state, UiState::Help { .. }) {
+            self.go_to_help(last_state, scroll_offset);
         }
     }
 
