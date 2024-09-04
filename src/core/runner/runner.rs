@@ -1,3 +1,5 @@
+use crate::core::process::process_handler::{self, ProcessStatus};
+use log::error;
 use std::{
     io::{BufRead, BufReader, Read},
     process::ExitStatus,
@@ -9,8 +11,6 @@ use std::{
     thread::{self, sleep, JoinHandle},
     time::Duration,
 };
-
-use crate::core::process::process_handler::{self, ProcessStatus};
 
 #[derive(Debug, PartialEq)]
 pub enum RunEvent {
@@ -78,7 +78,7 @@ impl Runner {
             if should_stop.load(Ordering::Relaxed) {
                 if process_handler::stop_child(&mut process).is_err() {
                     //Couldn't kill child process
-                    eprintln!("Couldn't kill child process");
+                    error!("Couldn't kill child process");
                     break None;
                 }
                 break process_handler::capture_exit_status(&mut process).ok();
