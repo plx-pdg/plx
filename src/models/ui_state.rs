@@ -3,7 +3,7 @@ use std::sync::Arc;
 use super::{check_state::CheckState, exo::Exo, skill::Skill};
 
 // The list of states and associated values for the UI to represent
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum UiState {
     Home, // Home page with ASCII art
     Quit, // Exit in progress

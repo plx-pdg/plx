@@ -18,8 +18,17 @@ impl App {
             Key::P => todo!(),
             Key::E => todo!(),
             Key::Esc => self.on_esc(),
+            Key::Interrogation => self.on_interrogation(Box::new(self.ui_state.clone()), 0),
         }
     }
+
+    // Function to check if we're not already on the help page else we won't be able to exit.
+    pub(super) fn on_interrogation(&mut self, last_state: Box<UiState>, scroll_offset: usize) {
+        if !matches!(&self.ui_state, UiState::Help { .. }) {
+            self.go_to_help(last_state, scroll_offset);
+        }
+    }
+
     pub(super) fn on_process_creation_fail(&mut self, run_id: usize, err: String) {
         if let Some(ref mut cr) = self.current_run {
             if run_id < cr.check_results.len() {

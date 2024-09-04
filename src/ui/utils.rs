@@ -39,6 +39,7 @@ pub fn ui_key_to_core_key(key: &KeyCode) -> Option<Key> {
         KeyCode::Char('l') | KeyCode::Right => Some(Key::L),
         KeyCode::Enter => Some(Key::Enter),
         KeyCode::Esc => Some(Key::Esc),
+        KeyCode::Char('?') => Some(Key::Interrogation),
         _ => None,
     }
 }

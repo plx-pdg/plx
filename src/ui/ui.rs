@@ -6,8 +6,7 @@ use std::{
     },
 };
 
-use super::utils::ui_key_to_core_key;
-use crate::ui::pages::list;
+use super::{pages::help, pages::list, pages::train, utils::ui_key_to_core_key};
 use crate::{
     core::work::{work::Work, work_type::WorkType},
     models::ui_state::UiState,
@@ -66,6 +65,18 @@ impl Ui {
                 exos,
                 exo_index,
             } => list::render_lists(frame, skills, exos, skill_index, Some(*exo_index), false),
+            UiState::Help { scroll_offset, .. } => help::render_help(frame, *scroll_offset),
+            UiState::Compiling { exo } => train::render_compilation(frame, &exo),
+            UiState::CompileError {
+                scroll_offset,
+                exo,
+                error,
+            } => train::render_compilation_error(frame, exo, scroll_offset, error),
+            UiState::CheckResults {
+                scroll_offset,
+                exo,
+                checks,
+            } => train::render_check_results(frame, exo, scroll_offset, checks),
             UiState::Quit => return,
             //TODO all other pages
             _ => {}
