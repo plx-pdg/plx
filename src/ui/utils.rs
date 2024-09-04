@@ -1,13 +1,14 @@
+use crate::models::key::Key;
 use crossterm::event::KeyCode;
+use ratatui::widgets::Paragraph;
 /// Utilities like constant, small functions and other UI rendering things for Ratatui
 /// shared across multiple pages
 use ratatui::{
     layout::{Constraint, Flex, Layout, Rect},
     style::{Color, Stylize},
     text::{Line, Span, Text},
+    Frame,
 };
-
-use crate::models::key::Key;
 
 // CONSTANTS
 
@@ -79,4 +80,11 @@ pub fn center(area: Rect, horizontal: Constraint, vertical: Constraint) -> Rect 
         .areas(area);
     let [area] = Layout::vertical([vertical]).flex(Flex::Center).areas(area);
     area
+}
+
+/// Renders the header with ASCII art
+pub(crate) fn render_header(frame: &mut Frame, area: Rect) {
+    let header_text = get_gradient_line("PLX", LOGO_LEFT, LOGO_RIGHT, 3.0);
+    let header = Paragraph::new(Text::from(header_text)).left_aligned();
+    frame.render_widget(header, area);
 }

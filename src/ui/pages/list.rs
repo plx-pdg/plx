@@ -1,6 +1,6 @@
 use crate::models::exo::Exo;
 use crate::models::skill::Skill;
-use crate::ui::utils::{get_gradient_line, LOGO_LEFT, LOGO_RIGHT};
+use crate::ui::utils::{get_gradient_line, render_header, LOGO_LEFT, LOGO_RIGHT};
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
@@ -46,13 +46,6 @@ pub fn render_lists(
         exo_index,
         !is_skill_selection,
     );
-}
-
-/// Renders the header with ASCII art
-fn render_header(frame: &mut Frame, area: Rect) {
-    let header_text = get_gradient_line("PLX", LOGO_LEFT, LOGO_RIGHT, 3.0);
-    let header = Paragraph::new(Text::from(header_text)).left_aligned();
-    frame.render_widget(header, area);
 }
 
 /// Renders a list of items with optional selection highlighting
