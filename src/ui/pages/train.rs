@@ -103,7 +103,7 @@ pub fn render_check_results(
 }
 
 // The common top part with exo name and instruction
-fn render_common_top(lines: &mut Vec<Line>, exo: &Arc<Exo>) {
+pub fn render_exo(lines: &mut Vec<Line>, exo: &Arc<Exo>, include_exo_files: bool) {
     lines.push(Line::from(exo.name.clone()).cyan().bold());
     if let Some(instr) = &exo.instruction {
         // Make sure each line has a real Line because newlines are dropped otherwise
@@ -112,12 +112,27 @@ fn render_common_top(lines: &mut Vec<Line>, exo: &Arc<Exo>) {
             .lines()
             .for_each(|l| lines.push(Line::from(l.to_string()).magenta()));
     }
+    if !include_exo_files {
+        return;
+    }
+    lines.push(Line::default());
+    lines.push(Line::from("Exo files").cyan().bold());
+    exo.files.clone().iter().for_each(|f| {
+        lines.push(Line::from(
+            f.file_name()
+                .unwrap_or_default()
+                .to_os_string() // TODO: why do we need to do this ? We unwrapped
+                // Option<OsStr> and we don't have access to into_string() ????
+                .into_string()
+                .unwrap_or_default(), //TODO: how can we do this in less code ??
+        ))
+    });
 }
 
 // Render final page with the common top and specific bottom
 fn render_train(frame: &mut Frame, exo: &Arc<Exo>, bottom: Vec<Line>) {
     let mut lines: Vec<Line> = vec![];
-    render_common_top(&mut lines, exo);
+    render_exo(&mut lines, exo, false);
     lines.push(Line::default());
     bottom.iter().for_each(|l| lines.push(l.clone()));
     let zone = Paragraph::new(Text::from(lines)).wrap(Wrap { trim: true });

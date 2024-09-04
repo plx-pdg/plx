@@ -54,6 +54,7 @@ impl Ui {
     fn render_frame(&self, frame: &mut Frame, state: &UiState) {
         match state {
             UiState::Home => home::render_home(frame),
+            UiState::Help { scroll_offset, .. } => help::render_help(frame, *scroll_offset),
             UiState::SkillSelection {
                 skill_index,
                 skills,
@@ -65,7 +66,13 @@ impl Ui {
                 exos,
                 exo_index,
             } => list::render_lists(frame, skills, exos, skill_index, Some(*exo_index), false),
-            UiState::Help { scroll_offset, .. } => help::render_help(frame, *scroll_offset),
+            UiState::ExoPreview {
+                skill_index,
+                exo_index,
+                skills,
+                exos,
+                exo, //TODO: we access exo via exos[exo_index] so maybe we should remove this from the case ?
+            } => list::render_preview(frame, skills, exos, skill_index, *exo_index),
             UiState::Compiling { exo } => train::render_compilation(frame, &exo),
             UiState::CompileError {
                 scroll_offset,
