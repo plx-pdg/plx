@@ -3,7 +3,11 @@
 /// that generate the render_common_top() to show exo metadata that should be always visible
 use std::sync::Arc;
 
-use crate::models::{check::CheckTest, check_state::CheckState, exo::Exo};
+use crate::models::{
+    check::CheckTest,
+    check_state::{CheckState, CheckStatus},
+    exo::Exo,
+};
 use ratatui::{
     style::{Color, Stylize},
     text::{Line, Span, Text},
@@ -53,7 +57,10 @@ pub fn render_check_results(
 ) {
     // Show the Check results title
     let mut bottom: Vec<Line> = vec![];
-    let passed_checks_count = checks.iter().filter(|c| c.passed).count();
+    let passed_checks_count = checks
+        .iter()
+        .filter(|c| c.status == CheckStatus::Passed)
+        .count();
     bottom.push(
         Line::from(format!(
             "Check results - {}/{} passed",
@@ -66,7 +73,7 @@ pub fn render_check_results(
 
     // Show each check name + details
     for (i, check_state) in checks.iter().enumerate() {
-        let color = if check_state.passed {
+        let color = if check_state.status == CheckStatus::Passed {
             Color::Green
         } else {
             Color::Red
@@ -76,7 +83,7 @@ pub fn render_check_results(
                 .fg(color)
                 .bold(),
         ));
-        if check_state.passed {
+        if check_state.status == CheckStatus::Passed {
             continue;
         }
         if !check_state.check.args.is_empty() {
