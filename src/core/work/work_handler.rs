@@ -8,6 +8,8 @@ use std::{
     thread::{self, JoinHandle},
 };
 
+use log::info;
+
 use crate::models::event::Event;
 
 use super::{
@@ -21,6 +23,7 @@ pub(crate) enum WorkEvent {
     Stop(usize),
 }
 struct WorkInfo {
+    id: usize,
     work: WorkType,
     should_stop: Arc<AtomicBool>,
     join_handle: JoinHandle<()>,
@@ -33,8 +36,14 @@ pub struct WorkHandler {
     work_id: usize,
 }
 impl WorkInfo {
-    fn new(work: WorkType, should_stop: Arc<AtomicBool>, join_handle: JoinHandle<()>) -> Self {
+    fn new(
+        id: usize,
+        work: WorkType,
+        should_stop: Arc<AtomicBool>,
+        join_handle: JoinHandle<()>,
+    ) -> Self {
         WorkInfo {
+            id,
             work,
             should_stop,
             join_handle,
@@ -78,7 +87,7 @@ impl WorkHandler {
         );
         let join_handle = worker.run_on_separate_thread();
         self.workers
-            .insert(id, WorkInfo::new(work_type, stop, join_handle));
+            .insert(id, WorkInfo::new(id, work_type, stop, join_handle));
         id
     }
 
@@ -119,11 +128,13 @@ impl WorkHandler {
         let workers: Vec<_> = self.workers.drain().map(|(_, worker)| worker).collect();
 
         for worker in workers {
+            info!("Join {} {:#?}", worker.id, worker.work);
             worker.join(); // join here
         }
     }
 
     fn remove_worker(&mut self, id: usize) {
+        info!("Remove {}", id);
         self.workers.remove(&id);
     }
     pub fn clean_non_ui_workers(&mut self) {
@@ -156,10 +167,9 @@ mod tests {
         let mut last_id: Option<usize> = None;
         for _ in 0..10 {
             if let Ok(mut handler) = handler.lock() {
-                let id = handler.spawn_worker(Box::new(EditorOpener::new(
-                    "echo".to_string(),
-                    "null".into(),
-                )));
+                let id = handler.spawn_worker(Box::new(
+                    EditorOpener::new("echo".to_string(), "null".into()).unwrap(),
+                ));
                 if last_id.is_none() {
                     last_id = Some(id);
                 } else {
@@ -174,10 +184,9 @@ mod tests {
         let handler = WorkHandler::new(tx.clone());
 
         if let Ok(mut handler) = handler.lock() {
-            let id = handler.spawn_worker(Box::new(EditorOpener::new(
-                "echo".to_string(),
-                "null".into(),
-            )));
+            let id = handler.spawn_worker(Box::new(
+                EditorOpener::new("echo".to_string(), "null".into()).unwrap(),
+            ));
 
             assert!(handler.workers.contains_key(&id));
             assert!(!handler
@@ -198,10 +207,9 @@ mod tests {
         let handler = WorkHandler::new(tx.clone());
 
         if let Ok(mut handler) = handler.lock() {
-            let id = handler.spawn_worker(Box::new(EditorOpener::new(
-                "echo".to_string(),
-                "null".into(),
-            )));
+            let id = handler.spawn_worker(Box::new(
+                EditorOpener::new("echo".to_string(), "null".into()).unwrap(),
+            ));
             let stop = handler.workers.get(&id).unwrap().should_stop.clone();
             handler.stop_worker(id);
             assert!(!handler.workers.contains_key(&id));
@@ -217,10 +225,9 @@ mod tests {
         if let Ok(mut handler) = handler.lock() {
             let range = 10;
             for _ in 0..range {
-                let _ = handler.spawn_worker(Box::new(EditorOpener::new(
-                    "echo".to_string(),
-                    "null".into(),
-                )));
+                let _ = handler.spawn_worker(Box::new(
+                    EditorOpener::new("echo".to_string(), "null".into()).unwrap(),
+                ));
             }
             let stop_flags: Vec<Arc<AtomicBool>> = handler
                 .workers
@@ -245,10 +252,9 @@ mod tests {
         if let Ok(mut handler) = handler.lock() {
             let range = 10;
             for _ in 0..range {
-                let _ = handler.spawn_worker(Box::new(EditorOpener::new(
-                    "echo".to_string(),
-                    "null".into(),
-                )));
+                let _ = handler.spawn_worker(Box::new(
+                    EditorOpener::new("echo".to_string(), "null".into()).unwrap(),
+                ));
             }
             let stop_flags: Vec<Arc<AtomicBool>> = handler
                 .workers
