@@ -47,5 +47,8 @@ pub enum UiState {
     ShowSolution {
         scroll_offset: usize,
         exo: Arc<Exo>,
+        solution: String,
+        solution_path: std::path::PathBuf,
+        solution_idx: usize,
     },
 }

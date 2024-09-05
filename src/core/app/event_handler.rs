@@ -14,9 +14,9 @@ impl App {
             Key::J => self.on_j(),
             Key::K => self.on_k(),
             Key::L | Key::Enter => self.on_l(),
-            Key::N => todo!(),
-            Key::P => todo!(),
-            Key::E => todo!(),
+            Key::N => self.on_n(),
+            Key::P => self.on_p(),
+            Key::E => {}
             Key::Esc => self.on_esc(),
             Key::Interrogation => self.on_interrogation(Box::new(self.ui_state.clone()), 0),
         }
