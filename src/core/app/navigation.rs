@@ -28,7 +28,6 @@ impl App {
         match self.ui_state {
             UiState::ExoSelection { .. } => self.go_to_exo_selection(),
             UiState::ExoPreview { .. } => self.go_to_exo_preview(),
-            UiState::ShowSolution { .. } => self.go_to_compiling(),
             _ => {}
         };
     }
