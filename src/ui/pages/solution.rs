@@ -1,3 +1,4 @@
+use crate::models::exo::Exo;
 use crate::ui::utils::{get_gradient_line, render_header, LOGO_LEFT, LOGO_RIGHT};
 use ratatui::prelude::Span;
 use ratatui::{
@@ -14,7 +15,13 @@ use syntect::highlighting::{Style as SyntectStyle, ThemeSet};
 use syntect::parsing::SyntaxSet;
 use syntect::util::LinesWithEndings;
 
-pub fn render_solution(frame: &mut Frame, code: String) {
+pub fn render_solution(
+    frame: &mut Frame,
+    exo: &Arc<Exo>,
+    solution: &String,
+    solution_path: &PathBuf,
+    solution_idx: &usize,
+) {
     let binding = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(2), Constraint::Min(0)].as_ref())
@@ -22,17 +29,6 @@ pub fn render_solution(frame: &mut Frame, code: String) {
     let vertical = binding.into_iter().collect::<Vec<_>>(); // Explicitly specify Vec<Rect>
 
     render_header(frame, vertical[0].clone());
-
-    let code = String::from(
-        "#include <stdio.h>
-
-int main(int argc, char *argv[]) {
-  if (argc < 3)
-    printf(\"Error: missing argument firstname and legs number\");
-  else
-    printf(\"The dog is %s and has %s legs\\n\", argv[1], argv[2]);
-}",
-    );
 
     let syntax_set = SyntaxSet::load_defaults_newlines();
     let theme_set = ThemeSet::load_defaults();
@@ -42,7 +38,7 @@ int main(int argc, char *argv[]) {
     let mut highlighted_lines: Vec<Line> = Vec::new();
 
     // Highlight each line of the code
-    for line in LinesWithEndings::from(&code) {
+    for line in LinesWithEndings::from(&solution) {
         // Highlight the line
         let ranges: Vec<(SyntectStyle, &str)> =
             highlighter.highlight_line(line, &syntax_set).unwrap();
