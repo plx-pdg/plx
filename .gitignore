@@ -2,3 +2,4 @@
 examples/*/build
 debug.log
 *.exo-state.toml
+*.course-state.toml
