@@ -51,12 +51,13 @@ impl FromDir for Exo {
         let mut warnings = Vec::new();
         let exo_info_file = dir.join(EXO_INFO_FILE);
         let exo_state_file = dir.join(EXO_STATE_FILE);
-        let exo_info = parser::object_creator::create_from_file::<ExoInfo>(&exo_info_file)
+        let exo_info = parser::object_creator::create_object_from_file::<ExoInfo>(&exo_info_file)
             .map_err(|err| (err, vec![]))?;
 
         // If the exo hasn't been started, the state file won't exist
-        let exo_state = parser::object_creator::create_from_file::<ExoStateInfo>(&exo_state_file)
-            .unwrap_or_default();
+        let exo_state =
+            parser::object_creator::create_object_from_file::<ExoStateInfo>(&exo_state_file)
+                .unwrap_or_default();
 
         // Get all the dir files and find the exo and solution files
         let files = list_dir_files(&dir)

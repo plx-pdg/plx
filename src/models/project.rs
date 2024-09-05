@@ -4,7 +4,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::core::{
     file_utils::file_parser::{ParseError, ParseWarning},
-    parser::{from_dir::FromDir, object_creator},
+    parser::{
+        from_dir::FromDir,
+        object_creator::{self, write_object_to_file},
+    },
 };
 
 use super::{
@@ -120,10 +123,11 @@ impl FromDir for Project {
         // TODO magic value maybe change this
         let course_info_file = dir.join(COURSE_INFO_FILE);
         let course_state_file = dir.join(COURSE_STATE_FILE);
-        let course_info = object_creator::create_from_file::<ProjectInfo>(&course_info_file)
+        let course_info = object_creator::create_object_from_file::<ProjectInfo>(&course_info_file)
             .map_err(|err| (err, vec![]))?;
-        let project_state = object_creator::create_from_file::<ProjectState>(&course_state_file)
-            .unwrap_or_default();
+        let project_state =
+            object_creator::create_object_from_file::<ProjectState>(&course_state_file)
+                .unwrap_or_default();
 
         // Using the skill folders found in the course.toml file, parse every skill
         // /!\ Folders not found in the course.toml file are ignored /!\

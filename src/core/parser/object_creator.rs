@@ -9,7 +9,7 @@ use crate::core::file_utils::{
 
 use super::toml_parser;
 
-pub fn create_from_file<T>(path: &std::path::PathBuf) -> Result<T, ParseError>
+pub fn create_object_from_file<T>(path: &std::path::PathBuf) -> Result<T, ParseError>
 where
     T: DeserializeOwned,
 {
