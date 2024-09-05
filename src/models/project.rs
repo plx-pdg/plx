@@ -76,12 +76,13 @@ impl Project {
 
     pub fn prev_skill(&mut self, wrap: bool) {
         if self.is_first_skill() {
-            self.state.curr_skill_idx = self.skills.len() - 1;
-            self.state.curr_exo_idx = 0;
-        } else if wrap {
+            if wrap {
+                self.state.curr_skill_idx = self.skills.len() - 1;
+            }
+        } else {
             self.state.curr_skill_idx -= 1;
-            self.state.curr_exo_idx = 0;
         }
+        self.state.curr_exo_idx = 0;
     }
 
     pub fn next_exo(&mut self, wrap: bool) {
@@ -99,11 +100,10 @@ impl Project {
     pub fn next_skill(&mut self, wrap: bool) {
         if !self.is_last_skill() {
             self.state.curr_skill_idx += 1;
-            self.state.curr_exo_idx = 0;
         } else if wrap {
             self.state.curr_skill_idx = 0;
-            self.state.curr_exo_idx = 0;
         }
+        self.state.curr_exo_idx = 0;
     }
 }
 

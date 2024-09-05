@@ -56,6 +56,7 @@ impl Ui {
     fn render_frame(&self, frame: &mut Frame, state: &UiState) {
         match state {
             UiState::Home => home::render_home(frame),
+            UiState::Help { scroll_offset, .. } => help::render_help(frame, *scroll_offset),
             UiState::SkillSelection {
                 skill_index,
                 skills,
@@ -67,7 +68,13 @@ impl Ui {
                 exos,
                 exo_index,
             } => list::render_lists(frame, skills, exos, skill_index, Some(*exo_index), false),
-            UiState::Help { scroll_offset, .. } => help::render_help(frame, *scroll_offset),
+            UiState::ExoPreview {
+                skill_index,
+                exo_index,
+                skills,
+                exos,
+                exo, //TODO: we access exo via exos[exo_index] so maybe we should remove this from the case ?
+            } => list::render_preview(frame, skills, exos, skill_index, *exo_index),
             UiState::Compiling { exo } => train::render_compilation(frame, &exo),
             UiState::CompileError {
                 scroll_offset,
@@ -91,8 +98,10 @@ impl Ui {
     fn handle_events(tx: &Sender<Event>) -> io::Result<()> {
         if event::poll(std::time::Duration::from_millis(50))? {
             if let CrosstermEvent::Key(key) = event::read()? {
-                if let Some(k) = ui_key_to_core_key(&key.code) {
-                    let _ = tx.send(Event::KeyPressed(k));
+                if key.kind == KeyEventKind::Press {
+                    if let Some(k) = ui_key_to_core_key(&key.code) {
+                        let _ = tx.send(Event::KeyPressed(k));
+                    }
                 }
             }
         }

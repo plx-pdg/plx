@@ -88,3 +88,14 @@ pub(crate) fn render_header(frame: &mut Frame, area: Rect) {
     let header = Paragraph::new(Text::from(header_text)).left_aligned();
     frame.render_widget(header, area);
 }
+
+// From ratatui example app: https://ratatui.rs/examples/apps/popup/
+// We might change to a custom Popup Widget if we need more widgets, see more on https://ratatui.rs/recipes/render/overwrite-regions/
+/// Helper function to create a centered rect using up certain percentage of the available rect `r`
+pub fn popup_area(area: Rect, percent_x: u16, percent_y: u16) -> Rect {
+    let vertical = Layout::vertical([Constraint::Percentage(percent_y)]).flex(Flex::Center);
+    let horizontal = Layout::horizontal([Constraint::Percentage(percent_x)]).flex(Flex::Center);
+    let [area] = vertical.areas(area);
+    let [area] = horizontal.areas(area);
+    area
+}

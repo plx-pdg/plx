@@ -22,6 +22,7 @@ impl CompileRunner {
         let mut args = compiler.args(&exo.files);
         match output_path.to_str() {
             Some(path) => {
+                args.push(String::from("-fdiagnostics-color=always"));
                 args.push(String::from("-o"));
                 args.push(String::from(path));
             }
