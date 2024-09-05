@@ -14,7 +14,7 @@ where
     T: DeserializeOwned,
 {
     let file_content = read_file(path).map_err(|err| ParseError::ReadFileError(err.to_string()))?;
-    let me = toml_parser::read_from_toml(&file_content)
+    let me = toml_parser::toml_deserialize(&file_content)
         .map_err(|err| ParseError::ParseError(err.to_string()))?;
     Ok(me)
 }

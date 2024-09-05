@@ -1,4 +1,4 @@
-pub fn read_from_toml<T>(txt: &str) -> Result<T, toml::de::Error>
+pub fn toml_deserialize<T>(txt: &str) -> Result<T, toml::de::Error>
 where
     T: serde::de::DeserializeOwned,
 {
