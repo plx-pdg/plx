@@ -7,6 +7,7 @@ use std::{
 };
 
 use super::{pages::help, pages::list, pages::train, utils::ui_key_to_core_key};
+use crate::ui::pages::solution;
 use crate::{
     core::work::{work::Work, work_type::WorkType},
     models::ui_state::UiState,
@@ -85,6 +86,13 @@ impl Ui {
                 exo,
                 checks,
             } => train::render_check_results(frame, exo, scroll_offset, checks),
+            UiState::ShowSolution {
+                scroll_offset,
+                exo,
+                solution,
+                solution_path,
+                solution_idx,
+            } => solution::render_solution(frame, exo, solution, solution_path, solution_idx),
             UiState::Quit => return,
             //TODO all other pages
             _ => {}
