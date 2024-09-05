@@ -133,7 +133,7 @@ impl App {
             } => {
                 let exo = self.current_exo();
                 if *solution_idx < exo.solutions.len() - 1 {
-                    let solution_idx = *solution_idx - 1;
+                    let solution_idx = *solution_idx + 1;
                     self.go_to_solution(*scroll_offset, solution_idx);
                 }
             }
