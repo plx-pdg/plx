@@ -7,11 +7,13 @@ use std::{
 };
 
 use super::{pages::help, pages::list, pages::train, utils::ui_key_to_core_key};
+use crate::ui::pages::solution;
 use crate::{
     core::work::{work::Work, work_type::WorkType},
     models::ui_state::UiState,
 };
 use crate::{models::event::Event, ui::pages::home};
+use crossterm::event::KeyEventKind;
 use ratatui::{
     backend::CrosstermBackend,
     crossterm::{
@@ -77,6 +79,9 @@ impl Ui {
                 exo,
                 checks,
             } => train::render_check_results(frame, exo, scroll_offset, checks),
+            UiState::ShowSolution { scroll_offset, exo } => {
+                solution::render_solution(frame, "".to_string())
+            }
             UiState::Quit => return,
             //TODO all other pages
             _ => {}
