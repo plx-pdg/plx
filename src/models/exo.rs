@@ -24,9 +24,9 @@ struct ExoInfo {
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
-struct ExoStateInfo {
-    state: ExoState,
-    favorite: bool,
+pub(super) struct ExoStateInfo {
+    pub(super) state: ExoState,
+    pub(super) favorite: bool,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -198,25 +198,6 @@ impl Exo {
             }
         }
         compiler
-    }
-    fn on_state_info_change(&self) {
-        let info = ExoStateInfo {
-            state: self.state.clone(),
-            favorite: self.favorite,
-        };
-        if let Err(err) = write_object_to_file(&self.folder.join(EXO_STATE_FILE), info) {
-            warn!("Couldn't save exo state to file {:?}", err);
-        }
-    }
-    pub fn set_state(&mut self, state: ExoState) {
-        self.state = state;
-        self.on_state_info_change();
-    }
-    pub fn set_favorite(&mut self, status: bool) {
-        if self.favorite != status {
-            self.favorite = status;
-            self.on_state_info_change();
-        }
     }
 }
 

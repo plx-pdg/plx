@@ -7,13 +7,14 @@ use crate::core::{
     file_utils::file_parser::{ParseError, ParseWarning},
     parser::{
         from_dir::FromDir,
-        object_creator::{self, write_object_to_file},
+        object_creator::{self, create_object_from_file, write_object_to_file},
     },
 };
 
 use super::{
-    constants::{COURSE_INFO_FILE, COURSE_STATE_FILE},
-    exo::Exo,
+    constants::{COURSE_INFO_FILE, COURSE_STATE_FILE, EXO_STATE_FILE},
+    exo::{Exo, ExoStateInfo},
+    exo_state::ExoState,
     skill::Skill,
 };
 
@@ -115,6 +116,25 @@ impl Project {
             self.set_curr_skill(0);
         }
         self.set_curr_exo(0);
+    }
+    fn save_exo_state(exo: &Exo, info: &ExoStateInfo) {
+        if let Err(err) = write_object_to_file(&exo.folder.join(EXO_STATE_FILE), info) {
+            warn!("Couldn't save exo state {:?}", err);
+        }
+    }
+    fn read_exo_state_info(exo: &Exo) -> ExoStateInfo {
+        create_object_from_file::<ExoStateInfo>(&exo.folder.join(EXO_STATE_FILE))
+            .unwrap_or_default()
+    }
+    pub fn set_exo_state(exo: &Exo, state: ExoState) {
+        let mut info = Project::read_exo_state_info(exo);
+        info.state = state;
+        Project::save_exo_state(exo, &info);
+    }
+    pub fn set_exo_favorite(exo: &Exo, is_favorite: bool) {
+        let mut info = Project::read_exo_state_info(exo);
+        info.favorite = is_favorite;
+        Project::save_exo_state(exo, &info);
     }
 }
 
