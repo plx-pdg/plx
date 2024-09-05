@@ -2,7 +2,10 @@ use log::{error, warn};
 
 use crate::{
     core::diff::diff::Diff,
-    models::{check::CheckTest, check_state::CheckStatus, key::Key, ui_state::UiState},
+    models::{
+        check::CheckTest, check_state::CheckStatus, exo_state::ExoState, key::Key,
+        project::Project, ui_state::UiState,
+    },
 };
 
 use super::app::App;
@@ -59,6 +62,7 @@ impl App {
                 UiState::CheckResults { scroll_offset, .. } => scroll_offset,
                 _ => 0,
             };
+            Project::set_exo_state(&cr.exo, ExoState::InProgress);
             self.go_to_check_results(scroll_offset, cr.to_vec_check_state());
         }
     }

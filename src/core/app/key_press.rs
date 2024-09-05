@@ -1,6 +1,6 @@
 use log::error;
 
-use crate::models::ui_state::UiState;
+use crate::models::{exo_state::ExoState, project::Project, ui_state::UiState};
 
 use super::app::App;
 
@@ -103,8 +103,9 @@ impl App {
                     error!("Could not launch exo {}", err);
                 }
             },
-            UiState::CheckResults { checks, .. } => {
+            UiState::CheckResults { checks, exo, .. } => {
                 if App::all_checks_passed(checks) {
+                    Project::set_exo_state(exo, ExoState::Done);
                     self.go_to_solution(0, 0);
                 }
             }
@@ -140,8 +141,9 @@ impl App {
                 }
             }
 
-            UiState::CheckResults { checks, .. } => {
+            UiState::CheckResults { checks, exo, .. } => {
                 if App::all_checks_passed(checks) {
+                    Project::set_exo_state(exo, ExoState::Done);
                     self.go_to_solution(0, 0);
                 }
             }
@@ -162,8 +164,9 @@ impl App {
                 }
             }
 
-            UiState::CheckResults { checks, .. } => {
+            UiState::CheckResults { checks, exo, .. } => {
                 if App::all_checks_passed(checks) {
+                    Project::set_exo_state(exo, ExoState::Done);
                     self.go_to_solution(0, 0);
                 }
             }
