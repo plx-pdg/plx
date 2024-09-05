@@ -43,6 +43,7 @@ impl Work for CompileRunner {
         while let Ok(msg) = runner_rx.recv() {
             let send = match msg {
                 RunEvent::ProcessCreationFailed(_) => {
+                    let _ = tx.send(Event::CompilationEnd(false));
                     return false;
                 }
                 RunEvent::ProcessCreated => tx.send(Event::CompilationStart),
