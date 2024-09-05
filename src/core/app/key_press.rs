@@ -93,7 +93,7 @@ impl App {
             }
             UiState::CheckResults { checks, .. } => {
                 if App::all_checks_passed(checks) {
-                    self.go_to_solution(0);
+                    self.go_to_solution(0, 0);
                 }
             }
             UiState::ShowSolution { .. } => {

@@ -53,7 +53,9 @@ impl App {
             UiState::CheckResults { checks, .. } => {
                 self.go_to_check_results(scroll_offset, checks.clone())
             }
-            UiState::ShowSolution { .. } => self.go_to_solution(scroll_offset),
+            UiState::ShowSolution { solution_idx, .. } => {
+                self.go_to_solution(scroll_offset, *solution_idx)
+            }
             _ => {}
         }
     }
