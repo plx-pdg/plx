@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use log::warn;
 use serde::{Deserialize, Serialize};
 
 use crate::core::{
@@ -58,49 +59,62 @@ impl Project {
         self.state.curr_exo_idx == self.skills[self.state.curr_skill_idx].exos.len() - 1
     }
 
+    fn save_state(&self) {
+        if let Err(err) = write_object_to_file(&self.folder.join(COURSE_STATE_FILE), &self.state) {
+            warn!("Couldn't store project state {:?}", err);
+        }
+    }
+    fn set_curr_exo(&mut self, i: usize) {
+        self.state.curr_exo_idx = i;
+        self.save_state();
+    }
+    fn set_curr_skill(&mut self, i: usize) {
+        self.state.curr_skill_idx = i;
+        self.save_state();
+    }
     pub fn prev_exo(&mut self, wrap: bool) {
         if !self.is_first_exo() {
             self.state.curr_exo_idx -= 1
         } else if wrap {
             if !self.is_first_skill() {
-                self.state.curr_skill_idx -= 1
+                self.set_curr_skill(self.state.curr_skill_idx - 1);
             } else {
-                self.state.curr_skill_idx = self.skills.len() - 1;
+                self.set_curr_skill(self.skills.len() - 1);
             }
-            self.state.curr_exo_idx = self.skills[self.state.curr_skill_idx].exos.len() - 1;
+            self.set_curr_exo(self.skills[self.state.curr_skill_idx].exos.len() - 1);
         }
     }
 
     pub fn prev_skill(&mut self, wrap: bool) {
         if self.is_first_skill() {
             if wrap {
-                self.state.curr_skill_idx = self.skills.len() - 1;
+                self.set_curr_skill(self.skills.len() - 1);
             }
         } else {
-            self.state.curr_skill_idx -= 1;
+            self.set_curr_skill(self.state.curr_skill_idx - 1);
         }
-        self.state.curr_exo_idx = 0;
+        self.set_curr_exo(0);
     }
 
     pub fn next_exo(&mut self, wrap: bool) {
         if !self.is_last_exo() {
             self.state.curr_exo_idx += 1
         } else if wrap {
-            self.state.curr_exo_idx = 0;
+            self.set_curr_exo(0);
             if !self.is_last_skill() {
-                self.state.curr_skill_idx += 1
+                self.set_curr_skill(self.state.curr_skill_idx + 1);
             } else {
-                self.state.curr_skill_idx = 0;
+                self.set_curr_skill(0);
             }
         }
     }
     pub fn next_skill(&mut self, wrap: bool) {
         if !self.is_last_skill() {
-            self.state.curr_skill_idx += 1;
+            self.set_curr_skill(self.state.curr_skill_idx + 1);
         } else if wrap {
-            self.state.curr_skill_idx = 0;
+            self.set_curr_skill(0);
         }
-        self.state.curr_exo_idx = 0;
+        self.set_curr_exo(0);
     }
 }
 
