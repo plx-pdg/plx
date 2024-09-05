@@ -1,7 +1,7 @@
 ## Dog struct
 Petit programme qui affiche le nom d'un chien et son nombre de pattes. Affiche une erreur si des arguments manquants.
 
-Example execution:
+Example d'éxecution:
 ```sh
 > ./dog Joe 5
 Le chien est Joe et a 5 pattes
@@ -9,10 +9,20 @@ Le chien est Joe et a 5 pattes
 Erreur: arguments manquants
 ```
 
+Code de départ
+```cpp
+#include <iostream>
+using namespace std;
+
+int main(int argc, char *argv[]) {
+  // "Erreur: arguments manquants" << endl;
+}
+```
+
 <details>
 <summary>Solution</summary>
 
-```c
+```cpp
 #include <iostream>
 using namespace std;
 
