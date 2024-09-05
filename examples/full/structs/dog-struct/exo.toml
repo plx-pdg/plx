@@ -1,0 +1,13 @@
+name = 'Dog struct'
+instruction = "Petit programme qui affiche le nom d'un chien et son nombre de pattes. Affiche une erreur si des arguments manquants."
+[[checks]]
+name = 'Joe + 5 jambes'
+args = ["Joe", "5"]
+test = { type = "output", expected = "Le chien est Joe et a 5 pattes" }
+[[checks]]
+name = 'Aucun argument -> erreur'
+test = { type = "output", expected = "Erreur: arguments manquants" }
+[[checks]]
+name = 'Un argument -> erreur'
+args = ["Joe"]
+test = { type = "output", expected = "Erreur: arguments manquants" }
