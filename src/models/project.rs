@@ -41,13 +41,6 @@ impl Project {
         {
             return Some(&self.skills[self.state.curr_skill_idx].exos[self.state.curr_exo_idx]);
         }
-        for (idx, skill) in self.skills.iter().enumerate() {
-            if let Some((exo_idx, exo)) = skill.get_next_todo_exo() {
-                self.state.curr_skill_idx = idx;
-                self.state.curr_exo_idx = exo_idx;
-                return Some(exo);
-            }
-        }
         None
     }
     fn is_first_skill(&self) -> bool {
