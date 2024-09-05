@@ -21,6 +21,7 @@ pub struct Project {
     pub(crate) name: String,
     pub(crate) skills: Arc<Vec<Skill>>,
     pub(crate) state: ProjectState,
+    folder: std::path::PathBuf,
 }
 
 #[derive(Serialize, Deserialize, Default, PartialEq, Eq, Debug)]
@@ -160,6 +161,7 @@ impl FromDir for Project {
                     name: course_info.name,
                     skills: Arc::new(skills),
                     state: project_state,
+                    folder: dir.to_path_buf(),
                 },
                 warnings,
             ))
@@ -196,6 +198,7 @@ mod tests {
         let project = Project::from_dir(&project_path);
         let expected  = Project {
             name: String::from("Full fictive course"),
+            folder: project_path.clone(),
             skills: Arc::new(vec![
                 Skill {
                     name: String::from("Introduction"),
