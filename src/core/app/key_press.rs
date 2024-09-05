@@ -103,4 +103,47 @@ impl App {
             _ => {}
         }
     }
+    pub(super) fn on_p(&mut self) {
+        match &self.ui_state {
+            UiState::ShowSolution {
+                scroll_offset,
+                solution_idx,
+                ..
+            } => {
+                if *solution_idx > 0 {
+                    let solution_idx = *solution_idx - 1;
+                    self.go_to_solution(*scroll_offset, solution_idx);
+                }
+            }
+
+            UiState::CheckResults { checks, .. } => {
+                if App::all_checks_passed(checks) {
+                    self.go_to_solution(0, 0);
+                }
+            }
+            _ => {}
+        }
+    }
+    pub(super) fn on_n(&mut self) {
+        match &self.ui_state {
+            UiState::ShowSolution {
+                scroll_offset,
+                solution_idx,
+                ..
+            } => {
+                let exo = self.current_exo();
+                if *solution_idx < exo.solutions.len() - 1 {
+                    let solution_idx = *solution_idx - 1;
+                    self.go_to_solution(*scroll_offset, solution_idx);
+                }
+            }
+
+            UiState::CheckResults { checks, .. } => {
+                if App::all_checks_passed(checks) {
+                    self.go_to_solution(0, 0);
+                }
+            }
+            _ => {}
+        }
+    }
 }
