@@ -4,3 +4,10 @@ where
 {
     toml::from_str::<T>(txt)
 }
+
+pub fn toml_serialize<T>(object: &T) -> Result<String, toml::ser::Error>
+where
+    T: serde::Serialize,
+{
+    toml::to_string(object)
+}
