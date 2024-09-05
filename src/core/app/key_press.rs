@@ -1,3 +1,5 @@
+use log::error;
+
 use crate::models::ui_state::UiState;
 
 use super::app::App;
@@ -88,10 +90,19 @@ impl App {
             UiState::Home { .. } => self.go_to_skill_selection(),
             UiState::SkillSelection { .. } => self.go_to_exo_selection(),
             UiState::ExoSelection { .. } => self.go_to_exo_preview(),
-            UiState::ExoPreview { exo, .. } => {
-                self.current_run = App::start_exo(&self.work_handler, exo).ok();
-                self.go_to_compiling();
-            }
+
+            //TODO refactor this code (duplicate)
+            UiState::ExoPreview { exo, .. } => match App::start_exo(&self.work_handler, exo) {
+                Ok(cr) => {
+                    self.current_run = Some(cr);
+                    self.go_to_compiling();
+                }
+                Err(err) =>
+                //TODO send this to the ui
+                {
+                    error!("Could not launch exo {}", err);
+                }
+            },
             UiState::CheckResults { checks, .. } => {
                 if App::all_checks_passed(checks) {
                     self.go_to_solution(0, 0);
@@ -99,7 +110,19 @@ impl App {
             }
             UiState::ShowSolution { .. } => {
                 self.next_exo(true);
-                self.current_run = App::start_exo(&self.work_handler, self.current_exo()).ok();
+
+                //TODO refactor this code (duplicate)
+                match App::start_exo(&self.work_handler, self.current_exo()) {
+                    Ok(cr) => {
+                        self.current_run = Some(cr);
+                        self.go_to_compiling();
+                    }
+                    Err(err) =>
+                    //TODO send this to the ui
+                    {
+                        error!("Could not launch exo {}", err);
+                    }
+                }
             }
             _ => {}
         }

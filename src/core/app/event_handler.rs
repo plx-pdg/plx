@@ -1,3 +1,5 @@
+use log::{error, warn};
+
 use crate::{
     core::diff::diff::Diff,
     models::{check::CheckTest, check_state::CheckStatus, key::Key, ui_state::UiState},
@@ -137,7 +139,9 @@ impl App {
     }
     pub(super) fn on_file_save(&mut self) {
         if let Some(ref mut cr) = self.current_run {
-            App::compile(&self.work_handler, &cr.exo);
+            if let Err(err) = App::compile(&self.work_handler, &cr.exo) {
+                error!("Error Starting Compilation {}", err);
+            }
         }
     }
 }

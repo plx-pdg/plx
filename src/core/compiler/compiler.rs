@@ -1,5 +1,6 @@
 use crate::core::file_utils::file_utils::get_full_path;
 
+#[derive(Debug)]
 pub enum Compiler {
     Gcc,
     Gxx,

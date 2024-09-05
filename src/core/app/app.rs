@@ -16,7 +16,7 @@ use crate::{
     },
     ui::ui::Ui,
 };
-use log::info;
+use log::{error, info};
 use std::{
     path::PathBuf,
     sync::{
@@ -25,7 +25,10 @@ use std::{
     },
 };
 
-use super::exo_status_report::ExoStatusReport;
+use super::{
+    errors::{CompilationStartError, StartExoFail},
+    exo_status_report::ExoStatusReport,
+};
 
 /// App struct
 /// This holds the state of the application
@@ -97,7 +100,17 @@ impl App {
     ///
     pub(super) fn resume_last_exo(&mut self) {
         if let Some(exo) = &self.project.resume() {
-            self.current_run = App::start_exo(&self.work_handler, exo).ok();
+            //TODO refactor this code (duplicate)
+            match App::start_exo(&self.work_handler, exo) {
+                Ok(cr) => {
+                    self.current_run = Some(cr);
+                    self.go_to_compiling();
+                }
+                Err(err) => {
+                    error!("Couldn't start exo {}", err);
+                    self.go_to_skill_selection();
+                }
+            }
         } else {
             self.go_to_skill_selection();
         }
@@ -188,19 +201,33 @@ impl App {
     ///
     /// This function doesn't block, the compilation will be done using a new worker
     ///
-    /// Returns the path to the compiled file if the compilation was successful
-    /// else it returns None
-    pub(super) fn compile(wh: &Arc<Mutex<WorkHandler>>, exo: &Exo) -> Option<PathBuf> {
-        let compiler = exo.compiler()?;
-        let folder = generate_build_folder(exo).ok()?;
+    /// Returns the path to the compiled file if the compilation launch was successful
+    /// else it returns an error describing why it failed
+    pub(super) fn compile(
+        wh: &Arc<Mutex<WorkHandler>>,
+        exo: &Exo,
+    ) -> Result<PathBuf, CompilationStartError> {
+        let compiler = exo
+            .compiler()
+            .ok_or(CompilationStartError::CompilerNotSupported)?;
+        info!("Compiler: {:#?}", compiler);
+
+        let folder = generate_build_folder(exo).map_err(|err| {
+            error!("Error generation build folder ({})", err);
+            CompilationStartError::BuildFolderGenerationFailed
+        })?;
+        info!("Folder: {:#?}", folder);
         let output_path = if cfg!(windows) {
             folder.join(format!("{}.exe", TARGET_FILE_BASE_NAME))
         } else {
             folder.join(TARGET_FILE_BASE_NAME)
         };
-        let runner = CompileRunner::new(&compiler, exo, &output_path)?;
-        App::start_work(wh, Box::new(runner))?;
-        return Some(output_path);
+        let runner = CompileRunner::new(&compiler, exo, &output_path)
+            .ok_or(CompilationStartError::ErrorStartingCompileProcess)?;
+        info!("Command: {:#?}", runner.get_full_command());
+        App::start_work(wh, Box::new(runner))
+            .ok_or(CompilationStartError::ErrorStartingCompileProcess)?;
+        return Ok(output_path);
     }
 
     ///
@@ -230,11 +257,12 @@ impl App {
     pub(super) fn start_exo(
         wh: &Arc<Mutex<WorkHandler>>,
         exo: &Exo,
-    ) -> Result<ExoStatusReport, ()> {
+    ) -> Result<ExoStatusReport, StartExoFail> {
         App::cleanup_previous_run(wh);
         // Open editor, Compile exo and start watchers
-        App::open_editor(wh, exo).ok_or(())?;
-        let output_path = App::compile(wh, exo).ok_or(())?;
+        App::open_editor(wh, exo).ok_or(StartExoFail::CouldNotLaunchEditor)?;
+        let output_path =
+            App::compile(wh, exo).map_err(|err| StartExoFail::CouldNotStartCompilation(err))?;
         App::start_watcher(wh, exo);
 
         Ok(ExoStatusReport::new(exo, output_path))
