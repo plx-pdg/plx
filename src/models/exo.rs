@@ -3,6 +3,7 @@ use super::{
     constants::{EXO_INFO_FILE, EXO_STATE_FILE},
     exo_state::ExoState,
 };
+use log::warn;
 use serde::{Deserialize, Serialize};
 
 use crate::core::{
@@ -11,7 +12,7 @@ use crate::core::{
         file_parser::{ParseError, ParseWarning},
         file_utils::list_dir_files,
     },
-    parser::{self, from_dir::FromDir},
+    parser::{self, from_dir::FromDir, object_creator::write_object_to_file},
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -197,6 +198,25 @@ impl Exo {
             }
         }
         compiler
+    }
+    fn on_state_info_change(&self) {
+        let info = ExoStateInfo {
+            state: self.state.clone(),
+            favorite: self.favorite,
+        };
+        if let Err(err) = write_object_to_file(&self.folder.join(EXO_STATE_FILE), info) {
+            warn!("Couldn't save exo state to file {:?}", err);
+        }
+    }
+    pub fn set_state(&mut self, state: ExoState) {
+        self.state = state;
+        self.on_state_info_change();
+    }
+    pub fn set_favorite(&mut self, status: bool) {
+        if self.favorite != status {
+            self.favorite = status;
+            self.on_state_info_change();
+        }
     }
 }
 
