@@ -20,10 +20,6 @@ impl App {
         solution_idx: usize,
     ) -> Result<std::path::PathBuf, ()> {
         // TODO create a more explicit error type
-        if exo.solutions.is_empty() {
-            return Err(());
-        }
-
         if solution_idx >= exo.solutions.len() {
             return Err(());
         }
