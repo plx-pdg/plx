@@ -4,7 +4,7 @@ use crate::{
         compiler::compile_runner::CompileRunner,
         core_error::CoreInitError,
         editor::opener::EditorOpener,
-        file_utils::{build_folder::generate_build_folder, file_handler::current_folder},
+        file_utils::{build_folder::generate_build_folder, file_utils::current_folder},
         launcher::launcher::Launcher,
         parser::from_dir::FromDir,
         watcher::watcher::FileWatcher,
