@@ -8,7 +8,7 @@
 ###### Useful links
 [Website](https://plx.rs) -
 [WHY ?](https://plx.rs/book/why.html) -
-[Git repository of this website](https://github.com/plx-pdg/plx-pdg.github.io)
+[Git Repository of Plx website](https://github.com/plx-pdg/plx-pdg.github.io)
 
 ### Introduction
 
