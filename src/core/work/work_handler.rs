@@ -8,8 +8,6 @@ use std::{
     thread::{self, JoinHandle},
 };
 
-use log::info;
-
 use crate::models::event::Event;
 
 use super::{work::Work, work_type::WorkType, worker::Worker};
