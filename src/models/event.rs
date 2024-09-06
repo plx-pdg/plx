@@ -11,7 +11,6 @@ pub enum Event {
     CompilationEnd(bool),
     CompilationOutputLine(String),
     FileSaved,
-    ProcessOutputLine(usize, String),
     OutputCheckPassed(usize),
     OutputCheckFailed(usize, Diff),
     RunStart(usize),

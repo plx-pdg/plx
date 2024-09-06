@@ -7,6 +7,8 @@ use crate::{
 
 use super::output_checker::OutputChecker;
 
+/// Checker struct, contains necessary data to run checks
+/// Represents the checker worker
 pub struct Checker {
     id: usize,
     check: Arc<Check>,

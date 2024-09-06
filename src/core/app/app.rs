@@ -114,9 +114,6 @@ impl App {
                     Event::KeyPressed(key) => self.on_key_press(key),
                     Event::EditorOpened => {}
                     Event::CouldNotOpenEditor => {} //TODO warn the user ?
-                    Event::ProcessOutputLine(run_id, line) => {
-                        self.on_process_output_line(run_id, line)
-                    }
                     Event::OutputCheckPassed(check_index) => self.on_check_passed(check_index),
                     Event::OutputCheckFailed(check_index, diff) => {
                         info!("{}", diff.to_ansi_colors());
@@ -129,7 +126,7 @@ impl App {
                     Event::RunStart(id) => self.on_run_start(id),
                     Event::RunEnd(id) => self.on_run_end(id),
                     Event::RunOutputLine(id, line) => self.on_run_output(id, line),
-                    Event::RunFail(run_id, err) => self.on_process_creation_fail(run_id, err),
+                    Event::RunFail(run_id, err) => self.on_run_fail(run_id, err),
                 }
             }
         }

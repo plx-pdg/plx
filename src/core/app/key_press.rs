@@ -103,4 +103,11 @@ impl App {
             _ => {}
         }
     }
+    ///
+    /// Handles the '?' key press
+    pub(super) fn on_interrogation(&mut self, last_state: Box<UiState>, scroll_offset: usize) {
+        if !matches!(&self.ui_state, UiState::Help { .. }) {
+            self.go_to_help(last_state, scroll_offset);
+        }
+    }
 }

@@ -13,10 +13,17 @@ use crate::{
 };
 
 use super::compiler::Compiler;
+
+// Compile Runner
+// Represents the compilation worker
 pub struct CompileRunner {
     runner: Runner,
 }
 impl CompileRunner {
+
+    // Constructs a new compile runner
+    // No update to the output path is done, if the underlying platform is windows, `.exe` must be
+    // added to the output_path before calling this function
     pub fn new(compiler: &Compiler, exo: &Exo, output_path: &std::path::PathBuf) -> Option<Self> {
         let cmd = compiler.cmd();
         let mut args = compiler.args(&exo.files);
