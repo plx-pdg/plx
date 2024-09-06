@@ -18,7 +18,7 @@ impl App {
             Key::P => self.on_p(),
             Key::E => {}
             Key::Esc => self.on_esc(),
-            Key::Interrogation => self.on_interrogation(Box::new(self.ui_state.clone()), 0),
+            Key::Interrogation => self.on_interrogation(),
         }
     }
 
@@ -192,9 +192,10 @@ impl App {
     }
     ///
     /// Handles the '?' key press
-    pub(super) fn on_interrogation(&mut self, last_state: Box<UiState>, scroll_offset: usize) {
-        if !matches!(&self.ui_state, UiState::Help { .. }) {
-            self.go_to_help(last_state, scroll_offset);
+    pub(super) fn on_interrogation(&mut self) {
+        match &self.ui_state {
+            UiState::Help { .. } => {} // Nothing to do
+            _ => self.go_to_help(Box::new(self.ui_state.clone()), 0),
         }
     }
 }
