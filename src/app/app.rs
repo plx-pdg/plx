@@ -247,7 +247,9 @@ impl App {
     ) -> Result<ExoStatusReport, StartExoFail> {
         App::cleanup_previous_run(wh);
         // Open editor, Compile exo and start watchers
-        App::open_editor(wh, exo).ok_or(StartExoFail::CouldNotLaunchEditor)?;
+        // TODO warn user if we couldn't open editor but ignore error for now so it doesn't stop us
+        // from launching
+        let _ = App::open_editor(wh, exo); // Ignore Error while opening editor for now
         let output_path =
             App::compile(wh, exo).map_err(|err| StartExoFail::CouldNotStartCompilation(err))?;
         App::start_watcher(wh, exo);
