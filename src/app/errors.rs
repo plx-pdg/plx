@@ -23,13 +23,11 @@ impl fmt::Display for CompilationStartError {
 /// Represents a start exo error
 /// See `App::start_exo`
 pub(super) enum StartExoFail {
-    CouldNotLaunchEditor,
     CouldNotStartCompilation(CompilationStartError),
 }
 impl fmt::Display for StartExoFail {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            StartExoFail::CouldNotLaunchEditor => write!(f, "Error launching editor"),
             StartExoFail::CouldNotStartCompilation(err) => write!(f, "{}", err),
         }
     }
