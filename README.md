@@ -11,7 +11,6 @@
 [Git repository of PLX](https://github.com/plx-pdg/plx) -
 [Git repository of this website](https://github.com/plx-pdg/plx-pdg.github.io)
 
-
 ### Introduction
 
 PLX is a project developed to enhance the learning of programming languages, with a focus on a smooth and optimized learning experience. The goal of this project is to reduce the usual friction involved in completing coding exercises (such as manual compilation, running, testing, and result verification) by automating these steps.
@@ -55,7 +54,7 @@ On Linux and MacOS, you can easily change `EDITOR` just for PLX, here is an exam
 EDITOR=code plx
 ```
 
-The useful shortcuts are defined under shortcut `?`, you can mostly type `l`, `j` or `k` to move up and down, until you you reach the exo, then the editor should open and then you can do the exo (or just fill the solution next to it see `.sol.c` file), save and see changes...
+The useful shortcuts are defined under shortcut `?`, `j` or `k` to move up and down, you can mostly type `l`, until you reach the exo, then the editor should open and then you can do the exo (or just fill the solution next to it see `.sol.c` file), save and see changes...
 
 ### Building from source
 
@@ -71,7 +70,29 @@ git clone git@github.com:plx-pdg/plx.git
 cargo build --release
 ```
 
-This will install all necessary dependencies and build the program
+This will install all necessary dependencies and build the program in release mode.
+
+To run it
+```bash
+cargo run
+```
+
+**Install from source**
+```bash
+cargo install --path .
+```
+
+### Running tests
+
+```sh
+cargo test
+```
+
+### Showing Rust code documentation
+You can easily see all our code comments in a nice web page.
+```sh
+cargo doc --open
+```
 
 ### Contributing
 

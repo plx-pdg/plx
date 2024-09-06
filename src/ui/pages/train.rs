@@ -23,7 +23,7 @@ pub fn render_compilation(frame: &mut Frame, exo: &Arc<Exo>) {
     render_train(frame, exo, bottom);
 }
 
-/// Push lines with the given string taking \n as splitter, or push a "<empty>" dim line when empty
+/// Push lines with the given string taking \n as splitter, or push a `<empty>` dim line when empty
 /// We can define a prefix in front of the line
 pub fn push_each_line_or_empty_info(lines: &mut Vec<Line>, prefix: String, text: String) {
     let mut prefix = Line::from(prefix);
@@ -96,7 +96,7 @@ pub fn render_compilation_error(
 pub fn render_check_results(
     frame: &mut Frame,
     exo: &Arc<Exo>,
-    scroll_offset: &usize, //TODO: support scroll_offset
+    _scroll_offset: &usize, //TODO: support scroll_offset
     checks: &Vec<CheckState>,
 ) {
     // Show the Check results title

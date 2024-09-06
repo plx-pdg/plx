@@ -1,11 +1,11 @@
 use crate::models::exo::Exo;
-use crate::ui::utils::{get_gradient_line, render_header, LOGO_LEFT, LOGO_RIGHT};
+use crate::ui::utils::render_header;
 use ratatui::prelude::Span;
 use ratatui::{
-    layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style},
-    text::{Line, Text},
-    widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
+    layout::{Constraint, Direction, Layout},
+    style::{Color, Style},
+    text::Line,
+    widgets::{Block, Borders, Paragraph},
     Frame,
 };
 use std::path::PathBuf;
@@ -17,10 +17,10 @@ use syntect::util::LinesWithEndings;
 
 pub fn render_solution(
     frame: &mut Frame,
-    exo: &Arc<Exo>,
+    _exo: &Arc<Exo>,
     solution: &String,
-    solution_path: &PathBuf,
-    solution_idx: &usize,
+    _solution_path: &PathBuf,
+    _solution_idx: &usize,
 ) {
     let binding = Layout::default()
         .direction(Direction::Vertical)

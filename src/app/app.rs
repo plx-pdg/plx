@@ -164,7 +164,7 @@ impl App {
     /// Stops the UI
     /// Useful if we want to restart the UI
     ///
-    fn stop_ui(&mut self) {
+    fn _stop_ui(&mut self) {
         if let Ok(mut work_handler) = self.work_handler.lock() {
             work_handler.stop_workers(WorkType::Ui);
         }

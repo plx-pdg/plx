@@ -73,7 +73,7 @@ impl Ui {
                 exo_index,
                 skills,
                 exos,
-                exo, //TODO: we access exo via exos[exo_index] so maybe we should remove this from the case ?
+                ..
             } => list::render_preview(frame, skills, exos, skill_index, *exo_index),
             UiState::Compiling { exo } => train::render_compilation(frame, &exo),
             UiState::CompileError {
@@ -87,15 +87,13 @@ impl Ui {
                 checks,
             } => train::render_check_results(frame, exo, scroll_offset, checks),
             UiState::ShowSolution {
-                scroll_offset,
                 exo,
                 solution,
                 solution_path,
                 solution_idx,
+                ..
             } => solution::render_solution(frame, exo, solution, solution_path, solution_idx),
             UiState::Quit => return,
-            //TODO all other pages
-            _ => {}
         }
     }
 
