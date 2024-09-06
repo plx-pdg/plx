@@ -2,6 +2,7 @@ use crate::core::diff::diff::Diff;
 
 use super::key::Key;
 
+/// Represents every possible app event
 #[derive(Debug, PartialEq, Eq)]
 pub enum Event {
     KeyPressed(Key),

@@ -38,6 +38,8 @@ pub(crate) struct ProjectInfo {
     skill_folders: Vec<std::path::PathBuf>,
 }
 impl Project {
+    /// returns the current exo pointed by the state
+    /// This can fail if for instance the skills/exos were moved/deleted between two plx runs
     pub fn resume(&mut self) -> Option<&Exo> {
         if self.state.curr_skill_idx < self.skills.len()
             && self.state.curr_exo_idx < self.skills[self.state.curr_skill_idx].exos.len()
@@ -60,19 +62,38 @@ impl Project {
         self.state.curr_exo_idx == self.skills[self.state.curr_skill_idx].exos.len() - 1
     }
 
+    /// Saves state to file
     fn save_state(&self) {
         if let Err(err) = write_object_to_file(&self.folder.join(COURSE_STATE_FILE), &self.state) {
             warn!("Couldn't store project state {:?}", err);
         }
     }
+
+    /// Sets current exo index
+    /// This function should be used instead of assigning to curr_exo directly as it handles
+    /// storage of the project state
     fn set_curr_exo(&mut self, i: usize) {
-        self.state.curr_exo_idx = i;
-        self.save_state();
+        // Checking so we don't save the state unnecessarily
+        if self.state.curr_exo_idx != i {
+            self.state.curr_exo_idx = i;
+            self.save_state();
+        }
     }
+
+    /// Sets current skill index
+    /// This function should be used instead of assigning to curr_skill directly as it handles
+    /// storage of the project state
     fn set_curr_skill(&mut self, i: usize) {
-        self.state.curr_skill_idx = i;
-        self.save_state();
+        // Checking so we don't save the state unnecessarily
+        if self.state.curr_skill_idx != i {
+            self.state.curr_skill_idx = i;
+            self.save_state();
+        }
     }
+
+    /// Change to the previous exo
+    /// if we are already at the first exo in a skill and if wrap is set,
+    /// it will search for the last exo in the previous skill
     pub fn prev_exo(&mut self, wrap: bool) {
         if !self.is_first_exo() {
             self.state.curr_exo_idx -= 1
@@ -86,6 +107,9 @@ impl Project {
         }
     }
 
+    /// Change to the previous skill
+    /// if we are already at the first skill if wrap is set,
+    /// it will go back go to the last skill
     pub fn prev_skill(&mut self, wrap: bool) {
         if self.is_first_skill() {
             if wrap {
@@ -97,6 +121,9 @@ impl Project {
         self.set_curr_exo(0);
     }
 
+    /// Change to the next exo
+    /// if we are already at the last exo in a skill and if wrap is set,
+    /// it will search for the first exo in the next skill
     pub fn next_exo(&mut self, wrap: bool) {
         if !self.is_last_exo() {
             self.state.curr_exo_idx += 1
@@ -109,6 +136,10 @@ impl Project {
             }
         }
     }
+
+    /// Change to the next skill
+    /// if we are already at the last skill if wrap is set,
+    /// it will wrap to the first skill
     pub fn next_skill(&mut self, wrap: bool) {
         if !self.is_last_skill() {
             self.set_curr_skill(self.state.curr_skill_idx + 1);
@@ -117,20 +148,25 @@ impl Project {
         }
         self.set_curr_exo(0);
     }
+
+    /// Saves exo state to file
     fn save_exo_state(exo: &Exo, info: &ExoStateInfo) {
         if let Err(err) = write_object_to_file(&exo.folder.join(EXO_STATE_FILE), info) {
             warn!("Couldn't save exo state {:?}", err);
         }
     }
+    /// Reads current exo state from file
     fn read_exo_state_info(exo: &Exo) -> ExoStateInfo {
         create_object_from_file::<ExoStateInfo>(&exo.folder.join(EXO_STATE_FILE))
             .unwrap_or_default()
     }
+    // Set exo state and store it in file
     pub fn set_exo_state(exo: &Exo, state: ExoState) {
         let mut info = Project::read_exo_state_info(exo);
         info.state = state;
         Project::save_exo_state(exo, &info);
     }
+    // Set exo as favorite or not and store it in file
     pub fn set_exo_favorite(exo: &Exo, is_favorite: bool) {
         let mut info = Project::read_exo_state_info(exo);
         info.favorite = is_favorite;

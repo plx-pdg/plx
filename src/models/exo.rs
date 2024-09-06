@@ -3,7 +3,6 @@ use super::{
     constants::{EXO_INFO_FILE, EXO_STATE_FILE},
     exo_state::ExoState,
 };
-use log::warn;
 use serde::{Deserialize, Serialize};
 
 use crate::core::{
@@ -12,9 +11,10 @@ use crate::core::{
         file_parser::{ParseError, ParseWarning},
         file_utils::list_dir_files,
     },
-    parser::{self, from_dir::FromDir, object_creator::write_object_to_file},
+    parser::{self, from_dir::FromDir},
 };
 
+/// Contains the exo info that can be found in exo.toml
 #[derive(Serialize, Deserialize, Debug)]
 struct ExoInfo {
     name: String,
@@ -23,12 +23,14 @@ struct ExoInfo {
     checks: Vec<Check>,
 }
 
+/// Contains the exo state info that can be found in .exo-state.toml
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub(super) struct ExoStateInfo {
     pub(super) state: ExoState,
     pub(super) favorite: bool,
 }
 
+/// Represents a Plx Exo
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Exo {
     pub(crate) name: String,
@@ -41,7 +43,6 @@ pub struct Exo {
     pub(crate) folder: std::path::PathBuf,
 }
 impl FromDir for Exo {
-    ///
     /// Tries to build an exo from dir
     /// Returns Ok if we were able to get the exo info and at least 1 exo file
     /// else Error
@@ -121,6 +122,7 @@ impl Exo {
         }
         (exo_files, solution_files)
     }
+    // Check every solution file and check that it corresponds to an actual exo file
     fn check_exo_solutions(
         exo_files: &Vec<std::path::PathBuf>,
         solution_files: &Vec<std::path::PathBuf>,
@@ -171,6 +173,7 @@ impl Exo {
         }
     }
 
+    /// Tries to find a `main` file or returns the first file in the list of exo files
     pub fn get_main_file(&self) -> Option<&std::path::PathBuf> {
         match self.files.iter().find(|file| {
             if let Some(file_name) = file.file_stem() {
@@ -182,6 +185,8 @@ impl Exo {
             None => self.files.first(),
         }
     }
+
+    /// Computes the required compiler based on the file extension
     pub fn compiler(&self) -> Option<Compiler> {
         let mut compiler = None;
         for file in &self.files {
