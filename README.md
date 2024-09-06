@@ -7,12 +7,9 @@
 
 ### Introduction
 
-PLX (Practice Learning eXperience) est un projet développé pour améliorer l'apprentissage des langages de programmation, avec un focus sur une expérience utilisateur fluide et optimisée. Ce projet vise à réduire les frictions habituelles liées à la réalisation d'exercices de code (comme la compilation manuelle, les tests et la vérification des résultats) en automatisant ces étapes.
+PLX (Practice Learning eXperience) is a project developed to enhance the learning of programming languages, with a focus on a smooth and optimized user experience. The goal of this project is to reduce the usual friction involved in completing coding exercises (such as manual compilation, testing, and result verification) by automating these steps.
 
-PLX propose une interface utilisateur en texte (TUI) développée en Rust, et supporte plusieurs langages (C, C++, Java). Il permet une compilation automatique dès qu'un fichier est sauvegardé, des tests automatisés pour comparer l'output des programmes, et un affichage instantané des erreurs et différences par rapport à une solution de référence. Le projet prend inspiration de Rustlings et vise à créer une expérience d'apprentissage plus efficace, notamment pour les cours de programmation à la HEIG-VD.
-
-
-### Installation
+PLX offers a text-based user interface (TUI) developed in Rust and supports multiple languages (C, C++, Java). It enables automatic compilation as soon as a file is saved, automated tests to compare program outputs, and instant display of errors and differences compared to a reference solution. The project draws inspiration from Rustlings and aims to create a more efficient learning experience, particularly for programming courses at HEIG-VD.### Installation
 
 #### Prerequisites
 
@@ -61,4 +58,4 @@ Please take a look at some of the issues [here](https://github.com/plx-pdg/plx/i
 
 ### License
 
-Pour l'instant, nous attendons l'approbation de l'école pour pouvoir ajouter une license libre.
+We are currently waiting for our school's approval before applying an open source license.
