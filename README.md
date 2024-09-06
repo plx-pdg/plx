@@ -11,6 +11,8 @@ PLX (Practice Learning eXperience) is a project developed to enhance the learnin
 
 PLX offers a text-based user interface (TUI) developed in Rust and supports multiple languages (C, C++, Java). It enables automatic compilation as soon as a file is saved, automated tests to compare program outputs, and instant display of errors and differences compared to a reference solution. The project draws inspiration from Rustlings and aims to create a more efficient learning experience, particularly for programming courses at HEIG-VD.### Installation
 
+### Installation
+
 #### Prerequisites
 
 - [Cargo](https://www.rust-lang.org/tools/install)
@@ -21,12 +23,13 @@ Once you have cargo installed, simply run
 cargo install plx
 ```
 
+### Testing using our example folder
 
-### Usage
-
-Open your terminal in a plx folder, for instance this [example folder](./examples/full) and simply run
+Once you have plx installed, you can try it on this repo's example folder
 
 ```bash
+git clone git@github.com:plx-pdg/plx.git
+cd plx/examples/full
 plx
 ```
 
