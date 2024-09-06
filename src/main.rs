@@ -1,6 +1,7 @@
-use crate::core::app::app::App;
+use crate::app::app::App;
 use simplelog::*;
 use std::fs::File;
+pub mod app;
 pub mod core;
 pub mod models;
 pub mod ui;

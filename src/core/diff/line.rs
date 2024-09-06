@@ -3,24 +3,19 @@ use console::Style;
 use super::{diff_type::DiffType, line_chunk::LineChunk};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+//Represents a Line in a difference
 pub(super) struct Line {
-    // old_line_index: Option<usize>, // Where this line was before
-    // new_line_index: Option<usize>, // Where this line is now
     line_chunks: Vec<LineChunk>,
     missing_new_line: bool,
     difference_type: DiffType,
 }
 impl Line {
     pub(super) fn new(
-        // old_line_index: Option<usize>,
-        // new_line_index: Option<usize>,
         line_chunks: Vec<LineChunk>,
         missing_new_line: bool,
         difference_type: DiffType,
     ) -> Self {
         Self {
-            // old_line_index,
-            // new_line_index,
             line_chunks,
             missing_new_line,
             difference_type,

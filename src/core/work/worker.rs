@@ -5,6 +5,8 @@ use std::{
     sync::{atomic::AtomicBool, mpsc::Sender, Arc},
     thread::{self, JoinHandle},
 };
+
+/// Represents a worker
 pub(super) struct Worker {
     id: usize,
     work_tx: Sender<WorkEvent>,
@@ -29,6 +31,8 @@ impl Worker {
             should_stop,
         }
     }
+    /// A Helper function to create a new thread for a worker
+    /// This function consumes self so we can avoid cloning info to the thread created
     pub fn run_on_separate_thread(self) -> JoinHandle<()> {
         return thread::spawn(move || {
             self.work.run(self.tx, self.should_stop);

@@ -1,5 +1,3 @@
-use std::io;
-
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::core::file_utils::{
@@ -9,6 +7,8 @@ use crate::core::file_utils::{
 
 use super::toml_parser;
 
+/// Simplifies the object creation from a file
+/// Reads the file and parses it to type T
 pub fn create_object_from_file<T>(path: &std::path::PathBuf) -> Result<T, ParseError>
 where
     T: DeserializeOwned,
@@ -19,6 +19,8 @@ where
     Ok(me)
 }
 
+/// Simplifies storing an object to a file
+/// Serializes T and writes the contents to a file
 pub fn write_object_to_file<T>(path: &std::path::PathBuf, object: T) -> Result<(), SerializeError>
 where
     T: Serialize,

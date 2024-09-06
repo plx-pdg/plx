@@ -7,6 +7,7 @@ use crate::{
 
 use super::app::App;
 
+/// Helper functions to refactor setting the ui state
 impl App {
     pub(super) fn go_to_home(&mut self) {
         self.set_ui_state(UiState::Home);

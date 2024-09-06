@@ -12,6 +12,10 @@ use crate::{
 pub enum OutputCheckerCreationError {
     InvalidCheck,
 }
+
+/// Output Checker
+/// A basic checker which job is comparing the output of a run
+/// with the expected output
 pub struct OutputChecker<'a> {
     id: usize,
     expected: &'a str,
@@ -28,6 +32,7 @@ impl<'a> OutputChecker<'a> {
     }
 }
 impl Work for OutputChecker<'_> {
+    /// Use the Diff module to check for a difference between the output and expected
     fn run(&self, tx: Sender<Event>, _stop: Arc<AtomicBool>) -> bool {
         let diff = Diff::calculate_difference(&self.program_output, self.expected, None);
 
@@ -48,7 +53,6 @@ impl Work for OutputChecker<'_> {
 
 #[cfg(test)]
 mod test {
-
     use core::panic;
     use std::sync::mpsc::channel;
 

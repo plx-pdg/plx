@@ -1,5 +1,6 @@
 use core::fmt;
 
+/// Represents a compilation start error
 pub(super) enum CompilationStartError {
     CompilerNotSupported,
     ErrorStartingCompileProcess,
@@ -19,6 +20,8 @@ impl fmt::Display for CompilationStartError {
     }
 }
 
+/// Represents a start exo error
+/// See `App::start_exo`
 pub(super) enum StartExoFail {
     CouldNotLaunchEditor,
     CouldNotStartCompilation(CompilationStartError),

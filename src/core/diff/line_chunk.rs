@@ -1,6 +1,7 @@
 use console::Style;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+//Represents a combination of words in the same line
 pub(super) struct LineChunk {
     is_different: bool,
     value: String,

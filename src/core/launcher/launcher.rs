@@ -15,6 +15,8 @@ use crate::{
     models::event::Event,
 };
 
+/// Represents a Launcher Worker
+/// A Launcher is responsible for launching the target binary after compilation
 pub struct Launcher {
     id: usize,
     runner: Runner,
@@ -35,13 +37,16 @@ impl Launcher {
     }
 }
 impl Work for Launcher {
+    /// Use the underlying runner to handle the target binary run
+    /// Capture the runner's events and translates them to app Events
+    /// See `models::Event`
     fn run(&self, tx: Sender<Event>, stop: Arc<AtomicBool>) -> bool {
         let (runner_tx, runner_rx) = mpsc::channel();
         let _ = self.runner.run(runner_tx, stop);
         while let Ok(msg) = runner_rx.recv() {
             let send = match msg {
                 RunEvent::ProcessCreationFailed(err) => {
-                    tx.send(Event::RunFail(self.id, err));
+                    let _ = tx.send(Event::RunFail(self.id, err));
                     return false;
                 }
                 RunEvent::ProcessCreated => tx.send(Event::RunStart(self.id)),

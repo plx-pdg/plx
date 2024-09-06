@@ -1,3 +1,3 @@
-pub mod pages;
+mod pages;
 pub mod ui;
-pub mod utils;
+mod utils;
