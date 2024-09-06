@@ -27,6 +27,8 @@ pub const LOGO_LEFT: (u8, u8, u8) = (252, 17, 0); // #fc1100 in RGB => 252, 17, 
 pub const LOGO_RIGHT: (u8, u8, u8) = (255, 176, 0); // #ffb000 in RGB => 255, 176, 0
 pub const LOGO_LEFT_RGB: Color = Color::Rgb(LOGO_LEFT.0, LOGO_LEFT.1, LOGO_LEFT.2);
 pub const LOGO_RIGHT_RGB: Color = Color::Rgb(LOGO_RIGHT.0, LOGO_RIGHT.1, LOGO_RIGHT.2);
+pub const EXO_INPROGRESS_COLOR: Color = Color::Rgb(254, 129, 0); // #fe8100
+pub const EXO_DONE_COLOR: Color = Color::Green;
 
 // FUNCTIONS
 
