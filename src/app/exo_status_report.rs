@@ -34,7 +34,7 @@ impl ExoStatusReport {
         }
     }
 
-    /// Helper function to get a Vec<CheckState> from check results
+    /// Helper function to get a `Vec<CheckState>` from check results
     /// Useful to send the check states to the Ui
     /// Check `UiState::CheckResults` for more information
     pub(super) fn to_vec_check_state(&self) -> Vec<CheckState> {
