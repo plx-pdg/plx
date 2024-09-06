@@ -17,7 +17,7 @@ impl App {
             Key::L | Key::Enter => self.on_l(), // Currently L and Enter do the same thing
             Key::N => self.on_n(),
             Key::P => self.on_p(),
-            Key::E => {}
+            // Key::E => {}
             Key::Esc => self.on_esc(),
             Key::Interrogation => self.on_interrogation(),
         }
