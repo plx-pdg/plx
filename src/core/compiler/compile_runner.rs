@@ -29,6 +29,7 @@ impl CompileRunner {
         let mut args = compiler.args(&exo.files);
         match output_path.to_str() {
             Some(path) => {
+                args.push(String::from("-fdiagnostics-color=always"));
                 args.push(String::from("-o"));
                 args.push(String::from(path));
             }
@@ -49,6 +50,7 @@ impl Work for CompileRunner {
         while let Ok(msg) = runner_rx.recv() {
             let send = match msg {
                 RunEvent::ProcessCreationFailed(_) => {
+                    let _ = tx.send(Event::CompilationEnd(false));
                     return false;
                 }
                 RunEvent::ProcessCreated => tx.send(Event::CompilationStart),

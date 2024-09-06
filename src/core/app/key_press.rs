@@ -1,4 +1,6 @@
-use crate::models::ui_state::UiState;
+use log::error;
+
+use crate::models::{exo_state::ExoState, project::Project, ui_state::UiState};
 
 use super::app::App;
 
@@ -14,6 +16,7 @@ impl App {
         if let Ok(mut wh) = self.work_handler.lock() {
             wh.stop_all_workers_and_wait();
         }
+        self.run = false;
     }
 
     pub(super) fn on_esc(&mut self) {
@@ -87,18 +90,85 @@ impl App {
             UiState::Home { .. } => self.go_to_skill_selection(),
             UiState::SkillSelection { .. } => self.go_to_exo_selection(),
             UiState::ExoSelection { .. } => self.go_to_exo_preview(),
-            UiState::ExoPreview { exo, .. } => {
-                self.current_run = App::start_exo(&self.work_handler, exo).ok();
-                self.go_to_compiling();
-            }
-            UiState::CheckResults { checks, .. } => {
+
+            //TODO refactor this code (duplicate)
+            UiState::ExoPreview { exo, .. } => match App::start_exo(&self.work_handler, exo) {
+                Ok(cr) => {
+                    self.current_run = Some(cr);
+                    self.go_to_compiling();
+                }
+                Err(err) =>
+                //TODO send this to the ui
+                {
+                    error!("Could not launch exo {}", err);
+                }
+            },
+            UiState::CheckResults { checks, exo, .. } => {
                 if App::all_checks_passed(checks) {
-                    self.go_to_solution(0);
+                    Project::set_exo_state(exo, ExoState::Done);
+                    self.go_to_solution(0, 0);
                 }
             }
             UiState::ShowSolution { .. } => {
                 self.next_exo(true);
-                self.current_run = App::start_exo(&self.work_handler, self.current_exo()).ok();
+
+                //TODO refactor this code (duplicate)
+                match App::start_exo(&self.work_handler, self.current_exo()) {
+                    Ok(cr) => {
+                        self.current_run = Some(cr);
+                        self.go_to_compiling();
+                    }
+                    Err(err) =>
+                    //TODO send this to the ui
+                    {
+                        error!("Could not launch exo {}", err);
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    pub(super) fn on_p(&mut self) {
+        match &self.ui_state {
+            UiState::ShowSolution {
+                scroll_offset,
+                solution_idx,
+                ..
+            } => {
+                if *solution_idx > 0 {
+                    let solution_idx = *solution_idx - 1;
+                    self.go_to_solution(*scroll_offset, solution_idx);
+                }
+            }
+
+            UiState::CheckResults { checks, exo, .. } => {
+                if App::all_checks_passed(checks) {
+                    Project::set_exo_state(exo, ExoState::Done);
+                    self.go_to_solution(0, 0);
+                }
+            }
+            _ => {}
+        }
+    }
+    pub(super) fn on_n(&mut self) {
+        match &self.ui_state {
+            UiState::ShowSolution {
+                scroll_offset,
+                solution_idx,
+                ..
+            } => {
+                let exo = self.current_exo();
+                if *solution_idx < exo.solutions.len() - 1 {
+                    let solution_idx = *solution_idx + 1;
+                    self.go_to_solution(*scroll_offset, solution_idx);
+                }
+            }
+
+            UiState::CheckResults { checks, exo, .. } => {
+                if App::all_checks_passed(checks) {
+                    Project::set_exo_state(exo, ExoState::Done);
+                    self.go_to_solution(0, 0);
+                }
             }
             _ => {}
         }

@@ -6,6 +6,10 @@ use std::{
 pub fn read_file(file_path: &std::path::PathBuf) -> Result<String, io::Error> {
     std::fs::read_to_string(file_path)
 }
+
+pub fn write_file(file_path: &std::path::PathBuf, content: &str) -> Result<(), io::Error> {
+    std::fs::write(file_path, content)
+}
 pub fn list_dir(directory: &std::path::PathBuf) -> Result<ReadDir, io::Error> {
     std::fs::read_dir(directory)
 }

@@ -1,6 +1,9 @@
-use std::sync::Arc;
+use std::{path::PathBuf, sync::Arc};
 
-use crate::models::{check_state::CheckState, ui_state::UiState};
+use crate::{
+    core::file_utils::file_utils::read_file,
+    models::{check_state::CheckState, ui_state::UiState},
+};
 
 use super::app::App;
 
@@ -69,15 +72,37 @@ impl App {
             checks,
         })
     }
-    pub(super) fn go_to_solution(&mut self, scroll_offset: usize) {
-        self.set_ui_state(UiState::ShowSolution {
-            exo: Arc::new(
-                self.project.skills[self.project.state.curr_skill_idx].exos
-                    [self.project.state.curr_exo_idx]
-                    .clone(),
-            ),
-            scroll_offset,
-        })
+    pub(super) fn go_to_solution(&mut self, scroll_offset: usize, solution_idx: usize) {
+        let exo = self.current_exo();
+
+        let state = if let Ok(solution_path) = App::get_solution_file(exo, 0) {
+            if let Ok(solution_content) = read_file(&solution_path) {
+                UiState::ShowSolution {
+                    exo: Arc::new(exo.clone()),
+                    solution: solution_content,
+                    solution_idx,
+                    solution_path,
+                    scroll_offset,
+                }
+            } else {
+                UiState::ShowSolution {
+                    exo: Arc::new(exo.clone()),
+                    solution: String::from("Couldn't Read Solution File"),
+                    solution_idx,
+                    solution_path,
+                    scroll_offset,
+                }
+            }
+        } else {
+            UiState::ShowSolution {
+                exo: Arc::new(exo.clone()),
+                solution: String::from("No Solution Found"),
+                solution_idx,
+                solution_path: PathBuf::new(),
+                scroll_offset,
+            }
+        };
+        self.set_ui_state(state);
     }
     pub(super) fn go_to_help(&mut self, last_state: Box<UiState>, scroll_offset: usize) {
         self.set_ui_state(UiState::Help {

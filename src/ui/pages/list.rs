@@ -1,6 +1,8 @@
 use crate::models::exo::Exo;
 use crate::models::skill::Skill;
-use crate::ui::utils::{get_gradient_line, LOGO_LEFT, LOGO_RIGHT};
+use crate::ui::pages::train::render_exo;
+use crate::ui::utils::{get_gradient_line, popup_area, render_header, LOGO_LEFT, LOGO_RIGHT};
+use ratatui::widgets::{Clear, Wrap};
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
@@ -14,6 +16,28 @@ use std::sync::Arc;
 const DEFAULT_STYLE: Style = Style::new();
 const SELECTED_BORDER: Style = Style::new().fg(Color::Blue);
 const SELECTED_STYLE: Style = Style::new().fg(Color::Blue).add_modifier(Modifier::BOLD);
+
+/// Render the 2 lists with a popup preview showing content from train::render_exo()
+pub fn render_preview(
+    frame: &mut Frame,
+    skills: &Arc<Vec<Skill>>,
+    exos: &Arc<Vec<Exo>>,
+    skill_index: &usize,
+    exo_index: usize,
+) {
+    render_lists(frame, skills, exos, skill_index, Some(exo_index), false);
+    let mut lines: Vec<Line> = Vec::new();
+    render_exo(&mut lines, &Arc::new(exos[exo_index].clone()), true);
+
+    let area = popup_area(frame.area(), 80, 60);
+    frame.render_widget(Clear, area); //this clears out the background
+    frame.render_widget(
+        Paragraph::new(Text::from(lines))
+            .block(Block::bordered().title("Exo preview"))
+            .wrap(Wrap { trim: true }),
+        area,
+    );
+}
 
 /// Main render function for skills and exos, can be used for SkillSelection and ExoSelection !
 pub fn render_lists(
@@ -46,13 +70,6 @@ pub fn render_lists(
         exo_index,
         !is_skill_selection,
     );
-}
-
-/// Renders the header with ASCII art
-fn render_header(frame: &mut Frame, area: Rect) {
-    let header_text = get_gradient_line("PLX", LOGO_LEFT, LOGO_RIGHT, 3.0);
-    let header = Paragraph::new(Text::from(header_text)).left_aligned();
-    frame.render_widget(header, area);
 }
 
 /// Renders a list of items with optional selection highlighting
