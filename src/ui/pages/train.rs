@@ -96,7 +96,7 @@ pub fn render_compilation_error(
 pub fn render_check_results(
     frame: &mut Frame,
     exo: &Arc<Exo>,
-    scroll_offset: &usize, //TODO: support scroll_offset
+    _scroll_offset: &usize, //TODO: support scroll_offset
     checks: &Vec<CheckState>,
 ) {
     // Show the Check results title
