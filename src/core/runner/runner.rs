@@ -19,6 +19,7 @@ pub enum RunEvent {
     ProcessEnd(bool),
     ProcessNewOutputLine(String),
 }
+// A wrapper for running process and handling process events
 pub struct Runner {
     command: String,
     args: Vec<String>,
@@ -48,6 +49,9 @@ impl Runner {
         thread::spawn(move || Runner::read_stream(tx, stream))
     }
 
+    // Starts the process and monitors its events
+    // It will read stdout and stderr until the child process finishes
+    // See `RunEvent` to see what events this function produces
     pub fn run(
         &self,
         tx: Sender<RunEvent>,
@@ -59,6 +63,8 @@ impl Runner {
             })?;
 
         let _ = tx.send(RunEvent::ProcessCreated);
+
+        // Take stdout and stderr and launch a stream reader for each
         let mut stdout_thread = {
             if let Some(stdout) = process.stdout.take() {
                 Some(Runner::launch_stream_reader(tx.clone(), stdout))
@@ -74,10 +80,10 @@ impl Runner {
             }
         };
 
+        // Loop forever until we either get asked to stop or the process ends
         let exit_status = loop {
             if should_stop.load(Ordering::Relaxed) {
                 if process_handler::stop_child(&mut process).is_err() {
-                    //Couldn't kill child process
                     error!("Couldn't kill child process");
                     break None;
                 }
@@ -92,6 +98,7 @@ impl Runner {
             };
         };
 
+        // Join stdout and stderr threads
         if let Some(t) = stdout_thread.take() {
             let _ = t.join();
         }
@@ -106,7 +113,7 @@ impl Runner {
             false
         };
 
-        tx.send(RunEvent::ProcessEnd(success));
+        let _ = tx.send(RunEvent::ProcessEnd(success));
         exit_status.ok_or(())
     }
 }
