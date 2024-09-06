@@ -39,7 +39,7 @@ impl FromDir for Skill {
     ) -> Result<(Self, Vec<ParseWarning>), (ParseError, Vec<ParseWarning>)> {
         // Get skill info by searching for the skill.toml file
         let skill_info_file = dir.join(SKILL_INFO_FILE);
-        let info = parser::object_creator::create_from_file::<SkillInfo>(&skill_info_file)
+        let info = parser::object_creator::create_object_from_file::<SkillInfo>(&skill_info_file)
             .map_err(|err| (err, vec![]))?;
 
         // Using the exo folders found in the skill.toml file, parse every skill

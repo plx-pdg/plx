@@ -28,7 +28,6 @@ impl App {
         match self.ui_state {
             UiState::ExoSelection { .. } => self.go_to_exo_selection(),
             UiState::ExoPreview { .. } => self.go_to_exo_preview(),
-            UiState::ShowSolution { .. } => self.go_to_compiling(),
             _ => {}
         };
     }
@@ -53,7 +52,9 @@ impl App {
             UiState::CheckResults { checks, .. } => {
                 self.go_to_check_results(scroll_offset, checks.clone())
             }
-            UiState::ShowSolution { .. } => self.go_to_solution(scroll_offset),
+            UiState::ShowSolution { solution_idx, .. } => {
+                self.go_to_solution(scroll_offset, *solution_idx)
+            }
             _ => {}
         }
     }
