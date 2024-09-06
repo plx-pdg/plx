@@ -13,7 +13,7 @@ Take this line and fix version with current ($CV)
 ### Added
 ### Changed
 
-## [$CV without v!](https://github.com/plx-pdg/plx/compare/$CV...HEAD) - $DATE
+## [$CV without v!](https://github.com/plx-pdg/plx/compare/$CV before...$CV now) - $DATE
 -->
 
 ## [Unreleased](https://github.com/plx-pdg/plx/compare/v0.2.0...HEAD)
@@ -21,7 +21,7 @@ Take this line and fix version with current ($CV)
 ### Added
 ### Changed
 
-## [0.2.0](https://github.com/plx-pdg/plx/compare/v0.2.0..HEAD) - 2024-09-06
+## [0.2.0](https://github.com/plx-pdg/plx/compare/v0.1.2...v0.2.0) - 2024-09-06
 
 ### Added
 - Home page with ASCII art, quick help and tagline
@@ -46,7 +46,7 @@ Take this line and fix version with current ($CV)
 - Run CI with macos runner, in addition to Ubuntu and Windows
 - Rewrite a concise README in English and include it for `crates.io` release
 
-## [0.1.2](https://github.com/plx-pdg/plx/compare/v0.1.2...HEAD) - 2024-08-26
+## [0.1.2](https://github.com/plx-pdg/plx/compare/v0.1.1...v0.1.2) - 2024-08-26
 
 ### Added
 - Trivial change to show CI release
