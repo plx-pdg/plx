@@ -5,9 +5,9 @@ homepage = "https://github.com/plx-pdg/plx"
 repository = "https://github.com/plx-pdg/plx"
 license-file = "LICENSE"
 readme = false
-version = "0.1.2"
+version = "0.2.0"
 edition = "2021"
-exclude = ["*.md"]
+exclude = ["examples"]
 
 [dependencies]
 console = "0.15.8"
