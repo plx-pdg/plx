@@ -9,7 +9,7 @@
 
 PLX (Practice Learning eXperience) is a project developed to enhance the learning of programming languages, with a focus on a smooth and optimized user experience. The goal of this project is to reduce the usual friction involved in completing coding exercises (such as manual compilation, testing, and result verification) by automating these steps.
 
-PLX offers a text-based user interface (TUI) developed in Rust and supports multiple languages (C, C++, Java). It enables automatic compilation as soon as a file is saved, automated tests to compare program outputs, and instant display of errors and differences compared to a reference solution. The project draws inspiration from Rustlings and aims to create a more efficient learning experience, particularly for programming courses at HEIG-VD.### Installation
+PLX offers a text-based user interface (TUI) developed in Rust and supports multiple languages (C, C++). It enables automatic compilation as soon as a file is saved, automated tests to compare program outputs, and instant display of errors and differences compared to a reference solution. The project draws inspiration from Rustlings and aims to create a more efficient learning experience, particularly for programming courses at HEIG-VD.### Installation
 
 ### Installation
 
@@ -32,6 +32,9 @@ Once you have plx installed, you can try it on this repo's example folder
 
 > [!WARNING] 
 > The open editor feature is currently unstable, using a terminal based editor causes problems, valid $EDITOR is one of `code`, `idea` and `codium`
+
+> [!IMPORTANT] 
+> Only C and C++ exercises are valid for now, java and other languages support is comming soon™
 
 ```bash
 git clone git@github.com:plx-pdg/plx.git
