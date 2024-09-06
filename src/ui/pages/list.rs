@@ -75,9 +75,11 @@ pub fn render_lists(
             .iter()
             .map(|exo| {
                 Line::from(exo.name.clone()).fg(match exo.state {
-                    ExoState::Todo => Color::default(),
-                    ExoState::InProgress => EXO_INPROGRESS_COLOR,
-                    ExoState::Done => EXO_DONE_COLOR,
+                    //TODO: enable colors when states are fully managed
+                    // ExoState::Todo => Color::default(),
+                    // ExoState::InProgress => EXO_INPROGRESS_COLOR,
+                    // ExoState::Done => EXO_DONE_COLOR,
+                    _ => Color::default(),
                 })
             })
             .collect::<Vec<Line>>(),
