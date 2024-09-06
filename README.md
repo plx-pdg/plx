@@ -31,7 +31,8 @@ Once you have plx installed, you can try it on this repo's example folder
 > Set the $EDITOR environment variable if you wish for your editor to be opened when starting an exo
 
 > [!WARNING] 
-> The open editor feature is currently unstable, using a terminal based editor causes problems, valid $EDITOR is one of `code`, `idea` and `codium`
+> The open editor feature is currently unstable, using a terminal based editor causes problems
+> The following editors were tested and work fine: `code`, `idea` and `codium`
 
 > [!IMPORTANT] 
 > Only C and C++ exercises are valid for now, java and other languages support is comming soon™
