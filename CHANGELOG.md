@@ -40,6 +40,7 @@ Take this line and fix version with current ($CV)
 - Switch to next exo when exo is done
 - Start to store exo state (In progress, Done) but this is not fully working, therefor not displayed
 - Create a logo ! Inspired from Delibay and PRJS gradient styles
+- Write logs to `debug.log` via crate `log` and `simplelog` to see events received by core and not make noise in the UI
 
 ### Changed
 - Run CI with macos runner, in addition to Ubuntu and Windows
