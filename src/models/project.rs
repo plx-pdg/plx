@@ -1,15 +1,20 @@
 use std::sync::Arc;
 
+use log::warn;
 use serde::{Deserialize, Serialize};
 
 use crate::core::{
     file_utils::file_parser::{ParseError, ParseWarning},
-    parser::{from_dir::FromDir, object_creator},
+    parser::{
+        from_dir::FromDir,
+        object_creator::{self, create_object_from_file, write_object_to_file},
+    },
 };
 
 use super::{
-    constants::{COURSE_INFO_FILE, COURSE_STATE_FILE},
-    exo::Exo,
+    constants::{COURSE_INFO_FILE, COURSE_STATE_FILE, EXO_STATE_FILE},
+    exo::{Exo, ExoStateInfo},
+    exo_state::ExoState,
     skill::Skill,
 };
 
@@ -18,6 +23,7 @@ pub struct Project {
     pub(crate) name: String,
     pub(crate) skills: Arc<Vec<Skill>>,
     pub(crate) state: ProjectState,
+    folder: std::path::PathBuf,
 }
 
 #[derive(Serialize, Deserialize, Default, PartialEq, Eq, Debug)]
@@ -38,13 +44,6 @@ impl Project {
         {
             return Some(&self.skills[self.state.curr_skill_idx].exos[self.state.curr_exo_idx]);
         }
-        for (idx, skill) in self.skills.iter().enumerate() {
-            if let Some((exo_idx, exo)) = skill.get_next_todo_exo() {
-                self.state.curr_skill_idx = idx;
-                self.state.curr_exo_idx = exo_idx;
-                return Some(exo);
-            }
-        }
         None
     }
     fn is_first_skill(&self) -> bool {
@@ -61,49 +60,81 @@ impl Project {
         self.state.curr_exo_idx == self.skills[self.state.curr_skill_idx].exos.len() - 1
     }
 
+    fn save_state(&self) {
+        if let Err(err) = write_object_to_file(&self.folder.join(COURSE_STATE_FILE), &self.state) {
+            warn!("Couldn't store project state {:?}", err);
+        }
+    }
+    fn set_curr_exo(&mut self, i: usize) {
+        self.state.curr_exo_idx = i;
+        self.save_state();
+    }
+    fn set_curr_skill(&mut self, i: usize) {
+        self.state.curr_skill_idx = i;
+        self.save_state();
+    }
     pub fn prev_exo(&mut self, wrap: bool) {
         if !self.is_first_exo() {
             self.state.curr_exo_idx -= 1
         } else if wrap {
             if !self.is_first_skill() {
-                self.state.curr_skill_idx -= 1
+                self.set_curr_skill(self.state.curr_skill_idx - 1);
             } else {
-                self.state.curr_skill_idx = self.skills.len() - 1;
+                self.set_curr_skill(self.skills.len() - 1);
             }
-            self.state.curr_exo_idx = self.skills[self.state.curr_skill_idx].exos.len() - 1;
+            self.set_curr_exo(self.skills[self.state.curr_skill_idx].exos.len() - 1);
         }
     }
 
     pub fn prev_skill(&mut self, wrap: bool) {
         if self.is_first_skill() {
-            self.state.curr_skill_idx = self.skills.len() - 1;
-            self.state.curr_exo_idx = 0;
-        } else if wrap {
-            self.state.curr_skill_idx -= 1;
-            self.state.curr_exo_idx = 0;
+            if wrap {
+                self.set_curr_skill(self.skills.len() - 1);
+            }
+        } else {
+            self.set_curr_skill(self.state.curr_skill_idx - 1);
         }
+        self.set_curr_exo(0);
     }
 
     pub fn next_exo(&mut self, wrap: bool) {
         if !self.is_last_exo() {
             self.state.curr_exo_idx += 1
         } else if wrap {
-            self.state.curr_exo_idx = 0;
+            self.set_curr_exo(0);
             if !self.is_last_skill() {
-                self.state.curr_skill_idx += 1
+                self.set_curr_skill(self.state.curr_skill_idx + 1);
             } else {
-                self.state.curr_skill_idx = 0;
+                self.set_curr_skill(0);
             }
         }
     }
     pub fn next_skill(&mut self, wrap: bool) {
         if !self.is_last_skill() {
-            self.state.curr_skill_idx += 1;
-            self.state.curr_exo_idx = 0;
+            self.set_curr_skill(self.state.curr_skill_idx + 1);
         } else if wrap {
-            self.state.curr_skill_idx = 0;
-            self.state.curr_exo_idx = 0;
+            self.set_curr_skill(0);
         }
+        self.set_curr_exo(0);
+    }
+    fn save_exo_state(exo: &Exo, info: &ExoStateInfo) {
+        if let Err(err) = write_object_to_file(&exo.folder.join(EXO_STATE_FILE), info) {
+            warn!("Couldn't save exo state {:?}", err);
+        }
+    }
+    fn read_exo_state_info(exo: &Exo) -> ExoStateInfo {
+        create_object_from_file::<ExoStateInfo>(&exo.folder.join(EXO_STATE_FILE))
+            .unwrap_or_default()
+    }
+    pub fn set_exo_state(exo: &Exo, state: ExoState) {
+        let mut info = Project::read_exo_state_info(exo);
+        info.state = state;
+        Project::save_exo_state(exo, &info);
+    }
+    pub fn set_exo_favorite(exo: &Exo, is_favorite: bool) {
+        let mut info = Project::read_exo_state_info(exo);
+        info.favorite = is_favorite;
+        Project::save_exo_state(exo, &info);
     }
 }
 
@@ -120,10 +151,11 @@ impl FromDir for Project {
         // TODO magic value maybe change this
         let course_info_file = dir.join(COURSE_INFO_FILE);
         let course_state_file = dir.join(COURSE_STATE_FILE);
-        let course_info = object_creator::create_from_file::<ProjectInfo>(&course_info_file)
+        let course_info = object_creator::create_object_from_file::<ProjectInfo>(&course_info_file)
             .map_err(|err| (err, vec![]))?;
-        let project_state = object_creator::create_from_file::<ProjectState>(&course_state_file)
-            .unwrap_or_default();
+        let project_state =
+            object_creator::create_object_from_file::<ProjectState>(&course_state_file)
+                .unwrap_or_default();
 
         // Using the skill folders found in the course.toml file, parse every skill
         // /!\ Folders not found in the course.toml file are ignored /!\
@@ -163,6 +195,7 @@ impl FromDir for Project {
                     name: course_info.name,
                     skills: Arc::new(skills),
                     state: project_state,
+                    folder: dir.to_path_buf(),
                 },
                 warnings,
             ))
@@ -199,6 +232,7 @@ mod tests {
         let project = Project::from_dir(&project_path);
         let expected  = Project {
             name: String::from("Full fictive course"),
+            folder: project_path.clone(),
             skills: Arc::new(vec![
                 Skill {
                     name: String::from("Introduction"),

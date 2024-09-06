@@ -1,11 +1,15 @@
 use std::{
     path,
-    sync::{atomic::AtomicBool, mpsc::Sender, Arc},
+    sync::{
+        atomic::AtomicBool,
+        mpsc::{channel, Sender},
+        Arc,
+    },
 };
 
 use crate::{
     core::{
-        process::process_handler::{self, wait_child},
+        runner::runner::{RunEvent, Runner},
         work::{work::Work, work_type::WorkType},
     },
     models::event::Event,
@@ -13,20 +17,23 @@ use crate::{
 
 use super::editor::get_default_editor;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct EditorOpener {
-    editor: String,
-    file_path: path::PathBuf,
+    runner: Runner,
 }
 
 impl EditorOpener {
-    pub fn new(editor: String, file_path: path::PathBuf) -> Self {
-        EditorOpener { editor, file_path }
+    pub fn new(editor: String, file_path: path::PathBuf) -> Option<Self> {
+        if let Some(file_path) = file_path.to_str() {
+            return Some(EditorOpener {
+                runner: Runner::new(editor, vec![file_path.to_string()]),
+            });
+        }
+        None
     }
 
     pub fn new_default_editor(file_path: path::PathBuf) -> Option<Self> {
         match get_default_editor() {
-            Some(editor) => Some(EditorOpener::new(editor, file_path)),
+            Some(editor) => Some(EditorOpener::new(editor, file_path)?),
             None => None,
         }
     }
@@ -36,20 +43,22 @@ impl Work for EditorOpener {
         WorkType::EditorOpen
     }
     fn run(&self, tx: Sender<Event>, should_stop: Arc<AtomicBool>) -> bool {
-        let child = process_handler::spawn_process(
-            &self.editor,
-            vec![self.file_path.display().to_string()],
-        );
-        let _ = match child {
-            Err(_) => {
-                let _ = tx.send(Event::CouldNotOpenEditor);
-                return false;
+        let (runner_tx, rx) = channel();
+
+        let _ = self.runner.run(runner_tx, should_stop);
+        while let Ok(msg) = rx.recv() {
+            match msg {
+                RunEvent::ProcessCreationFailed(err) => {
+                    let _ = tx.send(Event::CouldNotOpenEditor);
+                    return false;
+                }
+                RunEvent::ProcessCreated => {
+                    let _ = tx.send(Event::EditorOpened);
+                    return true;
+                }
+                _ => {}
             }
-            Ok(mut child) => match wait_child(&mut child, should_stop.clone()) {
-                Ok(_) => tx.send(Event::EditorOpened),
-                Err(_) => tx.send(Event::CouldNotOpenEditor),
-            },
-        };
+        }
         return true;
     }
 }
@@ -63,7 +72,7 @@ mod tests {
     fn opens_file() {
         let (tx, rx) = mpsc::channel();
         let should_stop = Arc::new(AtomicBool::new(false));
-        let worker = EditorOpener::new("echo".to_string(), ".opener.rs".into());
+        let worker = EditorOpener::new("echo".to_string(), ".opener.rs".into()).unwrap();
         worker.run(tx.clone(), should_stop.clone());
         assert_eq!(rx.recv().unwrap(), Event::EditorOpened);
     }
@@ -72,7 +81,7 @@ mod tests {
     fn opens_file_missing_editor() {
         let (tx, rx) = mpsc::channel();
         let should_stop = Arc::new(AtomicBool::new(false));
-        let worker = EditorOpener::new("_".to_string(), ".opener.rs".into());
+        let worker = EditorOpener::new("_".to_string(), ".opener.rs".into()).unwrap();
         worker.run(tx.clone(), should_stop.clone());
         assert_eq!(rx.recv().unwrap(), Event::CouldNotOpenEditor);
     }

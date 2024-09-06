@@ -1,2 +1,2 @@
 name = "Full fictive course"
-skills = ["intro", "pointers", "parsing"]
+skills = ["intro", "pointers", "parsing", "structs", "enums"]

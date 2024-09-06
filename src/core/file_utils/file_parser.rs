@@ -17,3 +17,9 @@ pub enum ParseWarning {
     MultipleSolutionsFound(String),
     InvalidFileName(String),
 }
+
+#[derive(Debug)]
+pub enum SerializeError {
+    SerializeError(String),
+    WriteFileError(String),
+}

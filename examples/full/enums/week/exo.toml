@@ -1,0 +1,10 @@
+name = 'Jour de la semaine'
+instruction = 'Afficher le jour de la semaine en fonction de son numéro.'
+[[checks]]
+name = 'Lundi'
+args = ["1"]
+test = { type = "output", expected = "Le jour 1 est Lundi" }
+[[checks]]
+name = 'Jeudi'
+args = ["4"]
+test = { type = "output", expected = "Le jour 4 est Jeudi" }
