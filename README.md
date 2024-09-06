@@ -5,6 +5,13 @@
 
 ### **P**ractice programming exos in a delightful **L**earning e**X**perience
 
+###### Useful links
+[Website](https://plx.rs) -
+[WHY ?](https://plx.rs/book/why.html) -
+[Git repository of PLX](https://github.com/plx-pdg/plx) -
+[Git repository of this website](https://github.com/plx-pdg/plx-pdg.github.io)
+
+
 ### Introduction
 
 PLX is a project developed to enhance the learning of programming languages, with a focus on a smooth and optimized learning experience. The goal of this project is to reduce the usual friction involved in completing coding exercises (such as manual compilation, running, testing, and result verification) by automating these steps.
@@ -74,7 +81,6 @@ Please take a look at some of the issues [here](https://github.com/plx-pdg/plx/i
 - Create a branch
 - Develop your solution
 - Create a Pull Request
-
 
 ### License
 
