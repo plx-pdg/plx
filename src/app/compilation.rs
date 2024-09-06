@@ -1,5 +1,6 @@
 use super::app::App;
 
+/// Functions related to handling compilation events
 impl App {
     /// Compilation output event handler
     /// Gets called when the compilation process outputs a new line

@@ -2,6 +2,7 @@ use log::error;
 
 use super::app::App;
 
+/// Functions related to handling file saving events
 impl App {
     /// File saved event handler
     /// Called when one the current exo files gets saved

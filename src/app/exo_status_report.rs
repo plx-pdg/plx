@@ -4,14 +4,12 @@ use crate::models::{check_state::CheckState, exo::Exo};
 
 use super::exo_check_result::ExoCheckResult;
 
-///
 /// ExoStatusReport
 ///
 /// This struct is used to store the result of a run + check
 /// It keeps the information of an exo run, including the check results,
 /// the compilation output and the path to the elf file
 /// See `ExoCheckResult` for more information about the check results
-///
 pub(super) struct ExoStatusReport {
     pub(super) check_results: Vec<ExoCheckResult>,
     pub(super) compilation_output: Vec<String>,

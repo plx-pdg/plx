@@ -4,6 +4,7 @@ use crate::models::{exo_state::ExoState, key::Key, project::Project, ui_state::U
 
 use super::app::App;
 
+/// Functions related to handling key press events
 impl App {
     /// Key press Event Handler
     pub(super) fn on_key_press(&mut self, key: Key) {
@@ -13,7 +14,7 @@ impl App {
             Key::H => self.on_h(),
             Key::J => self.on_j(),
             Key::K => self.on_k(),
-            Key::L | Key::Enter => self.on_l(),
+            Key::L | Key::Enter => self.on_l(), // Currently L and Enter do the same thing
             Key::N => self.on_n(),
             Key::P => self.on_p(),
             Key::E => {}

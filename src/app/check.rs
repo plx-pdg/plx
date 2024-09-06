@@ -8,7 +8,7 @@ use crate::{
 
 use super::app::App;
 
-/// Functions related to handling checks on the app side
+/// Functions related to handling check updates
 impl App {
     /// Check passed event handler
     /// Gets called when a check passes
