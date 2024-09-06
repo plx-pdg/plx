@@ -1,11 +1,7 @@
 use crate::models::exo::Exo;
-use crate::models::exo_state::ExoState;
 use crate::models::skill::Skill;
 use crate::ui::pages::train::render_exo;
-use crate::ui::utils::{
-    get_gradient_line, popup_area, render_header, EXO_DONE_COLOR, EXO_INPROGRESS_COLOR, LOGO_LEFT,
-    LOGO_RIGHT,
-};
+use crate::ui::utils::{popup_area, render_header};
 use ratatui::style::Stylize;
 use ratatui::widgets::{Clear, Wrap};
 use ratatui::{
