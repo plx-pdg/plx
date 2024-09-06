@@ -1,10 +1,28 @@
 use log::error;
 
-use crate::models::{exo_state::ExoState, project::Project, ui_state::UiState};
+use crate::models::{exo_state::ExoState, key::Key, project::Project, ui_state::UiState};
 
 use super::app::App;
 
+/// Functions related to handling key press events
 impl App {
+    /// Key press Event Handler
+    pub(super) fn on_key_press(&mut self, key: Key) {
+        match key {
+            Key::Q => self.on_q(),
+            Key::R => self.on_r(),
+            Key::H => self.on_h(),
+            Key::J => self.on_j(),
+            Key::K => self.on_k(),
+            Key::L | Key::Enter => self.on_l(), // Currently L and Enter do the same thing
+            Key::N => self.on_n(),
+            Key::P => self.on_p(),
+            Key::E => {}
+            Key::Esc => self.on_esc(),
+            Key::Interrogation => self.on_interrogation(),
+        }
+    }
+
     pub(super) fn on_r(&mut self) {
         match &self.ui_state {
             UiState::Home => self.resume_last_exo(),
@@ -171,6 +189,14 @@ impl App {
                 }
             }
             _ => {}
+        }
+    }
+    ///
+    /// Handles the '?' key press
+    pub(super) fn on_interrogation(&mut self) {
+        match &self.ui_state {
+            UiState::Help { .. } => {} // Nothing to do
+            _ => self.go_to_help(Box::new(self.ui_state.clone()), 0),
         }
     }
 }

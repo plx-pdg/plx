@@ -4,7 +4,7 @@ use crate::{
         compiler::compile_runner::CompileRunner,
         core_error::CoreInitError,
         editor::opener::EditorOpener,
-        file_utils::{build_folder::generate_build_folder, file_handler::current_folder},
+        file_utils::{build_folder::generate_build_folder, file_utils::current_folder},
         launcher::launcher::Launcher,
         parser::from_dir::FromDir,
         watcher::watcher::FileWatcher,
@@ -31,8 +31,7 @@ use super::{
 };
 
 /// App struct
-/// This holds the state of the application
-///
+/// Holds the state of the application
 pub struct App {
     pub(super) ui_state: UiState,
     pub(super) project: Project,
@@ -44,7 +43,6 @@ pub struct App {
 }
 
 impl App {
-    ///
     ///  Create a new App instance
     ///
     /// This function will create a new App instance and initialize the project
@@ -118,7 +116,6 @@ impl App {
     /// Main thread
     ///
     /// Main application loop
-    ///
     pub fn run_forever(mut self) {
         while self.run {
             if let Ok(event) = self.event_rx.recv() {
@@ -127,9 +124,6 @@ impl App {
                     Event::KeyPressed(key) => self.on_key_press(key),
                     Event::EditorOpened => {}
                     Event::CouldNotOpenEditor => {} //TODO warn the user ?
-                    Event::ProcessOutputLine(run_id, line) => {
-                        self.on_process_output_line(run_id, line)
-                    }
                     Event::OutputCheckPassed(check_index) => self.on_check_passed(check_index),
                     Event::OutputCheckFailed(check_index, diff) => {
                         info!("{}", diff.to_ansi_colors());
@@ -142,12 +136,11 @@ impl App {
                     Event::RunStart(id) => self.on_run_start(id),
                     Event::RunEnd(id) => self.on_run_end(id),
                     Event::RunOutputLine(id, line) => self.on_run_output(id, line),
-                    Event::RunFail(run_id, err) => self.on_process_creation_fail(run_id, err),
+                    Event::RunFail(run_id, err) => self.on_run_fail(run_id, err),
                 }
             }
         }
     }
-    ///
     /// Starts a new worker using the work_handler
     ///
     /// Returns the id of the worker if it was successfully started
@@ -159,7 +152,6 @@ impl App {
         }
         None
     }
-    ///
     /// Starts the UI
     ///
     /// The UI will be launched as a separate worker so this function will not block
@@ -169,7 +161,6 @@ impl App {
         self.go_to_home();
         App::start_work(&self.work_handler, Box::new(ui));
     }
-    ///
     /// Stops the UI
     /// Useful if we want to restart the UI
     ///
@@ -179,7 +170,6 @@ impl App {
         }
     }
 
-    ///
     /// Opens a new editor using a worker
     /// This function will try to open the main file of the exo using the default system editor
     /// See `EditorOpener` for more details
@@ -196,7 +186,6 @@ impl App {
         }
         None
     }
-    ///
     /// Compiles the exo using a worker
     ///
     /// This function doesn't block, the compilation will be done using a new worker
@@ -230,7 +219,6 @@ impl App {
         return Ok(output_path);
     }
 
-    ///
     /// Cleans the previous run by stopping and waiting for every non UI worker to finish
     ///
     /// This function may block if a worker takes too long to finish
@@ -242,7 +230,6 @@ impl App {
         }
     }
 
-    ///
     /// Starts a new exo
     ///
     /// Starting an exercise essentially means doing 3 things:
@@ -267,7 +254,6 @@ impl App {
 
         Ok(ExoStatusReport::new(exo, output_path))
     }
-    ///
     /// Runs the target file generated at the compilation step
     /// Here we launch multiple instances of the target file, one for each exo check
     ///
@@ -308,7 +294,6 @@ impl App {
         None
     }
 
-    ///
     /// Launches a file watcher for the current exo
     /// This function doesn't block
     /// Returns a vector containing the id of the workers that were successfully started

@@ -13,15 +13,23 @@ use crate::{
 };
 
 use super::compiler::Compiler;
+
+// Compile Runner
+// Represents the compilation worker
 pub struct CompileRunner {
     runner: Runner,
 }
 impl CompileRunner {
+    // Constructs a new compile runner
+    // No update to the output path is done, if the underlying platform is windows, `.exe` must be
+    // added to the output_path before calling this function
     pub fn new(compiler: &Compiler, exo: &Exo, output_path: &std::path::PathBuf) -> Option<Self> {
         let cmd = compiler.cmd();
         let mut args = compiler.args(&exo.files);
         match output_path.to_str() {
             Some(path) => {
+                // TODO this should probably somewhere else like `compiler` because this is
+                // specific to gcc/g++
                 args.push(String::from("-fdiagnostics-color=always"));
                 args.push(String::from("-o"));
                 args.push(String::from(path));
@@ -37,6 +45,8 @@ impl CompileRunner {
     }
 }
 impl Work for CompileRunner {
+    // Runs the underlying runner collecting its events and translating them to app Events
+    // See `models::Event` for more info
     fn run(&self, tx: Sender<Event>, stop: Arc<AtomicBool>) -> bool {
         let (runner_tx, runner_rx) = mpsc::channel();
         let _ = self.runner.run(runner_tx, stop);

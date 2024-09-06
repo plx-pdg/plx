@@ -4,6 +4,7 @@ use crate::core::diff::diff::Diff;
 
 use super::check::Check;
 
+/// Represents the status of a check
 #[derive(Debug, Clone, PartialEq)]
 pub enum CheckStatus {
     Passed,
@@ -13,6 +14,7 @@ pub enum CheckStatus {
     RunFail(String),
     Pending,
 }
+/// Handles the check and it's current status
 #[derive(Debug, Clone, PartialEq)]
 pub struct CheckState {
     pub(crate) check: Arc<Check>,

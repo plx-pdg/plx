@@ -1,10 +1,9 @@
-use crate::core::editor::opener::EditorOpener;
-use crate::core::watcher::watcher::FileWatcher;
 use crate::models::event::Event;
 use std::sync::{atomic::AtomicBool, mpsc::Sender, Arc};
 
 use super::work_type::WorkType;
 
+/// Trait representing a work to be done
 pub trait Work {
     /// This function has the right to block
     /// but _should_ stop once stop is set to true

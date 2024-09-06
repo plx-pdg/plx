@@ -12,16 +12,13 @@ use log::info;
 
 use crate::models::event::Event;
 
-use super::{
-    work::Work,
-    work_type::WorkType,
-    worker::{self, Worker},
-};
+use super::{work::Work, work_type::WorkType, worker::Worker};
 
 pub(crate) enum WorkEvent {
     Done(usize),
-    Stop(usize),
 }
+
+/// Represents all information we have about a specific worker
 struct WorkInfo {
     id: usize,
     work: WorkType,
@@ -29,11 +26,12 @@ struct WorkInfo {
     join_handle: JoinHandle<()>,
 }
 
+/// Work Handler is used to handle every worker the app constructs
 pub struct WorkHandler {
     workers: HashMap<usize, WorkInfo>,
     tx: Sender<Event>,
     work_tx: Sender<WorkEvent>,
-    work_id: usize,
+    curr_work_id: usize,
 }
 impl WorkInfo {
     fn new(
@@ -49,12 +47,16 @@ impl WorkInfo {
             join_handle,
         }
     }
+    /// Stop a worker
     fn stop(&mut self) {
         self.should_stop.store(true, Ordering::Relaxed);
     }
+    /// Join a worker thread
     fn join(self) {
-        self.join_handle.join();
+        let _ = self.join_handle.join();
     }
+
+    /// Stop and join a worker thread
     fn stop_and_join(mut self) {
         self.stop();
         self.join();
@@ -67,15 +69,17 @@ impl WorkHandler {
             workers: HashMap::new(),
             tx,
             work_tx,
-            work_id: 0,
+            curr_work_id: 0,
         }));
         WorkHandler::run(ret.clone(), rx);
         ret
     }
 
+    /// Spawns a new worker
+    /// It can spawn anything that implements `Work` and is `Send`
     pub fn spawn_worker(&mut self, work: Box<dyn Work + Send>) -> usize {
-        let id = self.work_id;
-        self.work_id += 1;
+        let id = self.curr_work_id;
+        self.curr_work_id += 1;
         let stop = Arc::new(AtomicBool::new(false));
         let work_type = work.work_type();
         let worker = Worker::new(
@@ -91,25 +95,29 @@ impl WorkHandler {
         id
     }
 
+    /// Launch a separate thread to handle worker events
+    /// Basically used to remove done workers from the worker list
     fn run(handler: Arc<Mutex<WorkHandler>>, rx: Receiver<WorkEvent>) {
         thread::spawn(move || {
             while let Ok(msg) = rx.recv() {
                 if let Ok(mut handler) = handler.lock() {
                     match msg {
                         WorkEvent::Done(id) => handler.remove_worker(id),
-                        WorkEvent::Stop(id) => handler.stop_worker(id),
                     }
                 };
             }
         });
     }
 
+    /// Stop the worker
+    /// This function blocks until the worker actually ends its work
     pub fn stop_worker(&mut self, id: usize) {
         match self.workers.remove(&id) {
             Some(worker) => worker.stop_and_join(),
             None => (),
         }
     }
+    /// Stop all workers doing any work of type work_type
     pub fn stop_workers(&mut self, work_type: WorkType) {
         self.workers
             .iter_mut()
@@ -117,26 +125,32 @@ impl WorkHandler {
             .for_each(|(_, worker)| worker.stop());
         self.workers.retain(|_, worker| worker.work != work_type);
     }
+
+    /// Send a stop signal to all workers
     fn stop_all_workers(&mut self) {
         self.workers
             .iter_mut()
             .for_each(|(_, worker)| worker.stop());
     }
 
+    /// Stop and wait for all workers to end
     pub fn stop_all_workers_and_wait(&mut self) {
         self.stop_all_workers(); // Signal every worker to stop
         let workers: Vec<_> = self.workers.drain().map(|(_, worker)| worker).collect();
 
         for worker in workers {
-            info!("Join {} {:#?}", worker.id, worker.work);
             worker.join(); // join here
         }
     }
 
+    /// Remove a worker from the list
+    /// Worker should have finished before calling this function
     fn remove_worker(&mut self, id: usize) {
-        info!("Remove {}", id);
         self.workers.remove(&id);
     }
+
+    /// Helper function so we can stop all workers except for the UI one
+    /// Very useful when changing exos and having to stop every worker working on the old one
     pub fn clean_non_ui_workers(&mut self) {
         let ids_to_remove: Vec<usize> = self
             .workers
