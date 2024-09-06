@@ -3,6 +3,7 @@ use similar::{ChangeTag, TextDiff};
 use super::{diff_type::DiffType, hunk::Hunk, line::Line, line_chunk::LineChunk};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+/// Represents a diff (allows us to show a difference like git-delta's github)
 pub struct Diff {
     differences: Vec<Hunk>,
 }
@@ -14,6 +15,8 @@ impl Diff {
     pub fn contains_differences(&self) -> bool {
         !self.differences.is_empty()
     }
+    /// Converts a difference to ansi colors, allowing us to show a basic diff
+    /// This allows us to easily debug to make sure everything is working
     pub fn to_ansi_colors(&self) -> String {
         let mut result = String::new();
         for (idx, diff) in self.differences.iter().enumerate() {
@@ -24,14 +27,16 @@ impl Diff {
         }
         result
     }
+    // Trims all line ends
     fn trim_lines(text: &str) -> String {
         text.lines()
             .map(|line| line.trim_end())
             .collect::<Vec<&str>>()
             .join("\n")
     }
-    // Based on similar sample https://github.com/mitsuhiko/similar/blob/844769ae19f7451c5a5be3505d8865100dd300a0/examples/terminal-inline.rs
-    //TODO add timeout param here for very large files
+    // Calculates the difference between old and new. Lines between two differences can be set
+    // Defaults to 3 if not set
+    // TODO add timeout param here for very large files
     pub fn calculate_difference(
         old: &str,
         new: &str,
@@ -42,6 +47,7 @@ impl Diff {
 
         let diff = TextDiff::from_lines(&old, &new);
 
+        // Based on similar sample https://github.com/mitsuhiko/similar/blob/844769ae19f7451c5a5be3505d8865100dd300a0/examples/terminal-inline.rs
         let mut differences = Vec::new();
         for group in &diff.grouped_ops(lines_between_changes.unwrap_or(3)) {
             let mut lines = Vec::new();

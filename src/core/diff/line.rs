@@ -3,6 +3,7 @@ use console::Style;
 use super::{diff_type::DiffType, line_chunk::LineChunk};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+//Represents a Line in a difference
 pub(super) struct Line {
     line_chunks: Vec<LineChunk>,
     missing_new_line: bool,
