@@ -48,7 +48,7 @@ impl Work for EditorOpener {
         let _ = self.runner.run(runner_tx, should_stop);
         while let Ok(msg) = rx.recv() {
             match msg {
-                RunEvent::ProcessCreationFailed(err) => {
+                RunEvent::ProcessCreationFailed(_err) => {
                     let _ = tx.send(Event::CouldNotOpenEditor);
                     return false;
                 }
