@@ -27,6 +27,12 @@ cargo install plx
 
 Once you have plx installed, you can try it on this repo's example folder
 
+[!IMPORTANT] 
+Set the $EDITOR environment variable if you wish for your editor to be opened when starting an exo
+
+[!WARNING] 
+The open editor feature is currently unstable, using a terminal based editor causes problems, in order to avoid k
+
 ```bash
 git clone git@github.com:plx-pdg/plx.git
 cd plx/examples/full
