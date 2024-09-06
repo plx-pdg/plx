@@ -1,7 +1,12 @@
 use crate::models::exo::Exo;
+use crate::models::exo_state::ExoState;
 use crate::models::skill::Skill;
 use crate::ui::pages::train::render_exo;
-use crate::ui::utils::{get_gradient_line, popup_area, render_header, LOGO_LEFT, LOGO_RIGHT};
+use crate::ui::utils::{
+    get_gradient_line, popup_area, render_header, EXO_DONE_COLOR, EXO_INPROGRESS_COLOR, LOGO_LEFT,
+    LOGO_RIGHT,
+};
+use ratatui::style::Stylize;
 use ratatui::widgets::{Clear, Wrap};
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
@@ -56,8 +61,8 @@ pub fn render_lists(
         "Skills",
         &skills
             .iter()
-            .map(|skill| skill.name.clone())
-            .collect::<Vec<_>>(),
+            .map(|skill| Line::from(skill.name.clone()))
+            .collect::<Vec<Line>>(),
         Some(*skill_index),
         is_skill_selection,
     );
@@ -66,7 +71,18 @@ pub fn render_lists(
         frame,
         exos_area,
         "Exos",
-        &exos.iter().map(|exo| exo.name.clone()).collect::<Vec<_>>(),
+        &exos
+            .iter()
+            .map(|exo| {
+                Line::from(exo.name.clone()).fg(match exo.state {
+                    //TODO: enable colors when states are fully managed
+                    // ExoState::Todo => Color::default(),
+                    // ExoState::InProgress => EXO_INPROGRESS_COLOR,
+                    // ExoState::Done => EXO_DONE_COLOR,
+                    _ => Color::default(),
+                })
+            })
+            .collect::<Vec<Line>>(),
         exo_index,
         !is_skill_selection,
     );
@@ -77,13 +93,13 @@ fn render_list(
     frame: &mut Frame,
     area: Rect,
     title: &str,
-    items: &[String],
+    items: &Vec<Line>,
     selected_index: Option<usize>,
     active_list: bool, // change the border style when the list is active
 ) {
     let list_items: Vec<ListItem> = items
         .iter()
-        .map(|item| ListItem::new(Line::from(item.clone())).style(DEFAULT_STYLE))
+        .map(|item| ListItem::new(item.clone()).style(DEFAULT_STYLE))
         .collect();
 
     let mut state = ListState::default();
