@@ -18,7 +18,6 @@ pub(crate) enum WorkEvent {
 
 /// Represents all information we have about a specific worker
 struct WorkInfo {
-    id: usize,
     work: WorkType,
     should_stop: Arc<AtomicBool>,
     join_handle: JoinHandle<()>,
@@ -32,14 +31,8 @@ pub struct WorkHandler {
     curr_work_id: usize,
 }
 impl WorkInfo {
-    fn new(
-        id: usize,
-        work: WorkType,
-        should_stop: Arc<AtomicBool>,
-        join_handle: JoinHandle<()>,
-    ) -> Self {
+    fn new(work: WorkType, should_stop: Arc<AtomicBool>, join_handle: JoinHandle<()>) -> Self {
         WorkInfo {
-            id,
             work,
             should_stop,
             join_handle,
@@ -89,7 +82,7 @@ impl WorkHandler {
         );
         let join_handle = worker.run_on_separate_thread();
         self.workers
-            .insert(id, WorkInfo::new(id, work_type, stop, join_handle));
+            .insert(id, WorkInfo::new(work_type, stop, join_handle));
         id
     }
 
