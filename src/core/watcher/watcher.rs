@@ -78,7 +78,7 @@ impl Work for FileWatcher {
                 false
             } else {
                 while !should_stop.load(std::sync::atomic::Ordering::Relaxed) {
-                    sleep(Duration::from_millis(10));
+                    sleep(Duration::from_millis(100));
                 }
                 true
             }
