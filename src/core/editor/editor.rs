@@ -7,7 +7,7 @@ pub fn get_default_editor() -> Option<String> {
             let valid_editors: Vec<String> = vec![
                 String::from("code"),
                 String::from("codium"),
-                String::from("idea"),
+                String::from("clion"),
             ];
             if valid_editors.contains(&editor) {
                 Some(editor)
