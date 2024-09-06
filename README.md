@@ -7,9 +7,9 @@
 
 ### Introduction
 
-PLX (Practice Learning eXperience) is a project developed to enhance the learning of programming languages, with a focus on a smooth and optimized user experience. The goal of this project is to reduce the usual friction involved in completing coding exercises (such as manual compilation, testing, and result verification) by automating these steps.
+PLX is a project developed to enhance the learning of programming languages, with a focus on a smooth and optimized learning experience. The goal of this project is to reduce the usual friction involved in completing coding exercises (such as manual compilation, running, testing, and result verification) by automating these steps.
 
-PLX offers a text-based user interface (TUI) developed in Rust and supports multiple languages (C, C++). It enables automatic compilation as soon as a file is saved, automated tests to compare program outputs, and instant display of errors and differences compared to a reference solution. The project draws inspiration from Rustlings and aims to create a more efficient learning experience, particularly for programming courses at HEIG-VD.### Installation
+PLX offers a terminal user interface (TUI) developed in Rust and supports multiple languages (currently C and C++). It enables automatic compilation as soon as a file is saved, automated checks to compare program outputs, and instant display of errors and output differences. The solution code can also be displayed. The project draws inspiration from [Rustlings](https://rustlings.cool/) and aims to create a more efficient learning experience, particularly for programming courses at HEIG-VD.
 
 ### Installation
 
@@ -42,6 +42,13 @@ git clone git@github.com:plx-pdg/plx.git
 cd plx/examples/full
 plx
 ```
+
+On Linux and MacOS, you can easily change `EDITOR` just for PLX, here is an example for `VSCode`.
+```sh
+EDITOR=code plx
+```
+
+The useful shortcuts are defined under shortcut `?`, you can mostly type `l`, `j` or `k` to move up and down, until you you reach the exo, then the editor should open and then you can do the exo (or just fill the solution next to it see `.sol.c` file), save and see changes...
 
 ### Building from source
 
