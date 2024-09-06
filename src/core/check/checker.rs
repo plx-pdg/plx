@@ -1,8 +1,11 @@
-use std::sync::Arc;
+use std::sync::{atomic::AtomicBool, mpsc::Sender, Arc};
 
 use crate::{
     core::work::{work::Work, work_type::WorkType},
-    models::check::{Check, CheckTest},
+    models::{
+        check::{Check, CheckTest},
+        event::Event,
+    },
 };
 
 use super::output_checker::OutputChecker;
@@ -25,11 +28,9 @@ impl Checker {
     }
 }
 impl Work for Checker {
-    fn run(
-        &self,
-        tx: std::sync::mpsc::Sender<crate::models::event::Event>,
-        stop: std::sync::Arc<std::sync::atomic::AtomicBool>,
-    ) -> bool {
+    /// Runs a check based on its type
+    fn run(&self, tx: Sender<Event>, stop: Arc<AtomicBool>) -> bool {
+        // Run dedicated checker based on check type
         match &self.check.test {
             CheckTest::Output { expected } => {
                 let output_checker = OutputChecker::new(self.id, &self.program_output, &expected);
