@@ -1,9 +1,12 @@
 pub mod app;
+mod check;
+mod compilation;
 mod errors;
-mod event_handler;
 mod exo_check_result;
 mod exo_status_report;
+mod file_watcher;
 mod key_press;
 mod navigation;
+mod run;
 mod transitions;
 mod utils;
