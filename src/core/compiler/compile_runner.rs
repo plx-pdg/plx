@@ -25,17 +25,7 @@ impl CompileRunner {
     // added to the output_path before calling this function
     pub fn new(compiler: &Compiler, exo: &Exo, output_path: &std::path::PathBuf) -> Option<Self> {
         let cmd = compiler.cmd();
-        let mut args = compiler.args(&exo.files);
-        match output_path.to_str() {
-            Some(path) => {
-                // TODO this should probably somewhere else like `compiler` because this is
-                // specific to gcc/g++
-                args.push(String::from("-fdiagnostics-color=always"));
-                args.push(String::from("-o"));
-                args.push(String::from(path));
-            }
-            None => return None,
-        }
+        let args = compiler.args(&exo.files, output_path);
         Some(Self {
             runner: Runner::new(String::from(cmd), args),
         })

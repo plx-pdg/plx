@@ -16,13 +16,29 @@ impl Compiler {
     }
 
     /// Gets the correct arguments to launch the compiler
-    /// TODO maybe this should also be responsible for adding -o in gcc/g++
-    /// Would make it easier to add new compilers without changing  `compile_runner`
-    pub fn args(&self, files: &Vec<std::path::PathBuf>) -> Vec<String> {
+    pub fn args(
+        &self,
+        files: &Vec<std::path::PathBuf>,
+        output_path: &std::path::PathBuf,
+    ) -> Vec<String> {
         match self {
-            Compiler::Gcc => Compiler::collect_files_with_extension(files, &["c"]),
-            Compiler::Gxx => Compiler::collect_files_with_extension(files, &["c", "cpp", "cc"]),
+            Compiler::Gcc => Compiler::gxx_args(files, output_path, &["c"]),
+            Compiler::Gxx => Compiler::gxx_args(files, output_path, &["c", "cpp", "cc"]),
         }
+    }
+    fn gxx_args(
+        files: &Vec<std::path::PathBuf>,
+        output_path: &std::path::PathBuf,
+        extensions: &[&str],
+    ) -> Vec<String> {
+        let path = output_path.to_str().unwrap_or("");
+        let mut args = Compiler::collect_files_with_extension(files, extensions);
+        args.extend([
+            String::from("-fdiagnostics-color=always"),
+            String::from("-o"),
+            String::from(path),
+        ]);
+        return args;
     }
 
     /// Collects the files in `files` that have an extension found in `allowed_extensions`
