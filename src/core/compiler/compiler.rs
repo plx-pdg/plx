@@ -1,4 +1,4 @@
-use crate::core::file_utils::file_utils::get_full_path;
+use crate::core::file_utils::file_utils::get_absolute_path;
 
 #[derive(Debug)]
 pub enum Compiler {
@@ -26,6 +26,8 @@ impl Compiler {
             Compiler::Gxx => Compiler::gxx_args(files, output_path, &["c", "cpp", "cc"]),
         }
     }
+
+    /// Gcc/G++ args generator
     fn gxx_args(
         files: &Vec<std::path::PathBuf>,
         output_path: &std::path::PathBuf,
@@ -50,7 +52,7 @@ impl Compiler {
             .iter()
             .filter_map(|file| {
                 if Compiler::has_valid_extension(file, allowed_extensions) {
-                    return get_full_path(file).ok();
+                    return get_absolute_path(file).ok();
                 }
                 None
             })
@@ -68,5 +70,138 @@ impl Compiler {
             return extensions.contains(&extension.to_str().unwrap_or_default());
         }
         false
+    }
+}
+#[cfg(test)]
+mod tests {
+
+    use std::path::PathBuf;
+
+    use crate::core::file_utils::file_utils::get_absolute_path;
+
+    use super::Compiler;
+
+    #[test]
+    fn test_collect_files_extension_one_extension() {
+        let files = vec![
+            PathBuf::from("main.c"),
+            PathBuf::from("queue.c"),
+            PathBuf::from("queue.h"),
+            PathBuf::from("queue.cpp"),
+        ];
+        let expected = vec![
+            String::from(
+                get_absolute_path(&PathBuf::from("main.c"))
+                    .unwrap()
+                    .to_str()
+                    .unwrap(),
+            ),
+            String::from(
+                get_absolute_path(&PathBuf::from("queue.c"))
+                    .unwrap()
+                    .to_str()
+                    .unwrap(),
+            ),
+        ];
+
+        let collected = Compiler::collect_files_with_extension(&files, &["c"]);
+        assert_eq!(expected, collected);
+    }
+
+    #[test]
+    fn test_collect_files_extension_multiple_extensions() {
+        let files = vec![
+            PathBuf::from("main.c"),
+            PathBuf::from("queue.c"),
+            PathBuf::from("queue.h"),
+            PathBuf::from("queue.cpp"),
+        ];
+        let expected = vec![
+            String::from(
+                get_absolute_path(&PathBuf::from("main.c"))
+                    .unwrap()
+                    .to_str()
+                    .unwrap(),
+            ),
+            String::from(
+                get_absolute_path(&PathBuf::from("queue.c"))
+                    .unwrap()
+                    .to_str()
+                    .unwrap(),
+            ),
+            String::from(
+                get_absolute_path(&PathBuf::from("queue.cpp"))
+                    .unwrap()
+                    .to_str()
+                    .unwrap(),
+            ),
+        ];
+
+        let collected = Compiler::collect_files_with_extension(&files, &["c", "cpp"]);
+
+        println!("{:#?}", collected);
+        assert_eq!(expected, collected);
+    }
+
+    #[test]
+    fn test_gxx_args_c() {
+        let files = vec![
+            PathBuf::from("main.c"),
+            PathBuf::from("queue.c"),
+            PathBuf::from("queue.h"),
+        ];
+        let output_path_string = String::from("target");
+
+        let expected = vec![
+            String::from(
+                get_absolute_path(&PathBuf::from("main.c"))
+                    .unwrap()
+                    .to_str()
+                    .unwrap(),
+            ),
+            String::from(
+                get_absolute_path(&PathBuf::from("queue.c"))
+                    .unwrap()
+                    .to_str()
+                    .unwrap(),
+            ),
+            String::from("-fdiagnostics-color=always"),
+            String::from("-o"),
+            output_path_string.clone(),
+        ];
+
+        let collected = Compiler::gxx_args(&files, &PathBuf::from(output_path_string), &["c"]);
+        assert_eq!(expected, collected);
+    }
+    #[test]
+    fn test_gxx_args_cpp() {
+        let files = vec![
+            PathBuf::from("main.c"),
+            PathBuf::from("queue.cpp"),
+            PathBuf::from("queue.h"),
+        ];
+        let output_path_string = String::from("target");
+
+        let expected = vec![
+            String::from(
+                get_absolute_path(&PathBuf::from("main.c"))
+                    .unwrap()
+                    .to_str()
+                    .unwrap(),
+            ),
+            String::from(
+                get_absolute_path(&PathBuf::from("queue.cpp"))
+                    .unwrap()
+                    .to_str()
+                    .unwrap(),
+            ),
+            String::from("-fdiagnostics-color=always"),
+            String::from("-o"),
+            output_path_string.clone(),
+        ];
+
+        let collected =
+            Compiler::gxx_args(&files, &PathBuf::from(output_path_string), &["c", "cpp"]);
+        assert_eq!(expected, collected);
     }
 }
