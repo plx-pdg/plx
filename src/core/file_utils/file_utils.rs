@@ -31,8 +31,10 @@ pub fn list_dir_files(dir: &std::path::PathBuf) -> Result<Vec<std::path::PathBuf
         .collect())
 }
 
-// From https://stackoverflow.com/a/38384901
+/// Gets the absolute path of path
+/// This function checks if the file exists
 pub fn get_full_path(path: &std::path::PathBuf) -> Result<std::path::PathBuf, io::Error> {
+    // From https://stackoverflow.com/a/38384901
     dunce::canonicalize(path)
 }
 /// Gets the absolute path of path without checking if the path actually exists
