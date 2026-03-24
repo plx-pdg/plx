@@ -107,5 +107,4 @@ Please take a look at some of the issues [here](https://github.com/plx-pdg/plx/i
 - Create a Pull Request
 
 ### License
-
-We are currently waiting for our school's approval before applying an open source license.
+The PLX project is released under the [MIT license](LICENSE).
